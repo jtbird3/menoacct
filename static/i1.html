@@ -147,8 +147,31 @@
     }
     #proof-display.visible { opacity: 1; }
     #proof-display .proof-just { font-style: normal; font-size: 10px; color: #888; margin-left: 8px; }
+    /* ── Custom keyboard (mobile only) ── */
+    #kb-bar {
+      display: none;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #f0f0f0; border-top: 1px solid #ccc;
+      padding: 8px 4px 12px; flex-direction: column;
+      gap: 6px; z-index: 100;
+    }
+    .kb-row { display: flex; justify-content: center; gap: 5px; }
+    .kb-key {
+      font-family: inherit; font-size: 15px; font-weight: bold;
+      height: 42px; min-width: 30px; flex: 1; max-width: 38px;
+      border: none; border-radius: 4px;
+      background: #fff; color: #000;
+      box-shadow: 0 1px 2px rgba(0,0,0,.25);
+      cursor: pointer; padding: 0;
+    }
+    .kb-key:active { background: #ccc; }
+    .kb-key.kb-wide  { max-width: 52px; font-size: 12px; }
+    .kb-key.kb-space { flex: 3; font-size: 13px; }
+    .kb-key.kb-enter { flex: 1; max-width: 72px; font-size: 13px; font-weight: bold; background: #000; color: #fff; }
+    .kb-key.kb-enter:active { background: #444; }
+
     @media (max-width: 600px) {
-      body { padding: 10px 10px 100px; font-size: 13px; overflow-x: hidden; }
+      body { padding: 10px 10px 230px; font-size: 13px; overflow-x: hidden; }
       h1 { font-size: 13px; margin-bottom: 6px; }
       #left-panel, #side-panel { display: none; }
       #diagram { height: clamp(140px, 30vh, 220px); }
@@ -234,7 +257,7 @@
 <div id="chat"></div>
 
 <div id="input-row">
-  <input id="text-input" type="text" placeholder="Your answer…" autocomplete="off">
+  <input id="text-input" type="text" placeholder="Your answer…" autocomplete="off" inputmode="none">
   <button id="send-btn">→</button>
 </div>
 
@@ -247,6 +270,21 @@
   <button id="btn-draw">Yes / Draw</button>
 </div>
 
+<div id="kb-bar">
+  <div class="kb-row">
+    <button class="kb-key" onclick="kbTap('q')">Q</button><button class="kb-key" onclick="kbTap('w')">W</button><button class="kb-key" onclick="kbTap('e')">E</button><button class="kb-key" onclick="kbTap('r')">R</button><button class="kb-key" onclick="kbTap('t')">T</button><button class="kb-key" onclick="kbTap('y')">Y</button><button class="kb-key" onclick="kbTap('u')">U</button><button class="kb-key" onclick="kbTap('i')">I</button><button class="kb-key" onclick="kbTap('o')">O</button><button class="kb-key" onclick="kbTap('p')">P</button>
+  </div>
+  <div class="kb-row">
+    <button class="kb-key" onclick="kbTap('a')">A</button><button class="kb-key" onclick="kbTap('s')">S</button><button class="kb-key" onclick="kbTap('d')">D</button><button class="kb-key" onclick="kbTap('f')">F</button><button class="kb-key" onclick="kbTap('g')">G</button><button class="kb-key" onclick="kbTap('h')">H</button><button class="kb-key" onclick="kbTap('j')">J</button><button class="kb-key" onclick="kbTap('k')">K</button><button class="kb-key" onclick="kbTap('l')">L</button>
+  </div>
+  <div class="kb-row">
+    <button class="kb-key kb-wide" onclick="kbBack()">⌫</button><button class="kb-key" onclick="kbTap('z')">Z</button><button class="kb-key" onclick="kbTap('x')">X</button><button class="kb-key" onclick="kbTap('c')">C</button><button class="kb-key" onclick="kbTap('v')">V</button><button class="kb-key" onclick="kbTap('b')">B</button><button class="kb-key" onclick="kbTap('n')">N</button><button class="kb-key" onclick="kbTap('m')">M</button><button class="kb-key kb-wide" onclick="kbBack()">⌫</button>
+  </div>
+  <div class="kb-row">
+    <button class="kb-key kb-space" onclick="kbTap(' ')">space</button>
+    <button class="kb-key kb-enter" onclick="kbEnter()">Enter</button>
+  </div>
+</div>
 
 <script>
 // ─────────────────────────────────────────────────────────────────────────────
@@ -614,16 +652,24 @@ function logEvent(role, message){
     body:JSON.stringify({proposition:1,step,role,message})});
 }
 
+const kbBar   = document.getElementById('kb-bar');
+const isMobile = () => window.innerWidth <= 600;
+
 function setMode(type){
   if(type==='done'){
-    ynBar.style.display='none'; drawBar.style.display='none';
+    ynBar.style.display='none'; drawBar.style.display='none'; kbBar.style.display='none';
     sendBtn.disabled=true; textInput.disabled=true; return;
   }
   ynBar.style.display   = type==='yn'   ? 'flex' : 'none';
   drawBar.style.display = type==='draw' ? 'flex' : 'none';
+  kbBar.style.display   = (type==='open' && isMobile()) ? 'flex' : 'none';
   sendBtn.disabled=type==='draw'; textInput.disabled=type==='draw';
-  if(type==='open') setTimeout(()=>textInput.focus(),50);
+  if(type==='open' && !isMobile()) setTimeout(()=>textInput.focus(),50);
 }
+
+function kbTap(ch){ textInput.value += ch; }
+function kbBack(){ textInput.value = textInput.value.slice(0,-1); }
+function kbEnter(){ submit(textInput.value); }
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Flow
