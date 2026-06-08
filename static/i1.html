@@ -93,8 +93,13 @@
     #chat {
       border: 1px solid #ccc; padding: 10px;
       flex: 1; min-height: 120px; max-height: 260px;
-      overflow-y: auto; display: flex; flex-direction: column;
-      gap: 8px; white-space: pre-wrap; margin-bottom: 10px;
+      overflow-y: auto; overflow-x: hidden;
+      display: flex; flex-direction: column;
+      gap: 8px; margin-bottom: 10px;
+    }
+    .msg-bot, .msg-user {
+      white-space: pre-wrap; word-break: break-word;
+      overflow-wrap: break-word; min-width: 0; max-width: 100%;
     }
     .msg-bot  { color: #000; }
     .msg-user { color: #777; text-align: right; }
