@@ -355,7 +355,8 @@ const STEPS = [
     ok: r => /circle|compass|post|\b3\b|\bthree\b/i.test(r),
     hint:'Postulate 3: To describe a circle with any centre and radius.',
     hint_linked_idx: 4,
-    text:null, side:null },
+    text:'Postulate 3: To describe a circle with any centre and distance.', just:'Post. 3',
+    side:null },
 
   { type:'draw',
     q:'Can we draw a circle with centre A, radius AB?',
@@ -682,7 +683,11 @@ function setMode(type){
   ynBar.style.display    = type==='yn'   ? 'flex' : 'none';
   drawBar.style.display  = type==='draw' ? 'flex' : 'none';
   kbBar.style.display    = (type==='open' && isMobile()) ? 'flex' : 'none';
-  if(type==='open' && isMobile()){ document.getElementById('kb-alpha').style.display=''; document.getElementById('kb-num').style.display='none'; }
+  if(type==='open' && isMobile()){
+    document.getElementById('kb-alpha').style.display='';
+    document.getElementById('kb-num').style.display='none';
+    setTimeout(()=>{ chatEl.scrollTop=chatEl.scrollHeight; }, 80);
+  }
   inputRow.style.display = type==='draw' ? 'none' : 'flex';
   sendBtn.disabled=type==='draw'; textInput.disabled=type==='draw';
   if(type==='open' && !isMobile()) setTimeout(()=>textInput.focus(),50);
@@ -777,7 +782,7 @@ document.addEventListener('keydown',e=>{
 });
 document.getElementById('btn-yes').addEventListener('click',()=>{ addMsg('Yes','user'); logEvent('user','Yes'); const s=STEPS[step]; revealStep(s); advance(); });
 document.getElementById('btn-no').addEventListener('click', ()=>{ addMsg('No','user');  logEvent('user','No'); addMsg(STEPS[step].no,'bot'); setTimeout(()=>addMsg(STEPS[step].q,'bot'),600); });
-document.getElementById('btn-draw').addEventListener('click',()=>{ logEvent('user','[drew]'); const s=STEPS[step]; revealStep(s); advance(); });
+document.getElementById('btn-draw').addEventListener('click',()=>{ addMsg('Yes / Draw','user'); logEvent('user','[drew]'); const s=STEPS[step]; revealStep(s); advance(); });
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Init
