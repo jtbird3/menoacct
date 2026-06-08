@@ -176,7 +176,7 @@
     .kb-key.kb-enter:active { background: #eee; }
 
     @media (max-width: 600px) {
-      body { padding: 10px 10px 230px; font-size: 13px; overflow-x: hidden; }
+      body { padding: 10px 10px 270px; font-size: 13px; overflow-x: hidden; }
       h1 { font-size: 13px; margin-bottom: 6px; }
       #left-panel, #side-panel { display: none; }
       #diagram { height: clamp(140px, 30vh, 220px); }
@@ -277,6 +277,9 @@
 
 <div id="kb-bar">
   <div class="kb-row">
+    <button class="kb-key" onclick="kbTap('1')">1</button><button class="kb-key" onclick="kbTap('2')">2</button><button class="kb-key" onclick="kbTap('3')">3</button><button class="kb-key" onclick="kbTap('4')">4</button><button class="kb-key" onclick="kbTap('5')">5</button><button class="kb-key" onclick="kbTap('6')">6</button><button class="kb-key" onclick="kbTap('7')">7</button><button class="kb-key" onclick="kbTap('8')">8</button><button class="kb-key" onclick="kbTap('9')">9</button><button class="kb-key" onclick="kbTap('0')">0</button>
+  </div>
+  <div class="kb-row">
     <button class="kb-key" onclick="kbTap('q')">Q</button><button class="kb-key" onclick="kbTap('w')">W</button><button class="kb-key" onclick="kbTap('e')">E</button><button class="kb-key" onclick="kbTap('r')">R</button><button class="kb-key" onclick="kbTap('t')">T</button><button class="kb-key" onclick="kbTap('y')">Y</button><button class="kb-key" onclick="kbTap('u')">U</button><button class="kb-key" onclick="kbTap('i')">I</button><button class="kb-key" onclick="kbTap('o')">O</button><button class="kb-key" onclick="kbTap('p')">P</button>
   </div>
   <div class="kb-row">
@@ -286,6 +289,7 @@
     <button class="kb-key kb-wide" onclick="kbBack()">⌫</button><button class="kb-key" onclick="kbTap('z')">Z</button><button class="kb-key" onclick="kbTap('x')">X</button><button class="kb-key" onclick="kbTap('c')">C</button><button class="kb-key" onclick="kbTap('v')">V</button><button class="kb-key" onclick="kbTap('b')">B</button><button class="kb-key" onclick="kbTap('n')">N</button><button class="kb-key" onclick="kbTap('m')">M</button><button class="kb-key kb-wide" onclick="kbBack()">⌫</button>
   </div>
   <div class="kb-row">
+    <button class="kb-key" onclick="kbTap('.')">.</button>
     <button class="kb-key kb-space" onclick="kbTap(' ')">space</button>
     <button class="kb-key kb-enter" onclick="kbEnter()">Enter</button>
   </div>
@@ -435,24 +439,6 @@ const STEPS = [
     q:'Why is it equilateral?',
     ok: r => /equal/i.test(r) && /side|three/i.test(r),
     hint:'State what we proved about the three sides.',
-    text:null, side:null },
-
-  { type:'open',
-    q:'What line was it constructed on?',
-    ok: r => /\bab\b/i.test(r),
-    hint:'Look at the base of the triangle.',
-    text:'...and it has been constructed on the given finite straight line AB.', just:null,
-    side:'on line AB' },
-
-  { type:'open',
-    q:'What did we set out to do?',
-    ok: r => /equilateral/i.test(r) && /\bab\b/i.test(r),
-    hint:'What kind of triangle, on which line?',
-    text:null, side:null },
-
-  { type:'yn',
-    q:'Have we done so?',
-    no:'Look at the completed triangle in the diagram.',
     text:null, side:null },
 
   { type:'open',
@@ -642,6 +628,7 @@ const textInput = document.getElementById('text-input');
 const sendBtn   = document.getElementById('send-btn');
 const ynBar     = document.getElementById('yn-bar');
 const drawBar   = document.getElementById('draw-bar');
+const inputRow  = document.getElementById('input-row');
 
 function addMsg(text, who){
   const d=document.createElement('div');
@@ -662,11 +649,13 @@ const isMobile = () => window.innerWidth <= 600;
 function setMode(type){
   if(type==='done'){
     ynBar.style.display='none'; drawBar.style.display='none'; kbBar.style.display='none';
+    inputRow.style.display='none';
     sendBtn.disabled=true; textInput.disabled=true; return;
   }
-  ynBar.style.display   = type==='yn'   ? 'flex' : 'none';
-  drawBar.style.display = type==='draw' ? 'flex' : 'none';
-  kbBar.style.display   = (type==='open' && isMobile()) ? 'flex' : 'none';
+  ynBar.style.display    = type==='yn'   ? 'flex' : 'none';
+  drawBar.style.display  = type==='draw' ? 'flex' : 'none';
+  kbBar.style.display    = (type==='open' && isMobile()) ? 'flex' : 'none';
+  inputRow.style.display = type==='draw' ? 'none' : 'flex';
   sendBtn.disabled=type==='draw'; textInput.disabled=type==='draw';
   if(type==='open' && !isMobile()) setTimeout(()=>textInput.focus(),50);
 }
@@ -733,9 +722,13 @@ function submit(raw){
       advance();
     } else {
       attempts++;
-      addMsg(s.hint,'bot');
-      if(s.hint_linked_idx !== undefined) setProofDisplay(s.hint_linked_idx);
-      if(attempts>=2){
+      if(attempts >= 2){
+        addMsg(s.hint,'bot');
+        if(s.hint_linked_idx !== undefined) setProofDisplay(s.hint_linked_idx);
+      } else {
+        addMsg('Not quite — try again.','bot');
+      }
+      if(attempts >= 3){
         revealStep(s);
         setTimeout(advance, 800);
       }
@@ -749,7 +742,7 @@ document.addEventListener('keydown',e=>{
   if(e.key==='Enter' && drawBar.style.display==='flex' && e.target!==textInput){ e.preventDefault(); document.getElementById('btn-draw').click(); }
 });
 document.getElementById('btn-yes').addEventListener('click',()=>{ addMsg('Yes','user'); logEvent('user','Yes'); const s=STEPS[step]; revealStep(s); advance(); });
-document.getElementById('btn-no').addEventListener('click', ()=>{ addMsg('No','user');  logEvent('user','No'); addMsg(STEPS[step].no,'bot'); });
+document.getElementById('btn-no').addEventListener('click', ()=>{ addMsg('No','user');  logEvent('user','No'); addMsg(STEPS[step].no,'bot'); setTimeout(()=>addMsg(STEPS[step].q,'bot'),600); });
 document.getElementById('btn-draw').addEventListener('click',()=>{ logEvent('user','[drew]'); const s=STEPS[step]; revealStep(s); advance(); });
 
 // ─────────────────────────────────────────────────────────────────────────────
