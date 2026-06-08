@@ -56,14 +56,16 @@
     <td><button class="view-btn" onclick="toggle('log-{{ c.user_id }}')">view</button></td>
   </tr>
   <tr class="log-row" id="log-{{ c.user_id }}">
-    <td class="log-cell" colspan="4">
+    <td class="log-cell" colspan="4" data-uid="{{ c.user_id }}">
       {% set evs = events_by_user.get(c.user_id, []) %}
       {% if evs %}
         {% for e in evs %}
-        <div class="log-line {{ e.role }}">
-          <div class="who">{% if e.role == 'user' %}{{ e.username }}{% else %}tutor{% endif %}</div>
+        {% if e.role == 'user' %}
+        <div class="log-line user" data-step="{{ e.step }}">
+          <div class="who">{{ e.username }}</div>
           <div class="msg">{{ e.message }}</div>
         </div>
+        {% endif %}
         {% endfor %}
       {% else %}
         <span class="muted">No conversation recorded.</span>
@@ -99,10 +101,58 @@
 </table>
 
 <script>
+const QUESTIONS = {
+  0:  'We are given a finite straight line AB. Can you see that?',
+  1:  'Our goal is to construct an equilateral triangle on the line AB. Ready to continue?',
+  2:  'What does it mean for a triangle to be equilateral?',
+  3:  'How do you suppose we might construct an equilateral triangle using circles and straight lines?',
+  4:  'Let us draw a circle with centre A, radius AB.',
+  5:  'Now let us draw another circle with centre B, radius BA.',
+  6:  'Do the two circles intersect?',
+  7:  'At how many points?',
+  8:  'Let us label one of those intersection points C.',
+  9:  'By what postulate can we connect C to A and C to B with straight lines?',
+  10: 'Let us draw lines CA and CB.',
+  11: 'Is AB a radius of circle A?',
+  12: 'Is AC a radius of circle A?',
+  13: 'What is true of all radii of the same circle?',
+  14: 'Are AB and AC equal?',
+  15: 'Is AB a radius of circle B?',
+  16: 'Is BC a radius of circle B?',
+  17: 'What is true of all radii of the same circle?',
+  18: 'Are AB and BC equal?',
+  19: 'So AC and BC both equal AB.',
+  20: 'What does Common Notion 1 state?',
+  21: 'What can we say about AC and BC?',
+  22: 'What can we say of all three sides?',
+  23: 'Have we drawn a triangle?',
+  24: 'Is it equilateral?',
+  25: 'Why is it equilateral?',
+  26: 'What line was it constructed on?',
+  27: 'What did we set out to do?',
+  28: 'Have we done so?',
+  29: 'Q.E.F. or Q.E.D.?',
+  30: 'Why Q.E.F. and not Q.E.D.?',
+};
+
 function toggle(id) {
   const row = document.getElementById(id);
   row.classList.toggle('open');
 }
+
+document.querySelectorAll('.log-cell[data-uid]').forEach(cell => {
+  const lines = cell.querySelectorAll('.log-line.user');
+  lines.forEach(line => {
+    const step = parseInt(line.dataset.step);
+    const q = QUESTIONS[step];
+    if (q) {
+      const tutorDiv = document.createElement('div');
+      tutorDiv.className = 'log-line bot';
+      tutorDiv.innerHTML = '<div class="who">tutor</div><div class="msg">' + q + '</div>';
+      cell.insertBefore(tutorDiv, line);
+    }
+  });
+});
 </script>
 </body>
 </html>
