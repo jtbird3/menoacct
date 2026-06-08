@@ -176,13 +176,26 @@
     .kb-key.kb-enter:active { background: #eee; }
 
     @media (max-width: 600px) {
-      body { padding: 10px 10px 270px; font-size: 13px; overflow-x: hidden; }
-      h1 { font-size: 13px; margin-bottom: 6px; }
+      html { overflow: hidden; }
+      body {
+        height: 100vh;
+        height: 100dvh;
+        min-height: unset;
+        overflow: hidden;
+        padding: 8px 10px 0;
+        font-size: 13px;
+        max-width: 100%;
+      }
+      h1 { font-size: 13px; margin-bottom: 6px; flex-shrink: 0; }
       #left-panel, #side-panel { display: none; }
-      #diagram { height: clamp(140px, 30vh, 220px); }
-      #chat { max-height: 160px; font-size: 13px; }
-      #proof-display { font-size: 11px; }
+      #diagram-row { flex-shrink: 0; margin-bottom: 6px; }
+      #diagram { height: clamp(110px, 22vh, 180px); }
+      #proof-display { font-size: 11px; flex-shrink: 0; }
+      #chat { flex: 1; min-height: 0; max-height: none; font-size: 13px; }
+      #input-row { flex-shrink: 0; }
       #text-input { font-size: 16px; }
+      #yn-bar, #draw-bar, #kb-bar { position: static; flex-shrink: 0; }
+      #kb-bar { padding-bottom: 10px; }
     }
   </style>
 </head>
