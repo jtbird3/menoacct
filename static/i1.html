@@ -481,8 +481,14 @@ const STEPS = [
 
   { type:'open',
     q:'Why Q.E.F. and not Q.E.D.?',
-    ok: r => /construct|make|buil|do\b|done|made|creat|form|faciendum|achiev|complet/i.test(r),
-    hint:'Did we prove a claim, or did we make something?',
+    ok: () => true,
+    hint:null,
+    text:null, side:null },
+
+  { type:'open',
+    q:'Did we prove a claim, or did we make something?',
+    ok: r => /make|made|construct|built|build|creat|do\b|done|form/i.test(r),
+    hint:'Think about what Q.E.F. stands for — "which was to be done." Did we demonstrate a truth, or produce a figure?',
     text:null, side:null },
 ];
 
