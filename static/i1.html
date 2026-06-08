@@ -272,9 +272,9 @@ const STEPS = [
     text:null, side:null },
 
   { type:'open',
-    q:'How do you suppose we might construct an equilateral triangle using circles and straight lines?',
+    q:'What does Postulate 3 allow us to do?',
     ok: r => /circle|compass|post|\b3\b|\bthree\b/i.test(r),
-    hint:'What does Postulate 3 allow us to do?',
+    hint:'Postulate 3: To describe a circle with any centre and radius.',
     hint_linked_idx: 4,
     text:null, side:null },
 
@@ -308,7 +308,7 @@ const STEPS = [
     side:'C = ⊙A ∩ ⊙B' },
 
   { type:'open',
-    q:'By what postulate can we connect C to A and C to B with straight lines?',
+    q:'What does Postulate 1 allow us to do?',
     ok: r => /post.{0,5}1|first.{0,10}post|postulate.{0,3}1|\b1\b|\bone\b/i.test(r),
     hint:'Postulate 1: To draw a straight line from any point to any point.',
     display_linked_idx: 10,
