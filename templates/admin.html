@@ -71,5 +71,23 @@
   {% endfor %}
 </table>
 
+<h2>Conversation log</h2>
+{% if events %}
+<table>
+  <tr><th>when</th><th>who</th><th>step</th><th>role</th><th>message</th></tr>
+  {% for e in events %}
+  <tr>
+    <td class="muted">{{ e.created_at[:16] }}</td>
+    <td class="muted">{{ e.username }}</td>
+    <td class="muted">{{ e.step }}</td>
+    <td class="{% if e.role == 'user' %}done{% else %}muted{% endif %}">{{ e.role }}</td>
+    <td>{{ e.message }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p class="muted">No events yet.</p>
+{% endif %}
+
 </body>
 </html>

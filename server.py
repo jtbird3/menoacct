@@ -204,7 +204,12 @@ async def admin(key: str = ''):
             FROM completions c JOIN users u ON c.user_id = u.id
             ORDER BY c.completed_at DESC
         ''').fetchall()
-    return render('admin.html', users=users, completions=completions, key=key)
+        events = con.execute('''
+            SELECT e.*, u.name, u.username
+            FROM events e JOIN users u ON e.user_id = u.id
+            ORDER BY e.created_at ASC
+        ''').fetchall()
+    return render('admin.html', users=users, completions=completions, events=events, key=key)
 
 @app.get('/admin/login', response_class=HTMLResponse)
 async def admin_login_get():
