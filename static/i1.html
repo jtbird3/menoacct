@@ -258,9 +258,10 @@ const STEPS = [
     text:'Let AB be the given finite straight line.', just:null,
     side:'Given: line AB' },
 
-  { type:'yn',
-    q:'Our goal is to construct an equilateral triangle on the line AB. Ready to continue?',
-    no:'An equilateral triangle has all three sides equal to one another. We will build one on AB using straightedge and compass.',
+  { type:'open',
+    q:'Our goal is to construct an equilateral triangle on the line AB. Can you restate the goal?',
+    ok: r => /equilateral/i.test(r) && /triangle/i.test(r),
+    hint:'What kind of triangle, on which line?',
     text:'It is required to construct an equilateral triangle on the straight line AB.', just:null,
     side:'Goal: equilateral △ on AB' },
 
@@ -278,13 +279,13 @@ const STEPS = [
     text:null, side:null },
 
   { type:'draw',
-    q:'Let us draw a circle with centre A, radius AB.',
+    q:'Can we draw a circle with centre A, radius AB?',
     reveal:['dc-ca'],
     text:'With centre A and distance AB let the circle BCD be described.', just:'Post. 3',
     side:'Draw ⊙A, r = AB' },
 
   { type:'draw',
-    q:'Now let us draw another circle with centre B, radius BA.',
+    q:'Can we draw another circle with centre B, radius BA?',
     reveal:['dc-cb'],
     text:'Again, with centre B and distance BA let the circle ACE be described.', just:'Post. 3',
     side:'Draw ⊙B, r = BA' },
@@ -301,7 +302,7 @@ const STEPS = [
     text:null, side:null },
 
   { type:'draw',
-    q:'Let us label one of those intersection points C.',
+    q:'Can we label one of those intersection points C?',
     reveal:['dc-pt'],
     text:'...from the point C, in which the circles cut one another...', just:null,
     side:'C = ⊙A ∩ ⊙B' },
@@ -314,53 +315,35 @@ const STEPS = [
     text:null, side:null },
 
   { type:'draw',
-    q:'Let us draw lines CA and CB.',
+    q:'Can we draw lines CA and CB?',
     reveal:['dc-side-ca','dc-side-cb'],
     text:'...to the points A, B let the straight lines CA, CB be joined.', just:'Post. 1',
     side:'Join CA, CB' },
 
-  { type:'yn',
-    q:'Is AB a radius of circle A?',
-    no:'AB runs from centre A to the circle — it was the radius used to draw circle A.',
-    text:null, side:null },
-
-  { type:'yn',
-    q:'Is AC a radius of circle A?',
-    no:'AC also runs from centre A to the circle — it is equally a radius of circle A.',
+  { type:'open',
+    q:'What are AB and AC, with respect to circle A?',
+    ok: r => /radi(us|i)/i.test(r),
+    hint:'What do we call a line segment from the centre of a circle to its edge?',
     text:null, side:null },
 
   { type:'open',
-    q:'What is true of all radii of the same circle?',
+    q:'So what can we say about their lengths?',
     ok: r => /equal/i.test(r),
-    hint:'Think about the definition of a circle — all points on it are equidistant from the centre.',
-    text:null, side:null },
-
-  { type:'yn',
-    q:'Are AB and AC equal?',
-    no:'Both AB and AC are radii of circle A. All radii of the same circle are equal.',
+    hint:'Radii of the same circle are all equal to one another.',
     reveal:['dc-t1'],
     text:'Since the point A is the centre of the circle CDB, AC is equal to AB.', just:'Def. 15',
     side:'AC = AB  (⊙A)' },
 
-  { type:'yn',
-    q:'Is AB a radius of circle B?',
-    no:'AB runs from centre B to the circle — it was the radius used to draw circle B.',
-    text:null, side:null },
-
-  { type:'yn',
-    q:'Is BC a radius of circle B?',
-    no:'BC also runs from centre B to the circle — it is equally a radius of circle B.',
+  { type:'open',
+    q:'What are AB and BC, with respect to circle B?',
+    ok: r => /radi(us|i)/i.test(r),
+    hint:'What do we call a line segment from the centre of a circle to its edge?',
     text:null, side:null },
 
   { type:'open',
-    q:'What is true of all radii of the same circle?',
+    q:'So what can we say about their lengths?',
     ok: r => /equal/i.test(r),
-    hint:'Think about the definition of a circle — all points on it are equidistant from the centre.',
-    text:null, side:null },
-
-  { type:'yn',
-    q:'Are AB and BC equal?',
-    no:'Both AB and BC are radii of circle B. All radii of the same circle are equal.',
+    hint:'Radii of the same circle are all equal to one another.',
     reveal:['dc-t2'],
     text:'Since the point B is the centre of the circle CAE, BC is equal to BA.', just:'Def. 15',
     side:'BC = BA  (⊙B)' },
@@ -392,15 +375,11 @@ const STEPS = [
     text:'Therefore the three straight lines CA, AB, BC are equal to one another.', just:null,
     side:'CA = AB = BC' },
 
-  { type:'yn',
-    q:'Have we drawn a triangle?',
-    no:'Three line segments, three vertices — what figure does that make?',
+  { type:'open',
+    q:'What have we constructed?',
+    ok: r => /equilateral/i.test(r) && /triangle/i.test(r),
+    hint:'It’s a triangle — but what kind?',
     reveal:['dc-fill'],
-    text:null, side:null },
-
-  { type:'yn',
-    q:'Is it equilateral?',
-    no:'We showed all three sides equal to one another.',
     text:'Therefore the triangle ABC is equilateral.', just:null,
     side:'△ABC equilateral' },
 
@@ -624,6 +603,11 @@ function addMsg(text, who){
   if(who==='bot') logEvent('bot', text);
 }
 
+function logEvent(role, message){
+  fetch('/api/event',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({proposition:1,step,role,message})});
+}
+
 function setMode(type){
   if(type==='done'){
     ynBar.style.display='none'; drawBar.style.display='none';
@@ -669,11 +653,6 @@ function showStep(){
 
   addMsg(s.q,'bot');
   setMode(s.type);
-}
-
-function logEvent(role, message){
-  fetch('/api/event',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({proposition:1,step,role,message})});
 }
 
 function submit(raw){
