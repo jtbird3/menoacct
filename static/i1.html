@@ -621,6 +621,7 @@ function addMsg(text, who){
   d.className = who==='user' ? 'msg-user' : 'msg-bot';
   d.textContent=text; chatEl.appendChild(d);
   chatEl.scrollTop=chatEl.scrollHeight;
+  if(who==='bot') logEvent('bot', text);
 }
 
 function setMode(type){
