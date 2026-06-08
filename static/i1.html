@@ -242,15 +242,6 @@
   <button id="btn-draw">Draw</button>
 </div>
 
-<script src="config.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-// Auth gate — redirect to login if not logged in
-const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
-_sb.auth.getSession().then(({ data: { session } }) => {
-  if (!session) window.location.href = 'login.html'
-})
-</script>
 <script>
 // ─────────────────────────────────────────────────────────────────────────────
 // SCRIPT — follows the user's authored flow exactly
@@ -655,9 +646,7 @@ function showStep(){
   updatePanels();
   if(step>=STEPS.length){
     addMsg(CONCLUSION,'bot'); setMode('done');
-    _sb.auth.getSession().then(({ data: { session } }) => {
-      if (session) _sb.from('completions').insert({ user_id: session.user.id, proposition: 1 })
-    })
+    fetch('/api/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({proposition:1})});
     return;
   }
   const s=STEPS[step];
@@ -679,10 +668,16 @@ function showStep(){
   setMode(s.type);
 }
 
+function logEvent(role, message){
+  fetch('/api/event',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({proposition:1,step,role,message})});
+}
+
 function submit(raw){
   const answer=raw.trim(); if(!answer) return;
   textInput.value='';
   addMsg(answer,'user');
+  logEvent('user', answer);
   const s=STEPS[step];
 
   if(s.type==='yn'){
@@ -715,9 +710,9 @@ textInput.addEventListener('keydown',e=>{ if(e.key==='Enter') submit(textInput.v
 document.addEventListener('keydown',e=>{
   if(e.key==='Enter' && drawBar.style.display==='flex' && e.target!==textInput){ e.preventDefault(); document.getElementById('btn-draw').click(); }
 });
-document.getElementById('btn-yes').addEventListener('click',()=>{ addMsg('Yes','user'); const s=STEPS[step]; revealStep(s); advance(); });
-document.getElementById('btn-no').addEventListener('click', ()=>{ addMsg('No','user');  addMsg(STEPS[step].no,'bot'); });
-document.getElementById('btn-draw').addEventListener('click',()=>{ const s=STEPS[step]; revealStep(s); advance(); });
+document.getElementById('btn-yes').addEventListener('click',()=>{ addMsg('Yes','user'); logEvent('user','Yes'); const s=STEPS[step]; revealStep(s); advance(); });
+document.getElementById('btn-no').addEventListener('click', ()=>{ addMsg('No','user');  logEvent('user','No'); addMsg(STEPS[step].no,'bot'); });
+document.getElementById('btn-draw').addEventListener('click',()=>{ logEvent('user','[drew]'); const s=STEPS[step]; revealStep(s); advance(); });
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Init
