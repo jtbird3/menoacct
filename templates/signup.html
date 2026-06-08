@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Sign up — Menochat Masters{% endblock %}
+{% block content %}
+<h1>Menochat Masters</h1>
+<p>Create your account to begin the challenge.</p>
+
+{% if error %}<div class="error">{{ error }}</div>{% endif %}
+
+<form method="post" action="/signup">
+  <div class="field">
+    <label>your name</label>
+    <input type="text" name="name" required autocomplete="name" spellcheck="false">
+  </div>
+  <div class="field">
+    <label>username</label>
+    <input type="text" name="username" required autocomplete="username" spellcheck="false">
+  </div>
+  <div class="field">
+    <label>password</label>
+    <input type="password" name="password" required autocomplete="new-password" minlength="8">
+  </div>
+  <div class="field">
+    <label>confirm password</label>
+    <input type="password" name="confirm" required autocomplete="new-password">
+  </div>
+  <button class="btn" type="submit">&gt; Create account</button>
+</form>
+<p class="muted">Already have an account? <a href="/login">Sign in.</a></p>
+{% endblock %}

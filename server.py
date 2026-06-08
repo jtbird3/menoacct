@@ -134,6 +134,50 @@ async def invite_post(
     request.session['user_id'] = user['id']
     return RedirectResponse('/welcome', status_code=303)
 
+# ── Open signup ───────────────────────────────────────────────────────────────
+
+@app.get('/signup', response_class=HTMLResponse)
+async def signup_get(request: Request):
+    if current_user(request):
+        return RedirectResponse('/welcome', status_code=303)
+    return render('signup.html', error=None)
+
+@app.post('/signup', response_class=HTMLResponse)
+async def signup_post(
+    request: Request,
+    name: str = Form(...), username: str = Form(...),
+    password: str = Form(...), confirm: str = Form(...)
+):
+    def err(msg):
+        return render('signup.html', error=msg)
+
+    if len(name.strip()) < 1:
+        return err('Please enter your name.')
+    if len(username) < 3:
+        return err('Username must be at least 3 characters.')
+    if len(password) < 8:
+        return err('Password must be at least 8 characters.')
+    if password != confirm:
+        return err('Passwords do not match.')
+
+    token = secrets.token_urlsafe(32)
+    email = f'{username}@signup.menochat.app'
+    with db() as con:
+        taken = con.execute('SELECT id FROM users WHERE username=?', (username,)).fetchone()
+        if taken:
+            return err('That username is taken — try another.')
+        try:
+            con.execute(
+                'INSERT INTO users (name, email, username, password_hash, invite_token) VALUES (?,?,?,?,?)',
+                (name.strip(), email, username, hash_password(password), token)
+            )
+            user = con.execute('SELECT * FROM users WHERE username=?', (username,)).fetchone()
+        except Exception:
+            return err('Something went wrong. Try a different username.')
+
+    request.session['user_id'] = user['id']
+    return RedirectResponse('/welcome', status_code=303)
+
 # ── Login / Logout ─────────────────────────────────────────────────────────────
 
 @app.get('/login', response_class=HTMLResponse)
