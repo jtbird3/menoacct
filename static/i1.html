@@ -348,12 +348,6 @@ const STEPS = [
     text:'Since the point B is the centre of the circle CAE, BC is equal to BA.', just:'Def. 15',
     side:'BC = BA  (⊙B)' },
 
-  { type:'say',
-    q:'So AC and BC both equal AB.',
-    reveal:[],
-    text:'But CA was also proved equal to AB; therefore each of CA, CB is equal to AB.', just:null,
-    side:null },
-
   { type:'open',
     q:'What does Common Notion 1 state?',
     ok: r => /equal/i.test(r) && (/same/i.test(r) || /another/i.test(r) || /thing/i.test(r)),
@@ -366,6 +360,12 @@ const STEPS = [
     ok: r => /equal/i.test(r),
     hint:'AC = AB and BC = AB. Apply Common Notion 1.',
     text:'Therefore CA is also equal to CB.', just:null,
+    side:null },
+
+  { type:'yn',
+    q:'So AC and BC both equal AB?',
+    no:'We showed AC = AB (radii of circle A) and BC = AB (radii of circle B).',
+    text:'But CA was also proved equal to AB; therefore each of CA, CB is equal to AB.', just:null,
     side:null },
 
   { type:'open',
