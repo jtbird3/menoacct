@@ -600,6 +600,12 @@ function addMsg(text, who){
   d.className = who==='user' ? 'msg-user' : 'msg-bot';
   d.textContent=text; chatEl.appendChild(d);
   chatEl.scrollTop=chatEl.scrollHeight;
+  if(who==='bot') logEvent('bot', text);
+}
+
+function logEvent(role, message){
+  fetch('/api/event',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({proposition:1,step,role,message})});
 }
 
 function setMode(type){
@@ -623,7 +629,13 @@ function advance(){
 
 function showStep(){
   updatePanels();
-  if(step>=STEPS.length){ addMsg(CONCLUSION,'bot'); setMode('done'); return; }
+  if(step>=STEPS.length){
+    addMsg(CONCLUSION,'bot'); setMode('done');
+    fetch('/api/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({proposition:1})})
+      .then(r=>{ if(r.ok) addMsg('✓ Your completion has been recorded.','bot'); else addMsg('(Could not record completion — are you logged in via /i1?)','bot'); })
+      .catch(()=>addMsg('(Network error recording completion.)','bot'));
+    return;
+  }
   const s=STEPS[step];
 
   if(s.type==='say'){
@@ -647,6 +659,7 @@ function submit(raw){
   const answer=raw.trim(); if(!answer) return;
   textInput.value='';
   addMsg(answer,'user');
+  logEvent('user', answer);
   const s=STEPS[step];
 
   if(s.type==='yn'){
@@ -679,9 +692,9 @@ textInput.addEventListener('keydown',e=>{ if(e.key==='Enter') submit(textInput.v
 document.addEventListener('keydown',e=>{
   if(e.key==='Enter' && drawBar.style.display==='flex' && e.target!==textInput){ e.preventDefault(); document.getElementById('btn-draw').click(); }
 });
-document.getElementById('btn-yes').addEventListener('click',()=>{ addMsg('Yes','user'); const s=STEPS[step]; revealStep(s); advance(); });
-document.getElementById('btn-no').addEventListener('click', ()=>{ addMsg('No','user');  addMsg(STEPS[step].no,'bot'); });
-document.getElementById('btn-draw').addEventListener('click',()=>{ const s=STEPS[step]; revealStep(s); advance(); });
+document.getElementById('btn-yes').addEventListener('click',()=>{ addMsg('Yes','user'); logEvent('user','Yes'); const s=STEPS[step]; revealStep(s); advance(); });
+document.getElementById('btn-no').addEventListener('click', ()=>{ addMsg('No','user');  logEvent('user','No'); addMsg(STEPS[step].no,'bot'); });
+document.getElementById('btn-draw').addEventListener('click',()=>{ logEvent('user','[drew]'); const s=STEPS[step]; revealStep(s); advance(); });
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Init
