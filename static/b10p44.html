@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.44</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.44 – Prove that a second bimedial straight line is divided at one point only.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+{ q: `Welcome to Elements X.44 chatbot!
+
+We are given a straight line AB, which is a second bimedial straight line. Do you agree? (yes/no):`,
+    hint: `A second bimedial straight line is defined earlier in Book X.` },
+    { q: `The line AB is divided at point C, so that AC and CB are medial straight lines commensurable in square only and containing a medial rectangle. Is that correct? (yes/no):`,
+    hint: `This is exactly the hypothesis of the proposition.` },
+    { q: `Is it clear that C is not the midpoint of AB? (yes/no):`,
+    hint: `AC and CB are not commensurable in length, so they cannot be equal.` },
+    { q: `Our goal is to prove that AB cannot be divided in this way at any other point. Does that make sense? (yes/no):`,
+    hint: `We want to show the division point is unique.` },
+    
+    { q: `Suppose, if possible, that AB is also divided at another point D. Can we assume this for contradiction? (yes/no):`,
+    hint: `Euclid often argues by contradiction.` },
+    { q: `Assume that AC is not equal to DB, and that AC is greater. Is this assumption allowed? (yes/no):`,
+    hint: `We may suppose one segment to be greater than the other.` },
+    { q: `Is it clear that the squares on AD and DB are less than the squares on AC and CB? (yes/no):`,
+    hint: `This was proved earlier in the Lemma.` },
+    { q: `Suppose further that AD and DB are medial straight lines commensurable in square only and containing a medial rectangle. Is this the same type of division? (yes/no):`,
+    hint: `This mirrors the original division at C.` },
+    
+    { q: `Now let a rational straight line EF be set out. Can we do this? (yes/no):`,
+    hint: `A rational straight line can always be assumed.` },
+    { q: `Let a rectangle EK equal to the square on AB be applied to EF. Is this construction permitted? (yes/no):`,
+    hint: `An area equal to a given square can be applied to a given straight line.` },
+    { q: `From EK subtract EG equal to the squares on AC and CB. Is this step clear? (yes/no):`,
+    hint: `EG represents the sum of the two squares.` },
+    { q: `Is the remainder HK equal to twice the rectangle AC, CB? (yes/no):`,
+    hint: `This follows from Proposition II.4.` },
+    
+    { q: `Again, subtract EL equal to the squares on AD and DB. Is this subtraction valid? (yes/no):`,
+    hint: `EL is constructed equal to those squares.` },
+    { q: `Is the remainder MK equal to twice the rectangle AD, DB? (yes/no):`,
+    hint: `The same reasoning as before applies.` },
+    
+    { q: `Since the squares on AC and CB are medial, is EG also medial? (yes/no):`,
+    hint: `A sum of medial areas is medial.` },
+    { q: `Since EG is applied to a rational straight line EF, is EH rational and incommensurable in length with EF? (yes/no):`,
+    hint: `This follows from Proposition X.22.` },
+    { q: `For the same reason, is HN also rational and incommensurable in length with EF? (yes/no):`,
+    hint: `The same construction applies.` },
+    
+    { q: `Since AC and CB are medial straight lines commensurable in square only, is AC incommensurable in length with CB? (yes/no):`,
+    hint: `This is part of the definition of being commensurable in square only.` },
+    { q: `As AC is to CB, so is the square on AC to the rectangle AC, CB. Do you agree? (yes/no):`,
+    hint: `This follows from the lemma relating a side’s ratio to the ratio of its square to the corresponding rectangle.` },
+    { q: `Is the square on AC therefore incommensurable with the rectangle AC, CB? (yes/no):`,
+    hint: `By Proposition X.11.` },
+    { q: `Are the squares on AC and CB commensurable with the square on AC? (yes/no):`,
+    hint: `AC and CB are commensurable in square, so their squares are commensurable.` },
+    { q: `Is twice the rectangle AC, CB commensurable with the rectangle AC, CB? (yes/no):`,
+    hint: `Proposition X.6.` },
+    { q: `Therefore, are the squares on AC and CB incommensurable with twice the rectangle AC, CB? (yes/no):`,
+    hint: `By Proposition X.13.` },
+    
+    { q: `Since EG equals the squares on AC and CB, and HK equals twice the rectangle AC, CB, is EG incommensurable with HK? (yes/no):`,
+    hint: `Equal magnitudes inherit commensurability properties.` },
+    { q: `Does it follow that EH is incommensurable in length with HN? (yes/no):`,
+    hint: `By VI.1 the rectangles on the same base have the ratio of their breadths, and by X.11 incommensurability passes to the corresponding sides.` },
+    { q: `Are EH and HN rational straight lines commensurable in square only? (yes/no):`,
+    hint: `Each is rational (from X.22) and they are incommensurable in length, while their squares are commensurable as they come from medial applications.` },
+    
+    { q: `If two rational straight lines commensurable in square only are added together, is the whole a binomial straight line? (yes/no):`,
+    hint: `This is Proposition X.36.` },
+    { q: `Therefore, is EN a binomial straight line divided at H? (yes/no):`,
+    hint: `EN is composed of EH and HN.` },
+    
+    { q: `In the same way, can EM and MN be proved rational straight lines commensurable in square only? (yes/no):`,
+    hint: `The argument repeats with AD and DB.` },
+    { q: `Is EN then a binomial straight line divided at two different points, H and M? (yes/no):`,
+    hint: `This follows from the constructions.` },
+    
+    { q: `Is EH different from MN? (yes/no):`,
+    hint: `Their magnitudes will be compared.` },
+    { q: `Are the squares on AC and CB greater than the squares on AD and DB? (yes/no):`,
+    hint: `This was established earlier.` },
+    { q: `Are the squares on AD and DB greater than twice the rectangle AD, DB? (yes/no):`,
+    hint: `From the inequalities that arise in the construction, the sum of squares exceeds the double rectangle.` },
+    { q: `Is EG therefore much greater than MK? (yes/no):`,
+    hint: `EG equals the squares on AC, CB; MK equals twice the rectangle AD, DB.` },
+    { q: `Does it follow that EH is greater than MN? (yes/no):`,
+    hint: `With the same base EF, a greater applied area gives a greater breadth.` },
+    { q: `Therefore, is EH not equal to MN? (yes/no):`,
+    hint: `Greater magnitudes cannot be equal.` },
+    
+    { q: `Since a binomial straight line cannot be divided in two different unequal ways, have we reached a contradiction? (yes/no):`,
+    hint: `The same binomial would have two distinct divisions, contrary to the uniqueness result for binomials.` },
+    { q: `Therefore, is it impossible for AB to be divided at another point besides C? (yes/no):`,
+    hint: `This negates the original supposition.` }
+]
+
+const conclusion = `Congratulations! You just proved that a second bimedial straight line is divided at one point only.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

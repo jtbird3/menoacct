@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Conics I.34</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>I.34 — Prove that the line joining a point on the latus transversum to a point on the section touches the section, given the ordinate cuts the latus transversum in proportional segments</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Apollonius' Conics I.34 chatbot!
+
+We are given a hyperbola, an ellipse, or the circumference of a circle with diameter AB. Do you agree? (yes/no):`,
+    hint: `The proposition applies to all three of these conic sections — a hyperbola, an ellipse, or a circle — each having a diameter AB.` },
+
+  { q: `Let some point C be taken on the section, and from C let CD be drawn as an ordinate to the diameter AB, where D lies on AB. Is this clear? (yes/no):`,
+    hint: `An ordinate is a line drawn from a point on the section to the diameter according to the section's conjugate direction. Any point on the section determines such an ordinate.` },
+
+  { q: `Now contrive point E on AB such that BD is to DA as BE is to EA, and join EC. Is this construction possible? (yes/no):`,
+    hint: `Given a ratio BD:DA, a point E on AB can always be found that divides AB in the same ratio. The segments from the same vertex are called homologous.` },
+
+  { q: `Our goal is to prove that the straight line EC touches the section — that is, it meets the section at C only and does not cut through it. Does that make sense? (yes/no):`,
+    hint: `A tangent line meets the conic at exactly one point. We will prove EC cannot cut the section anywhere else.` },
+
+  { q: `Suppose, for contradiction, that EC does not merely touch the section but cuts it, meeting it again at a point F, so that the line is ECF. May we assume this for the sake of argument? (yes/no):`,
+    hint: `We assume the opposite of what we want to prove. If a contradiction follows, the assumption must be false.` },
+
+  { q: `Take point F on the line ECF and drop GFH as an ordinate from F to the diameter, where G lies on AB and H lies on the section. Can we do this? (yes/no):`,
+    hint: `Any point on the section (or on a line cutting it) determines an ordinate to the diameter.` },
+
+  { q: `Through A and B draw straight lines AL and BK parallel to EC. Is this possible? (yes/no):`,
+    hint: `Through any given point a straight line parallel to a given straight line can be drawn (Euclid I.31).` },
+
+  { q: `Join DC, BC, and GC, and continue them until they meet BK, AL, and BK at points K, X, and M respectively. Can we form these connections and extensions? (yes/no):`,
+    hint: `Straight lines may be joined between any two points and extended beyond them indefinitely (Euclid Postulates 1 and 2).` },
+
+  { q: `Since BD:DA = BE:EA (by our construction), and since by Euclid VI.4 (equiangular triangles have proportional sides) we get BD:DA = BK:AN and BE:AE = BC:CK = BK:XN — do these proportions follow from the parallels and similar triangles in the figure? (yes/no):`,
+    hint: `Euclid VI.4 states that in equiangular triangles the sides about equal angles are proportional. The parallels AL and BK to EC create the required equiangular triangles.` },
+
+  { q: `Since BK:AN = BK:XN (both equal to the same ratio), does it follow that AN = NX? (yes/no):`,
+    hint: `If two ratios share the same antecedent (BK) and are equal, their consequents must be equal.` },
+
+  { q: `From AN = NX, can we apply Euclid II.5 and VI.27 to conclude that the rectangle AN·NX is greater than the rectangle AO·OX, where O is any other point between A and X? (yes/no):`,
+    hint: `Euclid II.5 shows that a line cut into equal and unequal parts satisfies a rectangle relation, and VI.27 establishes that the rectangle is maximal when the point is at the midpoint.` },
+
+  { q: `From pl.ANX > pl.AOX, does it follow that the ratio NX:XO is greater than the ratio OA:AN? (yes/no):`,
+    hint: `The inequality of rectangles with a shared factor leads to the corresponding inequality of ratios.` },
+
+  { q: `By Euclid VI.4 (similar triangles formed by the parallels), as NX is to XO so KB is to BM. Does it therefore follow that KB:BM is greater than OA:AN? (yes/no):`,
+    hint: `We substitute the equal ratio NX:XO = KB:BM into the inequality just established.` },
+
+  { q: `From the inequality of ratios KB:BM > OA:AN, does it follow that the rectangle KB·AN is greater than the rectangle BM·OA? (yes/no):`,
+    hint: `Unequal ratios with the same terms rearranged imply unequal products of the corresponding terms.` },
+
+  { q: `By Euclid V.8, since pl.KB·AN > pl.BM·OA, is the ratio pl.KB·AN : sq.CE greater than the ratio pl.BM·OA : sq.CE? (yes/no):`,
+    hint: `Euclid V.8: of two unequal magnitudes, the greater has a greater ratio to the same magnitude than the lesser does.` },
+
+  { q: `Because the triangles BKD, ECD, and NAD are similar (from the parallels), do we get the proportion pl.KB·AN : sq.CE = pl.BDA : sq.DE? (yes/no):`,
+    hint: `Similar triangles yield proportional sides and squares. The rectangles formed from corresponding sides are therefore proportional.` },
+
+  { q: `By an analogous argument for point G (and the similar triangles formed there), do we also obtain pl.BM·OA : sq.CE = pl.BGA : sq.GE? (yes/no):`,
+    hint: `The same reasoning applied to point F and ordinate GFH produces the analogous proportion at H.` },
+
+  { q: `Substituting these two proportions, does it follow that pl.BDA : sq.DE is greater than pl.BGA : sq.GE? (yes/no):`,
+    hint: `We replace the ratios in the inequality with the equal ratios just established.` },
+
+  { q: `By alternating the proportion, does it follow that pl.BDA : pl.BGA is greater than sq.DE : sq.GE? (yes/no):`,
+    hint: `Alternation of a proportion (Euclid V.16) allows us to swap the middle terms of the ratio.` },
+
+  { q: `By Conics I.21, as pl.BDA is to pl.AGB, so sq.CD is to sq.GH. Do you accept this application of I.21? (yes/no):`,
+    hint: `Conics I.21 is the fundamental property of conic sections relating the square on an ordinate to the rectangle formed by the diameter segments. Here it applies to both points C (ordinate CD) and H (ordinate GH).` },
+
+  { q: `By Euclid VI.4 and VI.22 (on similar triangles and squares on proportional lines), do we also get sq.DE : sq.GE = sq.CD : sq.FG? (yes/no):`,
+    hint: `Euclid VI.22 states that if four straight lines are proportional, their squares are also proportional. The similar triangles formed by the parallels give the base proportion.` },
+
+  { q: `Combining these results, is the ratio sq.CD : sq.HG greater than the ratio sq.CD : sq.FG? (yes/no):`,
+    hint: `We substitute both equal ratios into the inequality: the left side equals pl.BDA:pl.AGB and the right equals sq.DE:sq.GE, and we showed the left is greater.` },
+
+  { q: `By Euclid V.10 (the magnitude that has a greater ratio to the same is greater), does it follow that HG is less than FG? (yes/no):`,
+    hint: `Euclid V.10: when a magnitude has a smaller ratio to the same denominator, it is the smaller magnitude. Since sq.CD:sq.HG > sq.CD:sq.FG, we have sq.HG < sq.FG, hence HG < FG.` },
+
+  { q: `But HG < FG is impossible — H is on the section and F is supposed to be on the line ECF cutting through it, so FG cannot extend beyond H. Is this a contradiction? (yes/no):`,
+    hint: `The ordinate GFH was constructed so that H lies on the section and F lies between G and H on the ordinate line. HG < FG would mean F is farther from G than H is, which contradicts the construction.` },
+
+  { q: `Since assuming EC cuts the section leads to a contradiction, must the assumption be false — that is, does EC not cut the section? (yes/no):`,
+    hint: `A proof by contradiction: the assumption generated an impossibility, so the assumption itself is impossible.` },
+
+  { q: `Therefore, does the straight line EC touch the section at C? (yes/no):`,
+    hint: `A line from the section that neither cuts it nor lies entirely outside it must touch it — that is, it is a tangent.` },
+];
+
+const conclusion = `Congratulations! You just proved Apollonius' Conics I.34:
+
+If on a hyperbola, ellipse, or circle a point C is taken, and CD is drawn as an ordinate to diameter AB, and E is chosen on AB so that BD:DA = BE:EA (homologous segments), then the line EC touches the section.
+
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

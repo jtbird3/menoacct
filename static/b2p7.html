@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>B2P7 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>II.7 - Prove that if a line is cut, the square on the whole plus the square on one part equals twice the rectangle by the whole and that part plus the square on the other part.</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements II.7 chatbot!
+
+We are given a straight line AB cut at random at point C. Do you agree? (yes/no):`,
+    hint: `“Cut at random” means C is any point between A and B.` },
+  { q: `Our goal is to show: the square on the whole line AB together with the square on the segment BC is equal to twice the rectangle contained by AB and BC together with the square on AC. Does that make sense? (yes/no):`,
+    hint: `We are trying to show: AB² + BC² = 2(AB x BC) + AC²` },
+  { q: `First, let us describe the square ADEB on the line AB. Can we do this? (yes/no):`,
+    hint: `Proposition I.46 allows us to construct a square on any given straight line.` },
+  { q: `Can we join DB? (yes/no):`,
+    hint: `Postulate 1 allows us to draw a line from any point to any point.` },
+  { q: `Through point C, draw CN parallel to AD (or BE) crossing DB at G. Is this possible? (yes/no):`,
+    hint: `By I.31, we can draw a line parallel to a given line through a given point.` },
+  { q: `Through point G, draw HF parallel to AB (or DE). Can we do this?`,
+    hint: `Proposition I.31 ensures parallels can be drawn through a point.` },
+  { q: `We have drawn the construction so that AG is equal to GE. Does that make sense? (yes/no):`,
+    hint: `Proposition I.43 shows certain parallelogram complements about the diagonalare equal.` },
+  { q: `Now, if we add CF to both AG and GE, do we have AF equal to CE? (yes/no):`,
+    hint: `Adding equals to equals yields equals (Common Notion 2).` },
+  { q: `Therefore, do AF and CE together equal twice AF? (yes/no):`,
+    hint: `Since AF equals CE, their sum is double AF.` },
+  { q: `But AF and CE form the gnomon KLM and the square CF. Do you see this? (yes/no):`,
+    hint: `The gnomon is a figure made of parallelogram parts within the square; adding CF completes it.` },
+  { q: `So, is the gnomon KLM with the square CF equal to double AF? (yes/no):`,
+    hint: `We just established AF plus CE equals double AF, and AF plus CE is the same figure as gnomon plus CF.` },
+  { q: `Now, is double AF also equal to twice the rectangle contained by AB and BC? (yes/no):`,
+    hint: `Because BF is equal to BC, the rectangle formed by AB and BC corresponds exactly to AF.` },
+  { q: `Therefore, do we conclude the gnomon KLM together with the square CF is equal to twice the rectangle contained by AB and BC? (yes/no):`,
+    hint: `Both are equal to double AF.` },
+  { q: `Next, let us add the square on AC to both sides. Do you agree? (yes/no):`,
+    hint: `Adding the same figure to equals preserves equality (Common Notion 2).` },
+  { q: `So now, is the gnomon KLM together with the squares BG and GD equal to twice the rectangle contained by AB and BC together with the square on AC? (yes/no):`,
+    hint: `By adding the square on AC to both original expressions.` },
+  { q: `But the gnomon KLM together with the squares BG and GD make up the whole square ADEB plus CF. Do you see that? (yes/no):`,
+    hint: `These are exactly the complete squares constructed on AB and BC.` },
+  { q: `Therefore, do we conclude that the square on AB together with the square on BC is equal to twice the rectangle contained by AB and BC together with the square on AC? (yes/no):`,
+    hint: `This matches the relation we set as the goal.` }
+];
+
+const conclusion = `Congratulations! You just proved that the square on the whole line AB together with the square on the segment BC is equal to twice the rectangle contained by AB and BC together with the square on AC.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

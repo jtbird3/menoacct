@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>VI.20 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>VI.20 - Prove that similar polygons are divided into equal numbers of similar triangles in the same ratio as the whole polygons, and that the polygons are to one another in the duplicate ratio of their corresponding sides</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements VI.20 chatbot!
+
+We are given two similar polygons ABCDE and FGHKL, with the side AB corresponding to FG. Do you agree? (yes/no):`,
+    hint: `“Similar polygons” means all their corresponding angles are equal and their sides are proportional.` },
+  { q: `Our goal is to show that these polygons are divided into similar triangles equal in number and proportional, and that the polygon has to the polygon a ratio duplicate of that of the corresponding sides. Does that make sense? (yes/no):`,
+    hint: `The “duplicate ratio” means that if one side ratio is k : 1, the polygon areas are in ratio k² : 1.` },
+  { q: `Now join the diagonals BE, EC in ABCDE, and GL, LH in FGHKL. Can we do this? (yes/no):`,
+    hint: `Postulate 1 allows joining any two points by a straight line.` },
+  { q: `Since the polygons are similar, is ∠BAE = ∠GFL and AB : AE = GF : FL? (yes/no):`,
+    hint: `From the definition of similar polygons—equal angles and proportional sides about the equal angles.` },
+  { q: `Then, are triangles ABE and FGL similar? (yes/no):`,
+    hint: `They have one equal angle and the sides about it proportional (Prop. VI.6).` },
+  { q: `Therefore, is ∠ABE = ∠FGL? (yes/no):`,
+    hint: `Similar triangles are equiangular.` },
+  { q: `Because ∠ABC = ∠FGH (by polygon similarity), do we get ∠EBC = ∠LGH? (yes/no):`,
+    hint: `Subtract equals from equals—the remaining angles are equal.` },
+  { q: `From the previous proportional sides, do the sides about ∠EBC and ∠LGH stand in the same ratio? (yes/no):`,
+    hint: `By combining the proportional relations, ex aequali, EB : BC = LG : GH.` },
+  { q: `Then are triangles EBC and LGH similar? (yes/no):`,
+    hint: `Equal angles and proportional enclosing sides imply similarity (VI.6).` },
+  { q: `Likewise, are triangles ECD and LHK similar? (yes/no):`,
+    hint: `The same reasoning applies successively around the figure.` },
+  { q: `So have the polygons ABCDE and FGHKL been divided into similar triangles, equal in multitude? (yes/no):`,
+    hint: `Each triangle in one corresponds to a similar triangle in the other.` },
+  { q: `Do we now show that these triangles are in the same ratio as the wholes? (yes/no):`,
+    hint: `We will compare corresponding triangle areas through side ratios.` },
+  { q: `Join AC in ABCDE and FH in FGHKL. Possible? (yes/no):`,
+    hint: `Postulate 1 again allows drawing these diagonals.` },
+  { q: `Since ∠ABC = ∠FGH and AB : BC = FG : GH, are triangles ABC and FGH similar? (yes/no):`,
+    hint: `Two sides proportional and the included angle equal give similarity (VI.6).` },
+  { q: `From this, can we infer that ∠BAC = ∠GFH and ∠BCA = ∠GHF? (yes/no):`,
+    hint: `Similar triangles are equiangular.` },
+  { q: `Let internal points M on AC and N on FH be such that AM : MC = FN : NH. Is that allowed? (yes/no):`,
+    hint: `A line can be divided in any prescribed ratio (VI.10 implicitly).` },
+  { q: `Then, since the triangles about those points share the same proportional sides, are ΔAMB and ΔFNG similar? (yes/no):`,
+    hint: `Equal included angles at A and F ensure equiangularity.` },
+  { q: `Similarly, are ΔBMC and ΔGNH similar? (yes/no):`,
+    hint: `The construction mirrors the previous one.` },
+  { q: `Now, as AM : MC = FN : NH, do we have ΔAMB : ΔBMC = ΔFNG : ΔGNH? (yes/no):`,
+    hint: `Areas of similar triangles are in the duplicate ratio of corresponding sides (VI.19).` },
+  { q: `So, by composition, is ΔABE : ΔEBC = ΔFGL : ΔLGH? (yes/no):`,
+    hint: `Equal ratios of parts imply equal ratios of corresponding combined areas (V.12).` },
+  { q: `And again, as ΔEBC : ΔECD = ΔLGH : ΔLHK, do we have ΔABE : ΔFGL = ΔEBC : ΔLGH = ΔECD : ΔLHK? (yes/no):`,
+    hint: `The sequence of similar triangles yields proportion by equality of ratios.` },
+  { q: `Therefore, do all the antecedent triangles (ABE, EBC, ECD) stand to all the consequent triangles (FGL, LGH, LHK) in the same ratio? (yes/no):`,
+    hint: `By Book V Prop. 12, equal ratios taken part by part give equal ratio of the sums.` },
+  { q: `Hence, as ΔABE is to ΔFGL, so is polygon ABCDE to polygon FGHKL. Is that clear? (yes/no):`,
+    hint: `The sum of proportional parts preserves the ratio of the wholes.` },
+  { q: `Do similar triangles stand to one another in the duplicate ratio of their corresponding sides? (yes/no):`,
+    hint: `Proposition VI.19 states this directly.` },
+  { q: `Then, since ΔABE : ΔFGL is in the duplicate ratio of AB : FG, is the whole polygon ABCDE : FGHKL also in the duplicate ratio of AB : FG? (yes/no):`,
+    hint: `Equal ratios of each corresponding part extend to the whole figure.` },
+  { q: `Therefore, have we proved that similar polygons are divided into similar triangles equal in number and in the same ratio as the wholes, and that the polygons themselves are in the duplicate ratio of corresponding sides? (yes/no):`,
+    hint: `This completes the statement of Proposition VI.20.` }
+];
+
+const conclusion = `Congratulations! You just proved that similar polygons are divided into equal numbers of similar triangles in the same ratio as the whole polygons, and that the polygons are to one another in the duplicate ratio of their corresponding sides.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

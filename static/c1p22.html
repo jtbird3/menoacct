@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Conics I.22</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>I.22 - Prove that if a straight line cuts a hyperbola or parabola at two points without meeting the diameter inside the section, it will meet the diameter outside the section.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [{ q: `Welcome to Apollonius's Conics I.22 chatbot!
+
+We are given a parabola or a hyperbola whose diameter is AB. Do you agree? (yes/no):`,
+hint: `AB is stated to be the diameter of the section.` },
+{ q: `A straight line cuts the section at two points C and D, and does not meet the diameter AB inside the section. Let us mark C as the point farther from the vertex. Can we do this? (yes/no):`,
+hint: `The line meets the curve at C and D but avoids AB within the section.` },
+{ q: `Our goal is to show that the straight line CD, if continued, will meet AB outside the section. Does that make sense? (yes/no):`,
+hint: `We want to prove where the extension of CD meets the diameter.` },
+{ q: `From points C and D, let CE and DB be drawn as ordinates to the diameter AB. Is this construction allowed? (yes/no):`,
+hint: `Ordinates are drawn parallel to the axis of the section.` },
+
+{ q: `Case 1: The section is a parabola
+Assume first that the section is a parabola. Is that acceptable? (yes/no):`,
+hint: `The proof considers the parabola first.` },
+{ q: `In a parabola, is it true (by Proposition I.20) that as the square on CE is to the square on DB, so EA is to AB? (yes/no):`,
+hint: `This is a stated property of the parabola.` },
+{ q: `Is EA greater than AB? (yes/no):`,
+hint: `Point E lies beyond A on the diameter.` },
+{ q: `If EA is greater than AB, does it follow that the square on CE is greater than the square on DB? (yes/no):`,
+hint: `The ratios imply inequality of the squares.` },
+{ q: `If the square on CE is greater than the square on DB, is CE greater than DB? (yes/no):`,
+hint: `Greater squares imply greater lengths.` },
+{ q: `Are CE and DB parallel to one another? (yes/no):`,
+hint: `Both are ordinates to the diameter.` },
+{ q: `If one of two parallel ordinates is greater than the other, does Proposition I.10 imply that CD, when produced, will meet AB outside the section? (yes/no):`,
+hint: `This follows from the cited proposition.` },
+
+{ q: `Case 2: The section is a hyperbola
+Now let the section be a hyperbola with latus transversum AF. Is this acceptable? (yes/no):`,
+hint: `The argument now switches to the hyperbola.` },
+{ q: `In a hyperbola, is it true (by Proposition I.21) that as the square on CE is to the square on DB, so rectangle FE,EA is to rectangle FB,BA? (yes/no):`,
+hint: `This is the stated proportional property of the hyperbola.` },
+{ q: `Is rectangle FE,EA greater than rectangle FB,BA? (yes/no):`,
+hint: `EA is greater than AB, while FE equals FB.` },
+{ q: `If rectangle FE,EA is greater than rectangle FB,BA, does it follow that the square on CE is greater than the square on DB? (yes/no):`,
+hint: `The proportionality gives the inequality.` },
+{ q: `If the square on CE is greater than the square on DB, is CE greater than DB? (yes/no):`,
+hint: `Again, greater squares imply greater lengths.` },
+{ q: `Are CE and DB still parallel in the hyperbola case? (yes/no):`,
+hint: `They are ordinates in both cases.` },
+{ q: `Since CE is greater than DB and they are parallel, does it follow that CD, when continued, meets AB outside the section? (yes/no):`,
+hint: `The same reasoning as before applies.` },
+
+{ q: `Conclusion:
+Therefore, whether the section is a parabola or a hyperbola, does a straight line cutting it at two points without meeting the diameter inside, when continued, meet the diameter outside the section? (yes/no):`,
+hint: `Both cases lead to the same conclusion.` },
+
+]
+
+const conclusion = `Congratulations! You just proved that if a straight line cuts a hyperbola or parabola at two points without meeting the diameter inside the section, it will meet the diameter outside the section.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

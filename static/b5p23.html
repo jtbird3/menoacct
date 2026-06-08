@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>V.23 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>V.23 - Prove that if three magnitudes and another three are pairwise in the same ratios but in a perturbed order, they are also in the same ratio ex aequali</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements V.23 chatbot!
+
+We are given three magnitudes A, B, C, and others equal to them in multitude D, E, F in a perturbed order such that  A : B as E : F, and B : C as D : E. Do you agree? (yes/no):`,
+    hint: `Two sets of three magnitudes: A-B-C and D-E-F.` },
+  { q: `Our goal is to prove that as A is to C, so is D to F. Does that make sense? (yes/no):`,
+    hint: `Perturbed order but corresponding; “ex aequali” means equality carried through the sequence.` },
+  { q: `The given conditions are: as A is to B, so is E to F, and as B is to C, so is D to E. Do you see this relationship? (yes/no):`,
+    hint: `Perturbed pairs: A:B = E:F and B:C = D:E.` },
+  { q: `We must show that as A is to C, so is D to F. Does that follow as our target? (yes/no):`,
+    hint: `This is the ex aequali conclusion across the two triplets.` },
+  { q: `Let G, H, K be equimultiples of A, B, D, and L, M, N equimultiples of C, E, F. Can we do this? (yes/no):`,
+    hint: `By V.4/V.5 we may take equal multiples of given magnitudes.` },
+  { q: `Since G, H are equimultiples of A, B, do they have the same ratio as A, B? (yes/no):`,
+    hint: `V.15: equimultiples preserve the base ratio.` },
+  { q: `Similarly, since M, N are equimultiples of E, F, do they have the same ratio as E, F? (yes/no):`,
+    hint: `Again V.15: as E:F, so M:N.` },
+  { q: `Since as A : B = E : F, do we also have G : H = M : N? (yes/no):`,
+    hint: `V.11: substitute equals to keep ratios equal.` },
+  { q: `Next, since as B : C = D : E, do we also have the alternate ratio B : D = C : E? (yes/no):`,
+    hint: `V.16: alternando from equality of ratios.` },
+  { q: `Now, since H, K are equimultiples of B, D, is H : K = B : D? (yes/no):`,
+    hint: `V.15: equimultiples preserve ratio.` },
+  { q: `And since B : D = C : E, do we also have H : K = C : E? (yes/no):`,
+    hint: `V.11 lets us substitute equal ratios.` },
+  { q: `Because L, M are equimultiples of C, E, do we also have L : M = C : E? (yes/no):`,
+    hint: `V.15 applied to C and E.` },
+  { q: `Since H : K = C : E and L : M = C : E, can we conclude H : K = L : M? (yes/no):`,
+    hint: `Ratios equal to the same ratio are equal (V.11).` },
+  { q: `By alternation, does H : L = K : M? (yes/no):`,
+    hint: `V.16: alternation of equal ratios.` },
+  { q: `Earlier, we also had G : H = M : N. Do you see that now we have two triplets G–H–L and K–M–N in the same perturbed proportion? (yes/no):`,
+    hint: `They mirror the original perturbed pattern pairwise.` },
+  { q: `Since these triples correspond and the proportion is perturbed, are they in the same ratio ex aequali? (yes/no):`,
+    hint: `V.21: perturbed proportion yields ex aequali across the chain.` },
+  { q: `And since G, K are equimultiples of A, D, and L, N of C, F, does it follow that A : C = D : F? (yes/no):`,
+    hint: `Equimultiples preserve the relation, so the originals satisfy A:C = D:F.` }
+];
+
+const conclusion = `Congratulations! You just proved that if three magnitudes and another three are pairwise in the same ratios but in a perturbed order, they are also in the same ratio ex aequali.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

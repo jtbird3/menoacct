@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Template — MenoChat (Toggle: Pure ↔ Graph)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>II.4 - Prove that if a line is cut, the square on the whole equals the squares on the parts plus twice the rectangle by the parts**</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements II.4 chatbot!
+
+We are given a straight line AB, cut at random at C. Do you agree? (yes/no):`,
+    hint: `A “cut at random” just means that point C is any point between A and B.` },
+  { q: `Our goal is to prove: the square on AB equals the squares on AC, CB, plus twice the rectangle contained by AC and CB. Does that make sense? (yes/no):`,
+    hint: `This is a geometric version of the algebraic expression AB² = AC² + BC² + 2(AC x BC).` },
+  { q: `Now, let us describe the square ADEB on AB. Can we do this? (yes/no):`,
+    hint: `Proposition I.46 allows us to draw a square on any straight line.` },
+  { q: `Next, join BD. Possible? (yes/no):`,
+    hint: `By Postulate 1, we can join any two points with a straight line.` },
+  { q: `Through C, draw CF parallel to AD (or EB), crossing BD at point G. Can we do that? (yes/no):`,
+    hint: `Proposition I.31 allows us to draw a line parallel to a given line through a given point.` },
+  { q: `Through G, draw HK parallel to AB (or DE). Is this possible? (yes/no):`,
+    hint: `Proposition I.31 allows us to draw a line parallel to a given line through a given point.` },
+  { q: `Since CF ∥ AD, and BD meets them, is ∠CGB equal to ∠ADB? (yes/no):`,
+    hint: `Proposition I.29 states that an exterior angle equals the interior opposite angle when a straight line crosses parallels.` },
+  { q: `But ∠ADB = ∠ABD, since AD = AB. Do you see this? (yes/no):`,
+    hint: `In an isosceles triangle, the angles opposite equal sides are equal (Proposition I.5).` },
+  { q: `Therefore, is ∠CGB = ∠GBC, meaning GC = BC? (yes/no):`,
+    hint: `Proposition I.6 tells us that if two angles in a triangle are equal, the sides opposite them are also equal.` },
+  { q: `Now, CB = GK and CG = BK. Can we conclude GK = KB? (yes/no):`,
+    hint: `Proposition I.34: in a parallelogram, opposite sides are equal.` },
+  { q: `Thus, is CGKB equilateral? (yes/no):`,
+    hint: `All four sides are equal by the equalities just established.` },
+  { q: `Next, since CG ∥ BK, are ∠KBC and ∠GCB together equal to two right angles? (yes/no):`,
+    hint: `Proposition I.29: when a line crosses two parallels, the sum of interior angles is two right angles.` },
+  { q: `∠KBC is a right angle. Does that mean ∠BCG also right? (yes/no):`,
+    hint: `If two angles together equal two right angles, and one is already a right angle, the other must be right also.` },
+  { q: `Therefore, are the opposite angles CGK and GKB also right? (yes/no):`,
+    hint: `Proposition I.34: opposite angles of a parallelogram are equal.` },
+  { q: `So, is CGKB a square on CB? (yes/no):`,
+    hint: `It has all sides equal and all angles right, so it is a square.` },
+  { q: `For the same reason, is HF also a square on AC? (yes/no):`,
+    hint: `By the construction, HF is formed on AC in the same way using parallels and right angles. HF has all sides equal and all angles right, so it is a square on AC.` },
+  { q: `Therefore, are HF and KC the squares on AC and CB? (yes/no):`,
+    hint: `Yes, each is a square constructed on one of the segments.` },
+  { q: `Now, AG = GE, and AG is the rectangle AC, CB. Do you see this? (yes/no):`,
+    hint: `GC = CB, so AG is formed by AC x CB.` },
+  { q: `Therefore, are AG and GE together equal to twice the rectangle AC, CB? (yes/no):`,
+    hint: `Since each equals AC·CB, their sum is 2(AC x CB).` },
+  { q: `Finally, are the four areas HF, CK, AG, GE together equal to the square ADEB on AB? (yes/no):`,
+    hint: `HF + CK are the two small squares; AG + GE are the two rectangles; together they partition the large square.` },
+  { q: `Therefore, is the square on AB equal to the squares on AC, CB and twice the rectangle AC, CB? (yes/no):`,
+    hint: `This completes the identity geometrically.` }
+];
+
+const conclusion = `Congratulations! You just proved that the square on the whole line equals the sum of the squares on the parts plus twice the rectangle contained by them.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

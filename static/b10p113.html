@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.113</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.113 – Prove that applying the square on a rational straight line to an apotome produces a binomial of the same order.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+{ q: `Welcome to Elements X.113 chatbot!
+
+We are given a rational straight line A and an apotome BD. Do you agree? (yes/no):`,
+  hint: `A rational straight line has a rational square; an apotome is formed from two rational lines commensurable in square only.` },
+
+{ q: `Our goal is to apply the square on A to BD so that the breadth KH is a binomial with terms commensurable with those of BD and in the same ratio. Does that make sense? (yes/no):`,
+  hint: `The proposition shows that the square on a rational line, applied to an apotome, produces a binomial of the same order.` },
+
+{ q: `Let DC be the annex of BD, so that BC and CD are rational lines commensurable in square only. Do you see that? (yes/no):`,
+  hint: `By definition of an apotome, its parts (the whole and annex) are rational and commensurable in square only.` },
+
+{ q: `Let the rectangle BC·G also equal the square on A. Is that possible? (yes/no):`,
+  hint: `A rational square can be applied to the rational line BC to produce a rectangle equal to it, giving breadth G.` },
+
+{ q: `Since the rectangle BC·G equals the rectangle BD·KH, do we have the proportion BC:BD = KH:G? (yes/no):`,
+  hint: `From equality of rectangles, the sides about the equal angles are reciprocally proportional (VI.16 / VI.1 reasoning).` },
+
+{ q: `But BC > BD, so is KH > G? (yes/no):`,
+  hint: `If BC:BD = KH:G and BC > BD, then KH > G (V.14/V.16).` },
+
+{ q: `Let KE = G. Then is KE commensurable in length with BC? (yes/no):`,
+  hint: `G is a rational breadth produced on a rational base BC, so it is rational and commensurable in length with BC (X.20).` },
+
+{ q: `Since BC:BD = KH:KE, can we write BC:CD = KH:HE by convertendo? (yes/no):`,
+  hint: `Using conversion of ratios (V.19) with BD decomposed into BC and CD (apotome with annex).` },
+
+{ q: `If KH:HE = HF:FE, then is KF:FH = BC:CD? (yes/no):`,
+  hint: `By proportional decomposition of corresponding remainders and parts (Book V proportionality rules).` },
+
+{ q: `But BC and CD are commensurable in square only. Are KF and FH also commensurable in square only? (yes/no):`,
+  hint: `Equal ratios transfer the “commensurable in square only” condition (X.11-type transfer).` },
+
+{ q: `Since KF:FH = HF:FE, is the square on KF commensurable with the square on FH? (yes/no):`,
+  hint: `If lines are set in the required proportional relation, their squares stand in corresponding commensurable ratios (VI.22, X.11).` },
+
+{ q: `Then is KF commensurable in length with FE, and thus with KE? (yes/no):`,
+  hint: `Commensurability of squares under the proportional setup yields commensurability in length with the corresponding mean/term (X.15).` },
+
+{ q: `Since KE is rational and commensurable with BC, is KF also rational and commensurable with BC? (yes/no):`,
+  hint: `Commensurable in length with a rational straight line implies rational, and commensurability passes along commensurable chains.` },
+
+{ q: `Using alternation: since BC:CD = KF:FH and BC is commensurable with KF, is FH commensurable with CD? (yes/no):`,
+  hint: `Alternation and X.11 preserve commensurability relations across corresponding terms.` },
+
+{ q: `Are KF and FH rational straight lines commensurable in square only, so that KH is a binomial? (yes/no):`,
+  hint: `A binomial is composed of two rational terms commensurable in square only (Book X definition for binomials).` },
+
+{ q: `Does KH have the same order as BD regarding the relative sizes and term-structure? (yes/no):`,
+  hint: `Because the term ratios were constructed to match those of the apotome, the resulting binomial inherits the same order.` },
+
+{ q: `Therefore, has the square on a rational straight line applied to an apotome produced a binomial with terms commensurable with the apotome and of the same order? (yes/no):`,
+  hint: `This completes the proof as required. Q.E.D.` },
+]
+
+const conclusion = `Congratulations! You just proved prove that applying the square on a rational straight line to an apotome produces a binomial of the same order.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

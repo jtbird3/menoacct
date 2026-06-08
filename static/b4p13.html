@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>IV.13 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>IV.13 - Inscribe a circle in a given equilateral and equiangular pentagon</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements IV.13 chatbot!
+
+We are given an equilateral and equiangular pentagon ABCDE. Do you agree? (yes/no):`,
+    hint: `An equilateral pentagon has all sides equal, and an equiangular one has all interior angles equal.` },
+  { q: `Our goal is to inscribe a circle within the pentagon ABCDE. Does that make sense? (yes/no):`,
+    hint: `To “inscribe a circle” means to draw a circle that touches all sides of the polygon.` },
+  { q: `First, let the angles BCD and CDE be bisected by the straight lines CF and DF so they meet at F. Can we do that? (yes/no):`,
+    hint: `An angle can be bisected by a straight line (Proposition I.9).` },
+  { q: `Now, from point F, join the straight lines FB, FA, and FE. Possible? (yes/no):`,
+    hint: `By Postulate 1, a straight line can be drawn from any point to any point.` },
+  { q: `Since BC = CD and CF is common, and ∠BCF = ∠DCF, can we conclude BF = DF? (yes/no):`,
+    hint: `Triangles BCF and DCF have two sides equal and the included angle equal (SAS), so the bases are equal (Proposition I.4).` },
+  { q: `From this, are the triangles BCF and DCF equal in all respects? (yes/no):`,
+    hint: `Yes, by the Side-Angle-Side equality, the triangles are congruent.` },
+  { q: `Then, is ∠CBF equal to ∠CDF? (yes/no):`,
+    hint: `Corresponding angles in equal triangles are equal.` },
+  { q: `Since ∠CDE is double ∠CDF, and ∠CDE = ∠ABC, can we say ∠ABC is double ∠CBF? (yes/no):`,
+    hint: `Equal and double angle relations transfer across equal configurations.` },
+  { q: `Therefore, is ∠ABF equal to ∠FBC (meaning that BF bisects ∠ABC)? (yes/no):`,
+    hint: `If ∠ABC is twice ∠FBC, then BF divides ∠ABC equally.` },
+  { q: `By similar reasoning, are the angles BAE and AED also bisected by FA and FE respectively? (yes/no):`,
+    hint: `The same geometric logic applies symmetrically to other vertices.` },
+  { q: `Now, from point F, draw perpendiculars FG, FH, FK, FL, FM to the sides AB, BC, CD, DE, EA. Can we do that? (yes/no):`,
+    hint: `From a point to a straight line, a perpendicular can always be drawn (Proposition I.12).` },
+  { q: `Consider triangles FHC and FKC. They have ∠HCF = ∠KCF and both have a right angle. Is FH = FK? (yes/no):`,
+    hint: `Triangles with two equal angles and one equal side (FC) are congruent (AAS), by Proposition I.26.` },
+  { q: `By the same argument, are FG, FL, FM also equal to FH and FK? (yes/no):`,
+    hint: `Each perpendicular from F to a side of the pentagon is equal in length.` },
+  { q: `If all five perpendiculars FG, FH, FK, FL, FM are equal, can we draw a circle centered at F with radius FG that passes through all those points? (yes/no):`,
+    hint: `A circle is the set of all points equidistant from a center.` },
+  { q: `Does this circle also touch the sides AB, BC, CD, DE, EA? (yes/no):`,
+    hint: `A perpendicular from the center to a tangent meets it at the point of contact.` },
+  { q: `Suppose the circle cuts a side instead of touching it. Is that impossible? (yes/no):`,
+    hint: `By Proposition III.16, a line drawn at right angles to the diameter from its extremity cannot fall within the circle — so cutting would be impossible.` },
+  { q: `Therefore, does the circle with center F and radius FG (or any of FH, FK, FL, FM) touch all sides of the pentagon? (yes/no):`,
+    hint: `Yes, because all radii to the points of contact are equal and perpendicular to the sides.` }
+];
+
+const conclusion = `Congratulations! You just inscribed a circle in a given equilateral and equiangular pentagon.
+Q.E.F. (Quod Erat Faciendum — which was to be done)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

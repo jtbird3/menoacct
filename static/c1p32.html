@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Conics I.32</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+<h1>I.32 - Prove that a straight line drawn through the vertex of a conic section parallel to an ordinate touches the section, and that no other straight line falls between the section and this line</h1>
+
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [{ q: `Welcome to Apollonius' Conics I.32 chatbot!
+
+We are given a section of a cone, namely a parabola, whose diameter is AB and whose vertex is A. Do you agree? (yes/no):`, hint: `A hyperbola is a section of a cone with a single vertex and a diameter.` },
+{ q: `From point A, let AC be drawn parallel to an ordinate. Is this construction clear? (yes/no):`, hint: `AC passes through the vertex and is parallel to the ordinates of the parabola.` },
+{ q: `Our goal is to show that AC touches the section, and that no other straight line can fall between AC and the section. Does that make sense? (yes/no):`, hint: `We want to show AC is a limiting line.` },
+{ q: `It has already been shown (in Proposition I.17) that AC falls outside the section. Do you accept this? (yes/no):`, hint: `This is a previously established result.` },
+{ q: `Now suppose, for contradiction, that another straight line AD falls into the space between AC and the section. Is this assumption understood? (yes/no):`, hint: `We assume the opposite of what we want to prove.` },
+{ q: `Take an arbitrary point D on AD. Is that allowed? (yes/no):`, hint: `Any point may be chosen on a straight line.` },
+{ q: `From point D, let DE be dropped as an ordinate to the diameter AB, crossing the section at G. Can we do this? (yes/no):`, hint: `Ordinates are drawn perpendicular to the diameter.` },
+{ q: `Let AF be the latus rectum corresponding to ordinates to AB. Is this understood? (yes/no):`, hint: `The latus rectum determines the parabola’s defining ratio.` },
+{ q: `Is it given that the ratio of sq.DE to sq.EA is greater than the ratio of sq.GE to sq.EA? (yes/no):`, hint: `This follows from earlier propositions cited by Apollonius.` },
+{ q: `Is sq.GE equal to the rectangle FA, AE? (yes/no):`, hint: `This is a standard property of the parabola.` },
+{ q: `Can we conclude that the ratio sq.DE to sq.EA is greater than the ratio FA to EA? (yes/no):`, hint: `Equal ratios may be substituted.` },
+{ q: `Let it now be contrived that as sq.DE is to sq.EA, so FA is to AH (H is on diameter AB on A side of E). Is this construction possible? (yes/no):`, hint: `This is a proportional construction.` },
+{ q: `Through point H, let HLK be drawn parallel to ED. Can we do this? (yes/no):`, hint: `A line can be drawn parallel to a given line through a given point.` },
+{ q: `Is it true that as sq.DE is to sq.EA, so sq.KH is to sq.HA? (yes/no):`, hint: `This follows from Euclidean proportion theorems.` },
+{ q: `Is sq.HL equal to the rectangle FA, AH? (yes/no):`, hint: `This uses the same rectangular equality as before.` },
+{ q: `Do we now have that sq.KH equals sq.HL? (yes/no):`, hint: `Both are equal to the same rectangle.` },
+{ q: `Does this imply that KH equals HL? (yes/no):`, hint: `Equal squares imply equal lengths.` },
+{ q: `Is this equality impossible under the construction? (yes/no):`, hint: `The configuration does not allow KH = HL.` },
+{ q: `Therefore, is our original assumption false? (yes/no):`, hint: `The contradiction shows the assumption cannot hold.` },
+{ q: `Hence, does no straight line fall between AC and the parabola? (yes/no):`, hint: `This completes the first case.` },
+{ q: `Case 2: Hyperbola, Ellipse, or Circle`, hint: `` },
+{ q: `We are now given a hyperbola, ellipse, or a circle, whose diameter is AB and whose latus rectum is AF. Do you agree? (yes/no):`, hint: `These sections share a common analytical structure.` },
+{ q: `Let BF be joined and produced, and from A let AC be drawn parallel to an ordinate. Is this construction clear? (yes/no):`, hint: `AC again passes through the vertex.` },
+{ q: `It has been shown (in Proposition I.17) that AC falls outside the section. Do you accept this? (yes/no):`, hint: `This applies to these sections as well.` },
+{ q: `Our goal is again to show that no other straight line can fall between AC and the section. Does that make sense? (yes/no):`, hint: `The same limiting property is claimed.` },
+{ q: `Assume, for contradiction, that another straight line AD falls between AC and the section. Is this assumption understood? (yes/no):`, hint: `We again proceed by contradiction.` },
+{ q: `Choose an arbitrary point D on AD, and drop DE as an ordinate. Is this allowed? (yes/no):`, hint: `Ordinates are defined for these sections.` },
+{ q: `Let EM be drawn parallel to AF. Can we do this? (yes/no):`, hint: `A parallel can always be constructed.` },
+{ q: `Is sq.GE equal to the rectangle AE, EM? (yes/no):`, hint: `This follows from properties of these conic sections.` },
+{ q: `Let it be contrived that the rectangle AE, EN is equal to sq.DE. Is this construction possible? (yes/no):`, hint: `This is a standard proportional construction.` },
+{ q: `Let AN cut FM at X, and through X draw XH parallel to FA. Is this clear? (yes/no):`, hint: `This sets up the key proportions.` },
+{ q: `Through H, let HLK be drawn parallel to AC. Can we do this? (yes/no):`, hint: `Again, a parallel construction.` },
+{ q: `From the equality sq.DE = rect.AE, EN, do we get that as NE is to ED, so DE is to EA? (yes/no):`, hint: `This follows from Euclidean proportion theory.` },
+{ q: `Hence, is it true that as NE is to EA, so sq.DE is to sq.EA? (yes/no):`, hint: `This uses higher-order proportion results.` },
+{ q: `Is it also true that as NE is to EA, so XH is to HA? (yes/no):`, hint: `Corresponding parallels preserve ratios.` },
+{ q: `And as sq.DE is to sq.EA, so sq.KH is to sq.HA? (yes/no):`, hint: `This mirrors the earlier step.` },
+{ q: `Therefore, as XH is to HA, is KH to HA? (yes/no):`, hint: `This uses the porism to Euclid VI.19.` },
+{ q: `Does this imply that sq.KH equals the rectangle AH, HX? (yes/no):`, hint: `A square equals the corresponding rectangle.` },
+{ q: `But for the section, is sq.LH also equal to the rectangle AH, HX? (yes/no):`, hint: `This follows from the defining property of the section.` },
+{ q: `Do we then have sq.KH equal to sq.HL? (yes/no):`, hint: `Both equal the same rectangle.` },
+{ q: `Is this equality impossible in the given configuration? (yes/no):`, hint: `The geometry forbids it.` },
+{ q: `Therefore, is the assumption that another straight line falls between AC and the section false? (yes/no):`, hint: `The contradiction resolves the proof.` },
+
+
+
+
+]
+
+const conclusion = `Congratulations! You just proved that a straight line drawn through the vertex of a conic section parallel to an ordinate touches the section, and that no other straight line falls between the section and this line.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

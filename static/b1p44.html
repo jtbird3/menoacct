@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>I.44 — MenoChat (Toggle: Pure ↔ Graph)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>I.44 – Apply to a given straight line a parallelogram equal to a given triangle in a given angle</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements I.44 chatbot!
+
+We are given a straight line AB, a triangle C, and a rectilineal angle D. Do you agree? (yes/no):`,
+    hint: `AB is the base line, C is the reference triangle, and D is the given angle.` },
+  { q: `Our goal is to apply to AB a parallelogram equal to triangle C, in an angle equal to D. Does that make sense? (yes/no):`,
+    hint: `We want to construct a parallelogram along AB that both matches the triangle's area and matches the given angle.` },
+  { q: `First, can we construct a parallelogram BEFG equal to the triangle C, making angle EBG equal to D? (yes/no):`,
+    hint: `Proposition I.42 tells us how to build a parallelogram equal to a given triangle in a given angle.` },
+  { q: `Next, can we place BE so that it lies in a straight line with AB? (yes/no):`,
+    hint: `This aligns the construction with the given line AB.` },
+  { q: `Through F, draw FG continued to H. Through A, draw AH parallel to BG or EF. Can we do that? (yes/no):`,
+    hint: `Proposition I.31 lets us draw a line parallel to a given line through a given point.` },
+  { q: `Now, join HB. Possible? (yes/no):`,
+    hint: `By Postulate 1, a straight line may be drawn from any point to any point.` },
+  { q: `Since HF falls on the parallels AH and EF, are the angles AHF and HFE together equal to two right angles? (yes/no):`,
+    hint: `Proposition I.29 tells us that a straight line crossing parallels makes interior angles equal to two right angles.` },
+  { q: `So, are the angles BHG and GFE less than two right angles? (yes/no):`,
+    hint: `Subtracting from two right angles leaves less than two right angles.` },
+  { q: `By Postulate 5, do the lines HB and FE, if produced, meet at some point K? (yes/no):`,
+    hint: `Lines from angles less than two right angles must meet.` },
+  { q: `Through K, draw KL parallel to EA or FH. Can we do that? (yes/no):`,
+    hint: `Again, Proposition I.31 allows parallels to be drawn through a given point.` },
+  { q: `Produce HA and GB to meet KL at L and M. Is that possible? (yes/no):`,
+    hint: `Postulate 2 allows extension of lines.` },
+  { q: `Now, is HLKF a parallelogram with diameter HK? (yes/no):`,
+    hint: `By construction, opposite sides are parallel.` },
+  { q: `Then AG and ME are parallelograms, and LB, BF are the complements about diameter HK. Do you agree? (yes/no):`,
+    hint: `This is the definition of complements about a diagonal in a parallelogram.` },
+  { q: `From Proposition I.43, is LB equal to BF? (yes/no):`,
+    hint: `Complements of a parallelogram are equal.` },
+  { q: `Since BF equals triangle C, is LB also equal to C? (yes/no):`,
+    hint: `Things equal to the same thing are equal (Common Notion 1).` },
+  { q: `Also, is angle GBE equal to angle ABM? (yes/no):`,
+    hint: `Proposition I.15: if two lines cut one another, the opposite angles are equal.` },
+  { q: `But GBE equals D, so is ABM equal to D as well? (yes/no):`,
+    hint: `Equal angles to the same angle are equal.` },
+  { q: `Therefore, have we applied to AB a parallelogram LB equal to the triangle C, in the angle ABM equal to D? (yes/no):`,
+    hint: `This completes the construction as required.` }
+];
+
+const conclusion = `Congratulations! You have applied to the given straight line AB a parallelogram equal to the given triangle C in the given angle D.
+Q.E.F. (Quod Erat Faciendum — which was to be done).`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

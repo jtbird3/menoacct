@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements XII.1</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>XII.1 – Prove that similar polygons inscribed in circles are to one another as the squares on the diameters of the circles.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements XII.1 chatbot!
+
+We are given two circles, named ABC and FGH. Do you agree? (yes/no):`,
+    hint: `The letters ABC and FGH denote the circumferences of the two circles.` },
+
+  { q: `We are also given similar polygons ABCDE and FGHKL inscribed in these circles. Is that correct? (yes/no):`,
+    hint: `The polygons lie on the circumferences and are given to be similar.` },
+
+  { q: `We are given BM and GN as diameters of the circles. Do you agree? (yes/no):`,
+    hint: `A diameter is a straight line through the center of a circle.` },
+
+  { q: `First, let us join the straight lines BE and AM in the first circle. Can we do this? (yes/no):`,
+    hint: `Postulate 1 allows a straight line to be drawn from any point to any point.` },
+
+  { q: `Next, let us join the straight lines GL and FN in the second circle. Is this possible? (yes/no):`,
+    hint: `Again, Postulate 1 allows this construction.` },
+
+  { q: `Our goal is to show that, as the square on BM is to the square on GN, so is the polygon ABCDE to the polygon FGHKL. Does that make sense? (yes/no):`,
+    hint: `We are comparing areas using ratios derived from lengths.` },
+
+  { q: `Since the polygon ABCDE is similar to the polygon FGHKL, is the angle BAE equal to the angle GFL? (yes/no):`,
+    hint: `In similar polygons, corresponding angles are equal (VI. Def. 1).` },
+
+  { q: `And since the polygons are similar, is BA to AE as GF is to FL? (yes/no):`,
+    hint: `Corresponding sides of similar polygons are proportional.` },
+
+  { q: `Do triangles ABE and FGL have one angle equal and the sides about that angle proportional? (yes/no):`,
+    hint: `Angle BAE equals angle GFL, and BA : AE = GF : FL.` },
+
+  { q: `Therefore, are triangle ABE and triangle FGL equiangular? (yes/no):`,
+    hint: `By VI.6, triangles with one equal angle and proportional surrounding sides are equiangular.` },
+
+  { q: `If the triangles are equiangular, is the angle AEB equal to the angle FLG? (yes/no):`,
+    hint: `Corresponding angles in equiangular triangles are equal.` },
+
+  { q: `Is the angle AEB equal to the angle AMB, since they stand on the same circumference? (yes/no):`,
+    hint: `Angles standing on the same arc of a circle are equal (III.27).` },
+
+  { q: `Similarly, is the angle FLG equal to the angle FNG? (yes/no):`,
+    hint: `These angles also stand on the same circumference.` },
+
+  { q: `From this, can we conclude that the angle AMB is equal to the angle FNG? (yes/no):`,
+    hint: `Each equals a corresponding angle from the equiangular triangles.` },
+
+  { q: `Is the angle BAM a right angle? (yes/no):`,
+    hint: `An angle in a semicircle is a right angle (III.31).` },
+
+  { q: `And is the angle GFN also a right angle? (yes/no):`,
+    hint: `GN is a diameter, so the angle standing on it is right.` },
+
+  { q: `Since two angles are equal in triangles ABM and FGN, is the remaining angle equal to the remaining angle? (yes/no):`,
+    hint: `If two angles are equal respectively, the third angles are equal (I.32).` },
+
+  { q: `Therefore, are triangle ABM and triangle FGN equiangular? (yes/no):`,
+    hint: `All three angles correspond and are equal.` },
+
+  { q: `From the equiangular triangles, is BA to GF as BM is to GN? (yes/no):`,
+    hint: `In equiangular triangles, corresponding sides are proportional (VI.4).` },
+
+  { q: `Is the ratio of the square on BM to the square on GN the duplicate ratio of BM to GN? (yes/no):`,
+    hint: `By VI.20, areas of squares have duplicate ratios of their sides.` },
+
+  { q: `Is the ratio of polygon ABCDE to polygon FGHKL the duplicate ratio of BA to GF? (yes/no):`,
+    hint: `Similar polygons are in the duplicate ratio of corresponding sides (VI.20).` },
+
+  { q: `Therefore, can we conclude that, as the square on BM is to the square on GN, so is the polygon ABCDE to the polygon FGHKL? (yes/no):`,
+    hint: `Things having the same duplicate ratios are proportional.` }
+]
+
+const conclusion = `Congratulations! You just proved that similar polygons inscribed in circles are to one another as the squares on the diameters of the circles.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

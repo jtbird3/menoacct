@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>V.10 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>V.10 - Of magnitudes with a ratio to the same, the one with the greater ratio is greater; and that to which the same has a greater ratio is less</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements V.10 chatbot!
+
+We are given three magnitudes, A, B, and C, such that A has to C a greater ratio than B has to C. Do you agree? (yes/no):`,
+    hint: `“A has to C a greater ratio than B has to C” means the comparison of A to C exceeds that of B to C in magnitude ratio.` },
+  { q: `Our goal is to prove that A is greater than B. Does that make sense? (yes/no):`,
+    hint: `A greater ratio to the same third magnitude implies the first magnitude itself is greater.` },
+  { q: `If A were not greater than B, must it be either equal to or less than B? (yes/no):`,
+    hint: `Every magnitude must be either greater than, equal to, or less than another.` },
+  { q: `If A were equal to B, would A and B have the same ratio to C? (yes/no):`,
+    hint: `By Proposition V.7, equal magnitudes have the same ratio to the same magnitude.` },
+  { q: `But they do not have the same ratio to C. Therefore, A is not equal to B. Do you agree? (yes/no):`,
+    hint: `Since their ratios differ, equality is impossible.` },
+  { q: `If A were less than B, would A have to C a less ratio than B has to C? (yes/no):`,
+    hint: `By Proposition V.8, the lesser magnitude has to the same a lesser ratio.` },
+  { q: `But A has a greater ratio to C than B has to C. Therefore, A is not less than B. Does that follow? (yes/no):`,
+    hint: `The assumption contradicts the given.` },
+  { q: `Since A is neither equal to nor less than B, must A be greater than B? (yes/no):`,
+    hint: `Of the three possibilities—greater, equal, less—only “greater” remains.` },
+  { q: `Now let us take the converse: C has to B a greater ratio than C has to A. Ready? (yes/no):`,
+    hint: `The same comparison is now reversed; C is the first term in each ratio.` },
+  { q: `Our goal now is to prove that B is less than A. Does that make sense? (yes/no):`,
+    hint: `When the same magnitude has a greater ratio to one than to another, the first is less.` },
+  { q: `If B were not less than A, must it be either equal to or greater than A? (yes/no):`,
+    hint: `Again, the only alternatives are equality or being greater.` },
+  { q: `If B were equal to A, would C have the same ratio to each? (yes/no):`,
+    hint: `By Proposition V.7, equal magnitudes yield equal ratios to the same.` },
+  { q: `But C does not have the same ratio to A and B. Therefore, B is not equal to A. Do you agree? (yes/no):`,
+    hint: `The given forbids equality.` },
+  { q: `If B were greater than A, would C have to B a less ratio than to A? (yes/no):`,
+    hint: `By Proposition V.8, the same magnitude has to the greater a less ratio.` },
+  { q: `But C has a greater ratio to B than to A. So B is not greater than A. Does that follow? (yes/no):`,
+    hint: `This contradicts the given condition.` },
+  { q: `Since B is neither equal to nor greater than A, must it be less than A? (yes/no):`,
+    hint: `By elimination, “less” is the only possible relation.` }
+];
+
+const conclusion = `Congratulations! You just proved that of magnitudes with a ratio to the same, the one with the greater ratio is greater; and that to which the same has a greater ratio is less.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

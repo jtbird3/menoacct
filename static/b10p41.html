@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.41</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.41 – Prove that if two straight lines incommensurable in square, whose sum of squares is medial and whose rectangle is medial and incommensurable with the sum of the squares, are added together, the whole straight line is irrational; let it be called the side of the sum of two medial areas.</h1><div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements X.41 chatbot!
+
+We are given two straight lines AB and BC, which are incommensurable in square. Do you agree? (yes/no):`,
+hint: `This is stated in the hypothesis of the proposition.` },
+{ q: `We are also told that the sum of the squares on AB and BC is medial. Is that correct? (yes/no):`,
+hint: `This is one of the given conditions.` },
+{ q: `We are further told that the rectangle contained by AB and BC is medial and incommensurable with the sum of the squares on them. Do you agree? (yes/no):`,
+hint: `This completes the given conditions, as in X.35.` },
+{ q: `We now add the straight lines AB and BC together to form AC. Is that what is done? (yes/no):`,
+hint: `AC is the whole straight line formed from AB and BC.` },
+{ q: `Our goal is to prove that AC is irrational, and to name it the side of the sum of two medial areas. Does that make sense? (yes/no):`,
+hint: `This is exactly the claim of the proposition.` },
+
+{ q: `Let a rational straight line DE be set out. Can we do this? (yes/no):`,
+hint: `Euclid often begins by setting out a rational straight line for comparison.` },
+{ q: `To DE, let the rectangle DF be applied equal to the squares on AB and BC together. Is this possible? (yes/no):`,
+hint: `A rectangle equal to a given area can be applied to a given line.` },
+{ q: `Let the rectangle GH be applied equal to twice the rectangle contained by AB and BC. Can we also do this? (yes/no):`,
+hint: `Twice a given rectangle can likewise be constructed.` },
+{ q: `Therefore, is the whole rectangle DH equal to the square on AC? (yes/no):`,
+hint: `By II.4, (square on AC) = (squares on AB and BC) + 2·(rectangle AB,BC).` },
+
+{ q: `Since the sum of the squares on AB and BC is medial, and DF is equal to that sum, is DF medial? (yes/no):`,
+hint: `Equals to the same thing are of the same type.` },
+{ q: `Is DF applied to the rational straight line DE? (yes/no):`,
+hint: `DF was constructed upon DE.` },
+{ q: `Therefore, is DG rational and incommensurable in length with DE? (yes/no):`,
+hint: `By X.22, a medial area applied to a rational line produces a rational breadth incommensurable in length with the base.` },
+{ q: `For the same reason, is GK also rational and incommensurable in length with GF, that is, with DE? (yes/no):`,
+hint: `Applying a medial area to the same rational base yields the same kind of breadth relation.` },
+
+{ q: `Since the squares on AB and BC are incommensurable with twice the rectangle AB, BC, is DF incommensurable with GH? (yes/no):`,
+hint: `DF equals the sum of squares, and GH equals twice the rectangle; the given incommensurability transfers by equality.` },
+{ q: `Therefore, are DG and GK also incommensurable with one another? (yes/no):`,
+hint: `By VI.1 the rectangles on the same base have the ratio of their breadths, and by X.11 incommensurability of areas implies incommensurability of the corresponding sides.` },
+{ q: `Are DG and GK nevertheless rational straight lines? (yes/no):`,
+hint: `Each arises as the breadth from a medial area applied to a rational base, hence is rational (X.22).` },
+{ q: `Since they are rational and commensurable in square only, is DK irrational and called binomial? (yes/no):`,
+hint: `By X.36, the sum of two rational straight lines commensurable in square only is an irrational straight line called binomial.` },
+
+{ q: `Is DE rational? (yes/no):`,
+hint: `DE was assumed rational at the start.` },
+{ q: `Therefore, is DH irrational? (yes/no):`,
+hint: `DH is the rectangle on DE with breadth DK; since DK is irrational, the resulting area cannot be rational.` },
+{ q: `Is the side of the square equal to DH irrational? (yes/no):`,
+hint: `By Definition X.4, if the square is irrational, its side is irrational.` },
+{ q: `But is AC the side of the square equal to DH? (yes/no):`,
+hint: `DH was constructed equal to the square on AC.` },
+{ q: `Therefore, is AC irrational? (yes/no):`,
+hint: `This is the required conclusion.` },
+{ q: `And is AC rightly called the side of the sum of two medial areas? (yes/no):`,
+hint: `Its defining construction uses the sum of two medial squares (and the associated medial rectangle) to form the square on AC.` },
+{ q: `Therefore, have we demonstrated the proposition? (yes/no):`,
+hint: `All required properties and the naming have been established.` },
+
+{ q: `Let the straight line AB be set out and cut into unequal parts at points C and D. Do you agree? (yes/no):`,
+hint: `This sets up the lemma.` },
+{ q: `Let AC be greater than DB. Is this assumed? (yes/no):`,
+hint: `This is given in the lemma.` },
+{ q: `Our goal is to show that the squares on AC and CB are greater than the squares on AD and DB. Does that make sense? (yes/no):`,
+hint: `This is the lemma's claim.` },
+
+{ q: `Let AB be bisected at E. Is this possible? (yes/no):`,
+hint: `Any straight line can be bisected.` },
+{ q: `Since AC is greater than DB, if DC is subtracted from each, is AD greater than CB? (yes/no):`,
+hint: `Subtracting equals from unequals preserves inequality.` },
+{ q: `Is AE equal to EB? (yes/no):`,
+hint: `E is the midpoint.` },
+{ q: `Therefore, is DE less than EC? (yes/no):`,
+hint: `If AD > CB, then D lies farther from E than C does on the opposite side, so DE < EC.` },
+{ q: `So are points C and D not equidistant from E? (yes/no):`,
+hint: `This restates the inequality DE ≠ EC.` },
+
+{ q: `Is the rectangle AC, CB together with the square on EC equal to the square on EB? (yes/no):`,
+hint: `By Proposition II.5.` },
+{ q: `Is the rectangle AD, DB together with the square on DE also equal to the square on EB? (yes/no):`,
+hint: `The same proposition applies.` },
+{ q: `Therefore, are these two sums equal to one another? (yes/no):`,
+hint: `Things equal to the same thing are equal.` },
+{ q: `Of these, is the square on DE less than the square on EC? (yes/no):`,
+hint: `Because DE < EC.` },
+{ q: `Therefore, is the rectangle AC, CB less than the rectangle AD, DB? (yes/no):`,
+hint: `Subtracting the lesser square from equal wholes leaves a lesser remainder.` },
+{ q: `Is twice the rectangle AC, CB also less than twice the rectangle AD, DB? (yes/no):`,
+hint: `Doubling preserves inequality.` },
+{ q: `Therefore, is the sum of the squares on AC and CB greater than the sum of the squares on AD and DB? (yes/no):`,
+hint: `By II.5, (AC² + CB²) = 2·(AC·CB) + 2·(EC²) and similarly for AD,DB; since EC² > DE², the first sum of squares is greater.` },
+{ q: `Have we proved the lemma? (yes/no):`,
+hint: `The desired inequality between the two sums of squares has now been derived.` }
+
+]
+
+const conclusion = `Congratulations! You just proved that if two straight lines incommensurable in square, whose sum of squares is medial and whose rectangle is medial and incommensurable with the sum of the squares, are added together, the whole straight line is irrational; let it be called the side of the sum of two medial areas.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

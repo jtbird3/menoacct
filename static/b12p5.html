@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements XII.5</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>XII.5 – Prove that pyramids of the same height and having triangular bases are to one another as their bases.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements XII.5 chatbot!
+
+We are given two pyramids, ABCG and DEFH, of the same height. Do you agree? (yes/no):`,
+    hint: `The vertices are G and H, and the triangular bases are ABC and DEF.` },
+
+  { q: `The base of the first pyramid is triangle ABC, and the base of the second is triangle DEF. Correct? (yes/no):`,
+    hint: `These triangles lie in parallel planes and determine the heights.` },
+
+  { q: `Our goal is to show that, as the base ABC is to the base DEF, so is the pyramid ABCG to the pyramid DEFH. Does that make sense? (yes/no):`,
+    hint: `This is a statement about proportionality of solids and their bases.` },
+
+  { q: `Suppose the pyramid ABCG is not to the pyramid DEFH as the base ABC is to the base DEF. Are we allowed to assume this for contradiction? (yes/no):`,
+    hint: `This is a standard indirect (reductio) argument.` },
+
+  { q: `Then, as the base ABC is to the base DEF, would the pyramid ABCG be either to a solid less than DEFH or to a greater solid? (yes/no):`,
+    hint: `One of the two possibilities must occur if the ratios are unequal.` },
+
+  { q: `First, let the pyramid ABCG be to a less solid W as the base ABC is to the base DEF. Do you follow? (yes/no):`,
+    hint: `We begin with the case “less than.”` },
+
+  { q: `Can the pyramid DEFH be divided into two pyramids equal and similar to the whole, together with two equal prisms? (yes/no):`,
+    hint: `This follows from Proposition XII.3.` },
+
+  { q: `Are the two prisms greater than half of the whole pyramid DEFH? (yes/no):`,
+    hint: `This is explicitly stated in XII.3.` },
+
+  { q: `If we divide the resulting pyramids again in the same way, and continue doing this repeatedly, is that allowed? (yes/no):`,
+    hint: `The same division can be applied indefinitely.` },
+
+  { q: `Can this process continue until the remaining pyramids are less than the excess by which DEFH exceeds W? (yes/no):`,
+    hint: `This uses the principle of exhaustion (X.1).` },
+
+  { q: `Let the remaining small pyramids be DQRS and STUH. Do you accept this setup? (yes/no):`,
+    hint: `These represent the leftover pieces after repeated division.` },
+
+  { q: `Are the remaining prisms inside DEFH then greater than the solid W? (yes/no):`,
+    hint: `What remains after removing small pyramids must exceed W.` },
+
+  { q: `Now, can the pyramid ABCG be divided in the same way, and the same number of times, as DEFH? (yes/no):`,
+    hint: `The pyramids are similar and of equal height.` },
+
+  { q: `As the base ABC is to the base DEF, are the prisms in ABCG to the prisms in DEFH in the same ratio? (yes/no):`,
+    hint: `This follows from Proposition XII.4.` },
+
+  { q: `But by assumption, as the base ABC is to the base DEF, so is the pyramid ABCG to the solid W. Is that correct? (yes/no):`,
+    hint: `This restates the contradictory assumption.` },
+
+  { q: `Then, as the pyramid ABCG is to W, are the prisms in ABCG to the prisms in DEFH in the same ratio? (yes/no):`,
+    hint: `This follows from V.11 (same ratio to the same).` },
+
+  { q: `Therefore, alternately, is the pyramid ABCG to its prisms as W is to the prisms in DEFH? (yes/no):`,
+    hint: `This uses alternation (V.16).` },
+
+  { q: `Is the pyramid ABCG greater than the prisms contained within it? (yes/no):`,
+    hint: `The prisms are only part of the pyramid.` },
+
+  { q: `Then must W also be greater than the prisms in DEFH? (yes/no):`,
+    hint: `Things in the same ratio behave similarly.` },
+
+  { q: `But were we not shown earlier that the prisms in DEFH are greater than W? (yes/no):`,
+    hint: `This came from the exhaustion argument.` },
+
+  { q: `Does this give a contradiction? (yes/no):`,
+    hint: `W cannot be both greater and less than the same quantity.` },
+
+  { q: `Therefore, is the pyramid ABCG not to any solid less than DEFH as the base ABC is to the base DEF? (yes/no):`,
+    hint: `The “less than” case is impossible.` },
+
+  { q: `Similarly, can it be shown that DEFH is not to any solid less than ABCG as DEF is to ABC? (yes/no):`,
+    hint: `The argument is symmetric.` },
+
+  { q: `Next, suppose the pyramid ABCG is to a greater solid W as the base ABC is to the base DEF. Can we assume this for contradiction? (yes/no):`,
+    hint: `This covers the remaining possibility.` },
+
+  { q: `Then, inversely, as the base DEF is to the base ABC, is W to the pyramid ABCG? (yes/no):`,
+    hint: `This follows from inversion of ratios.` },
+
+  { q: `But as W is to ABCG, is DEFH to some solid less than ABCG? (yes/no):`,
+    hint: `This was shown earlier using XII.2 (Lemma).` },
+
+  { q: `Therefore, as the base DEF is to the base ABC, is DEFH to a solid less than ABCG? (yes/no):`,
+    hint: `This follows from V.11 again.` },
+
+  { q: `Was this not already shown to be impossible? (yes/no):`,
+    hint: `It contradicts the earlier conclusion.` },
+
+  { q: `Therefore, is the pyramid ABCG not to any solid greater than DEFH as the base ABC is to the base DEF? (yes/no):`,
+    hint: `The “greater than” case is also impossible.` },
+
+  { q: `Since it is neither to a less nor to a greater solid in that ratio, must it be to the pyramid DEFH itself? (yes/no):`,
+    hint: `This exhausts all alternatives.` },
+
+  { q: `Therefore, as the base ABC is to the base DEF, so is the pyramid ABCG to the pyramid DEFH. Agreed? (yes/no):`,
+    hint: `This is exactly what was to be proved.` }
+]
+
+const conclusion = `Congratulations! You just proved that pyramids of the same height and having triangular bases are to one another as their bases.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

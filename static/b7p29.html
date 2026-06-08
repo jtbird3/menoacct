@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements VII.29</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>VII.29 — Prove that any prime number is prime to any number which it does not measure</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements VII.29 chatbot!
+
+We are given a prime number A, and a number B which A does not measure. Do you agree? (yes/no):`,
+    hint: `“Does not measure” means A does not divide B evenly.` },
+
+  { q: `Our goal is to show that A and B are prime to one another (they have no common measure). Does that make sense? (yes/no):`,
+    hint: `Two numbers are prime to one another when no number greater than 1 divides them both.` },
+
+  { q: `Suppose, for contradiction, that A and B are not prime to one another. May we assume this temporarily? (yes/no):`,
+    hint: `Euclid often reasons by contradiction: assume the opposite and derive an impossibility.` },
+
+  { q: `If A and B are not prime to one another, must some number C measure them both? (yes/no):`,
+    hint: `If they have a common divisor, call it C.` },
+
+  { q: `Since C measures B, but A does not measure B, must it follow that C is not the same as A? (yes/no):`,
+    hint: `If A does not divide B, then a divisor of B cannot be equal to A.` },
+
+  { q: `But if C measures both B and A, then C must also measure A, a prime number. Right? (yes/no):`,
+    hint: `A divisor of a prime must be either 1 or the prime itself.` },
+
+  { q: `If C measures the prime A, is it possible for C to be different from A and still measure A? (yes/no):`,
+    hint: `A prime has no divisors except 1 and itself; Euclid excludes 1 as a “measure” in this context.` },
+
+  { q: `Do we then reach an impossibility: C measures A although C ≠ A? (yes/no):`,
+    hint: `This contradicts the definition of “prime.”` },
+
+  { q: `Since this contradiction arose from assuming A and B are not prime to one another, must we reject that assumption? (yes/no):`,
+    hint: `In Euclid, if an assumption produces an impossibility, the assumption is false.` },
+
+  { q: `Therefore, must it be true that no number measures both A and B? (yes/no):`,
+    hint: `That is exactly what we have shown.` },
+
+  { q: `Thus, do A and B prove to be prime to one another? (yes/no):`,
+    hint: `Having no common measure is the definition of being prime to one another.` }
+  ]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const conclusion = `Congratulations! You just proved that any prime number is prime to any number which it does not measure.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

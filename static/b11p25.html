@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements XI.25</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>XI.25 – Prove that if a parallelepipedal solid is cut by a plane parallel to the opposite planes, then, as the base is to the base, so is the solid to the solid.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements XI.25 chatbot!
+
+We are given a parallelepipedal solid ABCD, cut by a plane FG which is parallel to the opposite planes RA and DH. Do you agree? (yes/no):`,
+    hint: `The hypothesis states a solid and a cutting plane parallel to opposite planes.` },
+
+  { q: `The bases are AEFV and EHCF, and the corresponding solids are ABFU and EGCD. Do you see these named? (yes/no):`,
+    hint: `These are the bases and solids explicitly named in the proposition.` },
+
+  { q: `Our goal is to show that, as the base AEFV is to the base EHCF, so the solid ABFU is to the solid EGCD. Does that make sense? (yes/no):`,
+    hint: `This is exactly what the proposition claims.` },
+
+  { q: `Let AH be produced in each direction. Is this construction allowed? (yes/no):`,
+    hint: `A straight line can be produced continuously in a straight line.` },
+
+  { q: `Let straight lines AK and KL be made equal to AE, and straight lines HM and MN equal to EH. Is this possible? (yes/no):`,
+    hint: `Any number of equal straight lines can be laid off on a straight line.` },
+
+  { q: `Let the parallelograms LP, KV, HW, MS be completed. Can we do this? (yes/no):`,
+    hint: `Parallelograms can be completed on given straight lines.` },
+
+  { q: `Let the solids LQ, KR, DM, MT also be completed. Is this allowed? (yes/no):`,
+    hint: `Parallelepipedal solids can be completed from parallelogram faces.` },
+
+  { q: `Since LK, KA, and AE are equal, are the parallelograms LP, KV, and AF equal? (yes/no):`,
+    hint: `Parallelograms on equal bases and between the same parallels are equal.` },
+
+  { q: `Are the opposite parallelograms KO, KB, and AG also equal? (yes/no):`,
+    hint: `Opposite faces of a parallelepiped are equal (XI.24).` },
+
+  { q: `Are the opposite parallelograms LX, KQ, and AR equal as well? (yes/no):`,
+    hint: `Opposite planes in the same solid are equal.` },
+
+  { q: `For the same reason, are the parallelograms EC, HW, and MS equal to one another? (yes/no):`,
+    hint: `They stand on equal straight lines and between the same parallels.` },
+
+  { q: `Are HG, HI, and IN equal straight lines? (yes/no):`,
+    hint: `They are laid off as equal segments.` },
+
+  { q: `Are the opposite parallelograms DH, MY, and NT equal? (yes/no):`,
+    hint: `Again, these are opposite planes.` },
+
+  { q: `Therefore, in the solids LQ, KR, and AU, are three planes equal to three planes? (yes/no):`,
+    hint: `Each solid has three faces equal respectively.` },
+
+  { q: `If three planes are equal to three opposite planes, are the solids equal? (yes/no):`,
+    hint: `Parallelepipedal solids with equal corresponding faces are equal.` },
+
+  { q: `So are the three solids LQ, KR, and AU equal to one another? (yes/no):`,
+    hint: `This follows directly from the previous step.` },
+
+  { q: `For the same reason, are the three solids ED, DM, and MT also equal to one another? (yes/no):`,
+    hint: `The same construction and reasoning apply.` },
+
+  { q: `Therefore, whatever multiple the base LF is of the base AF, is the solid LU the same multiple of the solid AU? (yes/no):`,
+    hint: `Equal solids added repeatedly give equal multiples.` },
+
+  { q: `Similarly, whatever multiple the base NF is of the base FH, is the solid NU the same multiple of the solid HU? (yes/no):`,
+    hint: `The same reasoning applies to the second base and solid.` },
+
+  { q: `If the base LF equals the base NF, is the solid LU equal to the solid NU? (yes/no):`,
+    hint: `Equal multiples of equal magnitudes are equal.` },
+
+  { q: `If the base LF exceeds the base NF, does the solid LU exceed the solid NU? (yes/no):`,
+    hint: `Greater multiples correspond to greater multiples.` },
+
+  { q: `If the base LF falls short of the base NF, does the solid LU fall short of the solid NU? (yes/no):`,
+    hint: `Lesser multiples correspond to lesser multiples.` },
+
+  { q: `Therefore, having taken equimultiples of the bases AF and FH, and equimultiples of the solids AU and UH, and having compared them, do we satisfy the definition of proportion? (yes/no):`,
+    hint: `This is exactly the criterion of Book V, Definition 5.` },
+
+  { q: `Therefore, as the base AF is to the base FH, so is the solid AU to the solid UH. (yes/no):`,
+    hint: `This is the required proportionality.` }
+]
+
+const conclusion = `Congratulations! You just if a parallelepipedal solid is cut by a plane parallel to the opposite planes, then, as the base is to the base, so is the solid to the solid.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

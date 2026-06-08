@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.94</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.94 – Prove that if an area is contained by a rational straight line and a fourth apotome, the side of the area is minor.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+{ q: `Welcome to Elements X.94 chatbot!
+
+We are given an area AB contained by a rational straight line AC and a fourth apotome AD. Do you agree? (yes/no):`,
+  hint: `The hypothesis states exactly this containment.` },
+
+{ q: `Let DG be the annex to the fourth apotome AD. Is this construction allowed? (yes/no):`,
+  hint: `By definition, every apotome has an annex.` },
+{ q: `Are AG and GD rational straight lines commensurable in square only? (yes/no):`,
+  hint: `This is the defining property of a fourth apotome and its annex.` },
+{ q: `Is AG commensurable in length with the rational straight line AC set out? (yes/no):`,
+  hint: `This follows directly from the definition cited.` },
+{ q: `Is the square on AG greater than the square on GD by the square on a straight line incommensurable in length with AG? (yes/no):`,
+  hint: `This is given by Book X, Definition III.4.` },
+
+{ q: `Since the square on AG exceeds the square on GD in this way, can a parallelogram equal to one fourth of the square on GD and deficient by a square be applied to AG so as to divide it into incommensurable parts? (yes/no):`,
+  hint: `This is Proposition X.18.` },
+{ q: `Let DG be bisected at E. Is this step valid? (yes/no):`,
+  hint: `Any straight line may be bisected.` },
+{ q: `Let a parallelogram equal to the square on EG and deficient by a square figure be applied to AG, forming the rectangle AF, FG. Is this construction possible? (yes/no):`,
+  hint: `This is exactly the application described above.` },
+{ q: `Is AF incommensurable in length with FG? (yes/no):`,
+  hint: `The construction guarantees division into incommensurable parts.` },
+
+{ q: `Let EH, FI, and GK be drawn through E, F, and G parallel to AC and BD. Is this permitted? (yes/no):`,
+  hint: `Parallels can be drawn through any point.` },
+
+{ q: `Since AG is rational and commensurable in length with AC, is the whole AK rational? (yes/no):`,
+  hint: `Book X, Proposition 19.` },
+{ q: `Since DG is incommensurable in length with AC, and both are rational, is DK medial? (yes/no):`,
+  hint: `This follows from Book X, Proposition 21.` },
+{ q: `Since AF is incommensurable in length with FG, is AI also incommensurable with FK? (yes/no):`,
+  hint: `From similar figures on proportional bases (VI.1 and X.11).` },
+
+{ q: `Let the square LM be constructed equal to AI. Can we do this? (yes/no):`,
+  hint: `A square can be constructed on any straight line.` },
+{ q: `Let NO equal to FK be subtracted about the same angle. Is this construction allowed? (yes/no):`,
+  hint: `Squares may be subtracted about equal angles.` },
+{ q: `Are the squares LM and NO about the same diameter? (yes/no):`,
+  hint: `Book VI, Proposition 26.` },
+{ q: `Let PR be their diameter, and let the figure be completed. Is this acceptable? (yes/no):`,
+  hint: `This follows standard Euclidean construction.` },
+
+{ q: `Since rectangle AF, FG equals the square on EG, does it follow proportionally that as AF is to EG, so is EG to FG? (yes/no):`,
+  hint: `Book VI, Proposition 17.` },
+{ q: `As AF is to EG, is AI to EK; and as EG is to FG, is EK to FK? (yes/no):`,
+  hint: `Book VI, Proposition 1.` },
+{ q: `Therefore, is EK a mean proportional between AI and FK? (yes/no):`,
+  hint: `Definition of mean proportional (Book V.11).` },
+
+{ q: `Is MN also a mean proportional between LM and NO, with LM equal to AI and NO equal to FK? (yes/no):`,
+  hint: `By construction of the squares.` },
+{ q: `Therefore, is EK equal to MN? (yes/no):`,
+  hint: `Mean proportionals between equal magnitudes are equal.` },
+
+{ q: `Is DH equal to EK, and LO equal to MN? (yes/no):`,
+  hint: `These are corresponding constructed segments.` },
+{ q: `Therefore, is the whole DK equal to the gnomon UVW together with NO? (yes/no):`,
+  hint: `Equality follows by composition.` },
+
+{ q: `Since the whole AK equals the squares LM and NO, and DK equals the gnomon UVW and square NO, is the remainder AB equal to ST, that is, to the square on LN? (yes/no):`,
+  hint: `Subtract equals from equals.` },
+{ q: `Therefore, is LN the side of the area AB? (yes/no):`,
+  hint: `The square on LN equals the given area.` },
+
+{ q: `I say that LN is the irrational straight line called minor. Does that make sense? (yes/no):`,
+  hint: `We now classify the nature of the side.` },
+
+{ q: `Since AK is rational and equal to the sum of the squares on LP and PN, is that sum rational? (yes/no):`,
+  hint: `Equal magnitudes have the same nature.` },
+{ q: `Since DK is medial and equal to twice the rectangle LP, PN, is twice the rectangle medial? (yes/no):`,
+  hint: `Equality preserves mediality.` },
+{ q: `Since AI was incommensurable with FK, is the square on LP incommensurable with the square on PN? (yes/no):`,
+  hint: `Corresponding squares preserve incommensurability.` },
+
+{ q: `Are LP and PN straight lines incommensurable in square, whose squares sum to a rational area, while twice the rectangle contained by them is medial? (yes/no):`,
+  hint: `This matches the definition.` },
+{ q: `Therefore, is LN the irrational straight line called minor? (yes/no):`,
+  hint: `Book X, Proposition 76.` },
+{ q: `Since LN is the side of area AB and is minor, does it follow that the side of the area AB is minor? (yes/no):`,
+  hint: `This is exactly what was to be demonstrated.` },
+]
+
+const conclusion = `Congratulations! You just proved that if an area is contained by a rational straight line and a fourth apotome, the side of the area is minor.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

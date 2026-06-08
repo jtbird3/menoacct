@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Conics I.27</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+<h1>I.27 – Prove that if a straight line within a parabola cuts the diameter, it meets the section continued both ways</h1>
+
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [{ q: `Welcome to Apollonius' Conics I.27 chatbot!
+
+We are given a parabola with diameter AB. Do you agree? (yes/no):`,
+  hint: `The diameter AB is fixed in the given parabola.` },
+{ q: `Let us draw line CD cutting the diameter AB within the section such that D is on the diameter. Is this possible? (yes/no):`,
+  hint: `The line CD intersects AB at a point inside the parabola.` },
+{ q: `Our goal is to show that the straight line CD, when continued both ways, will meet the section. Does that make sense? (yes/no):`,
+  hint: `We want to prove intersection on both extensions of CD.` },
+{ q: `First, let us draw line AE parallel to an ordinate from A. Can we do this? (yes/no):`,
+  hint: `Through a point, a line parallel to a given direction can be drawn.` },
+{ q: `Does AE fall outside the section? (yes/no):`,
+  hint: `By Proposition I.17 of Apollonius, a line parallel to an ordinate through A lies outside the parabola.` },
+{ q: `Now, CD must be parallel to AE or not. Do you agree? (yes/no):`,
+  hint: `Two straight lines are either parallel or they meet.` },
+
+{ q: `Suppose CD is parallel to AE. If CD is parallel to AE, is line CD drawn ordinatewise? (yes/no):`,
+  hint: `Ordinates are parallel to one another.` },
+{ q: `If CD is an ordinate, then when continued both ways does it meet the section? (yes/no):`,
+  hint: `By Proposition I.18, an ordinate meets the parabola on both sides.` },
+
+{ q: `Suppose CD is not parallel to AE. If CD is not parallel to AE, may line CD be continued to meet AE at a point, say point E? (yes/no):`,
+  hint: `Non-parallel straight lines meet when extended.` },
+{ q: `If CD meets AE at E, does CD meet the section on the side of E? (yes/no):`,
+  hint: `If it meets a line outside the section, it must cross the section first.` },
+{ q: `Now we must show that CD also meets the section if continued the other way. Do you agree? (yes/no):`,
+  hint: `One side remains to be proved.` },
+
+{ q: `Let us draw line AM as the latus rectum corresponding to ordinates to the diameter AB. Can we do this? (yes/no):`,
+  hint: `Every parabola has a latus rectum associated with its diameter.` },
+{ q: `Let us draw line GF as an ordinate such that F is on the diameter. Can we take such an ordinate? (yes/no):`,
+  hint: `Ordinates can be drawn at points on the diameter.` },
+{ q: `Let us arrange the construction so that the square of line AD is equal to the rectangle BA, AF. Can we do this? (yes/no):`,
+  hint: `By Euclid VI.11 and VI.17, this proportional relation holds.` },
+{ q: `From this, do we have: as AB is to AD, so AD is to AF? (yes/no):`,
+  hint: `This follows from equality of the square and rectangle.` },
+{ q: `From this proportion, do we have: as BD is to DF, so AB is to AD? (yes/no):`,
+  hint: `By Euclid V.10, equal ratios are preserved.` },
+{ q: `Therefore, as square BD is to square DF, so square AB is to square AD. Does this follow? (yes/no):`,
+  hint: `Squares preserve proportionality of the sides.` },
+{ q: `Since square AD equals rectangle BA, AF, can we say: as AB is to AF, so square AB is to square AD? (yes/no):`,
+  hint: `Substitution using the earlier equality.` },
+{ q: `As square BD is to square DF, so square BC is to square FG. Do you agree? (yes/no):`,
+  hint: `BC and FG are corresponding ordinates.` },
+{ q: `And as AB is to AF, so rectangle BA, AM is to rectangle FA, AM. Is this correct? (yes/no):`,
+  hint: `AM is common, so the ratio is preserved.` },
+{ q: `Therefore, as square BC is to square FG, so rectangle BA, AM is to rectangle FA, AM. Does this follow? (yes/no):`,
+  hint: `Equal ratios may be substituted.` },
+{ q: `Correspondingly, as square BC is to rectangle BA, AM, so square FG is to rectangle FA, AM. Agreed? (yes/no):`,
+  hint: `This is a standard proportional transformation.` },
+{ q: `But by the property of the parabola, is square FG equal to rectangle FA, AM? (yes/no):`,
+  hint: `By Apollonius I.11, this defines points on the section.` },
+{ q: `Therefore, is square BC equal to rectangle BA, AM? (yes/no):`,
+  hint: `Things equal to the same thing are equal to one another.` },
+{ q: `Since AM is the latus rectum and BC is parallel to an ordinate, does the section pass through point C? (yes/no):`,
+  hint: `By Proposition I.11, this condition characterizes the parabola.` },
+{ q: `Therefore, does CD meet the section at C? (yes/no):`,
+  hint: `C lies on both CD and the section.` },
+
+
+]
+
+const conclusion = `Congratulations! You just proved that if a straight line within a parabola cuts the diameter, it meets the section continued both ways.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

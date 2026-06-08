@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>I.6 — MenoChat (Toggle: Pure ↔ Graph)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>I.6 — Prove that if two angles of a triangle are equal, then the opposite sides are equal</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements I.6 chatbot!
+
+We are given a triangle ABC, with ∠ABC equal to ∠ACB. Do you agree? (yes/no):`,
+    hint: `The triangle has two equal angles at B and C.` },
+  { q: `Our goal is to prove that side AB = side AC. Does that make sense? (yes/no):`,
+    hint: `If base angles are equal, the opposite sides (sides across from the angles) should also match.` },
+  { q: `Suppose AB is not equal to AC. Then one side must be greater, correct? (yes/no):`,
+    hint: `If two things are not equal, one must be larger.` },
+  { q: `Let's assume AB is greater. Can we cut off a segment DB from AB such that DB = AC? (yes/no):`,
+    hint: `Since we are assuming AB is greater than AC, using Proposition I.3 we can cut off a segment DB so that DB = AC, even if they don't look equal.` },
+  { q: `Now, join the points D and C with a straight line. Can we do that? (yes/no):`,
+    hint: `Postulate 1 lets us draw a straight line from any point to any point.` },
+  { q: `Do we now have DB = AC, and BC is common to both triangles? (yes/no):`,
+    hint: `DB was made equal to AC, and BC is the same side in both triangles.` },
+  { q: `So, in triangles DBC and ACB, do we have two sides (DB = AC and BC = BC) equal to two sides, and ∠DBC equal to ∠ACB? (yes/no):`,
+    hint: `Side DB = AC, side BC = CB, and ∠DBC = ∠ACB by the given.` },
+  { q: `From Proposition I.4, does it follow that △DBC = △ACB? (yes/no):`,
+    hint: `Two sides and the included angle equal implies the triangles are equal.` },
+  { q: `But is △DBC smaller than △ACB? (yes/no):`,
+    hint: `Triangle DBC lies inside triangle ACB, so it cannot be equal.` },
+  { q: `Does this contradict what we said about △DBC = △ACB? (yes/no):`,
+    hint: `Common Notion 5 says the whole is greater than the part.` },
+  { q: `Therefore, is our assumption wrong that AB ≠ AC? (yes/no):`,
+    hint: `A contradiction means the assumption must be false.` },
+  { q: `Thus, must AB = AC? (yes/no):`,
+    hint: `If AB is not unequal to AC, then AB = AC.` }
+];
+
+const conclusion = `Congratulations! We have shown that if two angles of a triangle are equal, then the opposite sides are also equal.
+Q.E.D.`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

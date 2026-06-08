@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>III.31 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>III.31 - Prove that in a circle the angle in a semicircle is right, the angle in a greater segment is less than right, and the angle in a lesser segment is greater than right.</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements III.31 chatbot!
+
+We are given a circle ABCD with diameter BC and center E. Do you agree? (yes/no):`,
+    hint: `A diameter is a line through the center, so BC passes through E.` },
+  { q: `Now, join BA, AC, AD, DC. Is this possible? (yes/no):`,
+    hint: `Postulate 1 allows us to join any two points with a straight line.` },
+  { q: `Our goal is to prove the angle in semicircle BAC is right, angle in greater segment ABC is less than right, and angle in lesser segment ADC is greater than right. Does that make sense? (yes/no):`,
+    hint: `These are the three cases we must establish.` },
+  { q: `Let us join AE and extend BA through to F. Possible? (yes/no):`,
+    hint: `Postulate 2 allows producing a straight line further in a straight line.` },
+  { q: `Since BE = EA, is ∠ABE equal to ∠BAE? (yes/no):`,
+    hint: `In isosceles triangle ABE, the base angles are equal (Proposition I.5).` },
+  { q: `Since CE = EA, is ∠ACE equal to ∠CAE? (yes/no):`,
+    hint: `In isosceles triangle ACE, base angles are equal (Proposition I.5).` },
+  { q: `Therefore, is ∠BAC equal to ∠ABC + ∠ACB? (yes/no):`,
+    hint: `∠BAC is made up of ∠BAE + ∠CAE, which equal ∠ABE + ∠ACE = ∠ABC + ∠ACB.` },
+  { q: `But is ∠FAC also equal to ∠ABC + ∠ACB? (yes/no):`,
+    hint: `By Proposition I.32, the exterior angle FAC of ΔABC equals the two opposite interior angles.` },
+  { q: `Therefore, is ∠BAC = ∠FAC? (yes/no):`,
+    hint: `Both equal ∠ABC + ∠ACB.` },
+  { q: `Since ∠BAC = ∠FAC, are they each right angles? (yes/no):`,
+    hint: `By Definition I.10, a straight angle is two right angles; splitting gives ∠BAC = right.` },
+  { q: `Thus, is the angle BAC in the semicircle right? (yes/no):`,
+    hint: `Yes, we have proved it directly.` },
+  { q: `Next, in ΔABC, since ∠ABC + ∠BAC < 2 right angles, and ∠BAC is already a right angle, is ∠ABC less than a right angle? (yes/no):`,
+    hint: `In any triangle, the sum of two angles is less than 180° (Proposition I.17).` },
+  { q: `So, is the angle ABC in the segment greater than a semicircle less than a right angle? (yes/no):`,
+    hint: `Yes, ABC is in the larger segment.` },
+  { q: `Now, ABCD is a quadrilateral in a circle. Do its opposite angles sum to 2 right angles? (yes/no):`,
+    hint: `By Proposition III.22, opposite angles in a cyclic quadrilateral equal two right angles.` },
+  { q: `Since ∠ABC < right, must ∠ADC > right? (yes/no):`,
+    hint: `Yes, because ∠ABC + ∠ADC = 2 right angles. If ABC is less than a right angle, ADC must be greater than a right angle if they make up 2 right angles put together.` },
+  { q: `So, is the angle in the smaller segment ADC greater than a right angle? (yes/no):`,
+    hint: `Yes, since it supplements an acute angle.` },
+  { q: `Finally, since ∠BAC is right, is the angle in the greater segment (made by circumference ABC with line AC) greater than right? (yes/no):`,
+    hint: `A circular arc plus a radius exceeds the straight angle at A.` },
+  { q: `And since ∠CAF is right, is the angle in the lesser segment (made by circumference ADC with AC) less than right? (yes/no):`,
+    hint: `Yes, because it lies inside a smaller arc against a right line.` }
+];
+
+const conclusion = `Congratulations! You just proved that in a circle the angle in a semicircle is right, the angle in a greater segment is less than right, and the angle in a lesser segment is greater than right.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

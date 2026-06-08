@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>VI.2 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>VI.2 - Prove that a line drawn parallel to one side of a triangle cuts the other sides proportionally, and conversely that if the sides are cut proportionally, the joining line is parallel to the remaining side.</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements VI.2 chatbot!
+
+We are given a triangle ABC, and a line DE drawn parallel to the side BC cutting AB at D and AC at E. Do you agree? (yes/no):`,
+    hint: `The line DE lies inside the triangle and is parallel to BC.` },
+  { q: `Our goal is to prove that BD is to DA as CE is to EA. Does that make sense? (yes/no):`,
+    hint: `We want to show that the sides of the triangle are cut proportionally by the parallel line.` },
+  { q: `Let's join BE and CD. Can we do that? (yes/no):`,
+    hint: `Postulate 1 allows a straight line to be drawn from any point to any point.` },
+  { q: `Do you see that triangles BDE and CDE are on the same base DE and between the same parallels DE and BC? (yes/no):`,
+    hint: `Yes — they share base DE and both lie between lines parallel to it.` },
+  { q: `Then, are the triangles BDE and CDE are equal in area? (yes/no):`,
+    hint: `Proposition I.38 — triangles on the same base and between the same parallels are equal in area.` },
+  { q: `Now consider triangle ADE separately. Do you see that we can compare each of the smaller triangles to ADE? (yes/no):`,
+    hint: `We'll use ratios of areas to compare corresponding sides.` },
+  { q: `Since equals have the same ratio to the same, do we have that (ΔBDE : ΔADE) = (ΔCDE : ΔADE)? (yes/no):`,
+    hint: `Proposition V.7 — equal magnitudes have equal ratios to the same magnitude.` },
+  { q: `Are triangles BDE and ADE under the same height from E to AB? (yes/no):`,
+    hint: `They share a common altitude from E perpendicular to AB.` },
+  { q: `Then, as ΔBDE : ΔADE = BD : DA, does that follow? (yes/no):`,
+    hint: `Proposition VI.1 — triangles under the same height are to one another as their bases.` },
+  { q: `Similarly, as ΔCDE : ΔADE = CE : EA, is that true? (yes/no):`,
+    hint: `Same reason — both share height from E to AC.` },
+  { q: `If both ΔBDE : ΔADE = BD : DA and ΔCDE : ΔADE = CE : EA, can we conclude BD : DA = CE : EA? (yes/no):`,
+    hint: `Proposition V.11 — if two magnitudes have the same ratio to a third, they are in the same ratio to each other.` },
+  { q: `Therefore, a line drawn parallel to one side of a triangle cuts the other sides proportionally, agreed? (yes/no):`,
+    hint: `That completes the first part of the proposition.` },
+  { q: `Now, for the converse, suppose the sides are cut proportionally so that BD : DA = CE : EA. Do you agree? (yes/no):`,
+    hint: `We assume proportional division and will prove the joining line is parallel.` },
+  { q: `Join DE. Can we do that? (yes/no):`,
+    hint: `Postulate 1 allows us to draw a straight line between any two points.` },
+  { q: `Do we know from before that if BD : DA = CE : EA, then ΔBDE : ΔADE = ΔCDE : ΔADE? (yes/no):`,
+    hint: `Proposition VI.1 relates the ratios of sides to the ratios of the corresponding triangles.` },
+  { q: `If the two triangles BDE and CDE have the same ratio to ADE, are they equal in area? (yes/no):`,
+    hint: `Proposition V.9 — if two magnitudes have the same ratio to a third, they are equal.` },
+  { q: `Since ΔBDE = ΔCDE and both rest on base DE, can we say they are in the same parallels? (yes/no):`,
+    hint: `Proposition I.39 — equal triangles on the same base lie between the same parallels.` },
+  { q: `Therefore, is DE parallel to BC? (yes/no):`,
+    hint: `The line joining the points of proportional division is parallel to the third side.` },
+  { q: `Thus, if a line cuts both the sides of a triangle proportionally, it is parallel to the remaining side. Do you agree?.`,
+    hint: `This establishes both the theorem and its converse.` }
+];
+
+const conclusion = `Congratulations! You just proved that a line drawn parallel to one side of a triangle cuts the other sides proportionally, and conversely that if the sides are cut proportionally, the joining line is parallel to the remaining side. 
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

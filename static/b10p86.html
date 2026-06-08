@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.86</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.86 – Find the second apotome.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+{ q: `Welcome to Elements X.86 chatbot!
+
+A rational straight line A is set out. Do you agree? (yes/no):`,
+  hint: `A rational straight line is one whose square is commensurable with a square on a rational unit.` },
+{ q: `A straight line GC, commensurable in length with A, is also set out. Agreed? (yes/no):`,
+  hint: `A straight line commensurable in length with a rational straight line is itself rational.` },
+{ q: `Therefore, is GC rational? (yes/no):`,
+  hint: `Things commensurable in length with a rational straight line are rational.` },
+
+{ q: `Two square numbers DE and EF are set out. Do you agree? (yes/no):`,
+  hint: `These are numbers which are perfect squares.` },
+{ q: `Their difference DF is not a square number. Is this given? (yes/no):`,
+  hint: `This condition will later ensure incommensurability in length.` },
+{ q: `Now let it be contrived that, as FD is to DE, so is the square on CG to the square on GB. Is this construction assumed? (yes/no):`,
+  hint: `This follows by Proposition X.6 (porism), allowing such proportional arrangement.` },
+
+{ q: `Our goal is to show that BC is a second apotome. Does that make sense? (yes/no):`,
+  hint: `A second apotome is defined in Book X, Definition III.2.` },
+
+{ q: `Since as FD is to DE, so is the square on CG to the square on GB, are the squares on CG and GB commensurable? (yes/no):`,
+  hint: `Proposition X.6 states that equality of ratios implies commensurability of squares.` },
+{ q: `The square on CG is rational. Do you agree? (yes/no):`,
+  hint: `CG itself was shown to be a rational straight line.` },
+{ q: `Therefore, is the square on GB also rational? (yes/no):`,
+  hint: `A square commensurable with a rational square is itself rational.` },
+{ q: `Does it follow that GB is rational? (yes/no):`,
+  hint: `A straight line whose square is rational is itself rational.` },
+{ q: `Since the square on GC does not have to the square on GB the ratio which a square number has to a square number, is CG incommensurable in length with GB? (yes/no):`,
+  hint: `By Proposition X.9, this characterizes incommensurability in length.` },
+{ q: `Are CG and GB both rational straight lines, commensurable in square only? (yes/no):`,
+  hint: `They are rational, but not commensurable in length.` },
+{ q: `Therefore, is BC an apotome? (yes/no):`,
+  hint: `By Proposition X.73, the sum of such lines is an apotome.` },
+
+{ q: `I say next that BC is also a second apotome. Do you agree this is the next aim? (yes/no):`,
+  hint: `The remainder of the proof establishes the specific kind of apotome.` },
+{ q: `Let the square on H be that by which the square on BG exceeds the square on GC. Is this defined? (yes/no):`,
+  hint: `This introduces the excess square explicitly.` },
+{ q: `Since as the square on BG is to the square on GC, so is the number ED to the number DF, is this proportion valid? (yes/no):`,
+  hint: `This follows from the original proportional construction.` },
+{ q: `Therefore, convertendo, is it true that as the square on BG is to the square on H, so is DE to EF? (yes/no):`,
+  hint: `Conversion of ratios is justified by Book V, Proposition 19.` },
+{ q: `Are both DE and EF square numbers? (yes/no):`,
+  hint: `This was given at the start.` },
+{ q: `Therefore, does the square on BG have to the square on H the ratio which a square number has to a square number? (yes/no):`,
+  hint: `Equal ratios to square numbers preserve this property.` },
+{ q: `Does it follow that BG is commensurable in length with H? (yes/no):`,
+  hint: `By Proposition X.9, this characterizes commensurability in length.` },
+{ q: `Since the square on BG exceeds the square on GC by the square on H, is the excess the square on a straight line commensurable in length with BG? (yes/no):`,
+  hint: `H was shown commensurable in length with BG.` },
+{ q: `Is CG, the annex, commensurable with the rational straight line A set out? (yes/no):`,
+  hint: `CG was given commensurable in length with A at the start.` },
+{ q: `Therefore, is BC a second apotome? (yes/no):`,
+  hint: `This matches Definition III.2 of Book X.` },
+]
+
+const conclusion = `Congratulations! You just found the second apotome.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

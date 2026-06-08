@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>VI.3 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>VI.3 - Prove that a bisector of a triangle’s angle divides the opposite side proportionally to the adjacent sides, and conversely that if the base is divided in that ratio, the joining line bisects the angle</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements VI.3 chatbot!
+
+We are given a triangle ABC, and the straight line AD bisects the angle BAC. Do you agree? (yes/no):`,
+    hint: `The line AD divides ∠BAC into two equal angles, ∠BAD and ∠CAD.` },
+  { q: `Our goal is to show that BD is to DC as BA is to AC. Does that make sense? (yes/no):`,
+    hint: `This means that the parts of the base are in the same ratio as the sides containing the bisected angle.` },
+  { q: `Let us draw through C a line CE parallel to AD, and let BA be extended to meet it at E. Can we do that? (yes/no):`,
+    hint: `By Postulate 2, a line can be produced indefinitely, and by Postulate 31 (I.31), a line can be drawn through a point parallel to a given line.` },
+  { q: `Since AC meets the parallels AD and EC, are the alternate angles ∠CAD and ∠ACE are equal? (yes/no):`,
+    hint: `When a straight line meets parallels, the alternate interior angles are equal (Proposition I.29).` },
+  { q: `By the given, is ∠CAD equal to ∠BAD? (yes/no):`,
+    hint: `Yes — because AD bisects ∠BAC.` },
+  { q: `Then are ∠BAD and ∠ACE also equal? (yes/no):`,
+    hint: `If ∠BAD = ∠CAD and ∠CAD = ∠ACE, then ∠BAD = ∠ACE (Common Notion 1).` },
+  { q: `Next, since BAE falls upon the parallels AD and EC, is the exterior angle ∠BAD equal to the interior opposite ∠AEC? (yes/no):`,
+    hint: `Again, from Proposition I.29, the exterior angle equals the interior opposite angle when a transversal meets parallels.` },
+  { q: `If ∠ACE = ∠BAD and ∠BAD = ∠AEC, are ∠ACE and ∠AEC equal to each other? (yes/no):`,
+    hint: `Both are equal to ∠BAD, so they are equal to one another (Common Notion 1).` },
+  { q: `If ∠ACE = ∠AEC, are opposite sides AC and AE equal? (yes/no):`,
+    hint: `In an isosceles triangle, sides opposite equal angles are equal (Proposition I.6).` },
+  { q: `Now, since AD is parallel to EC, one of the sides of triangle BCE, can we say that BD : DC = BA : AE by Proposition VI.2? (yes/no):`,
+    hint: `Parallel lines in triangles give equal ratios of sides (Proposition VI.2).` },
+  { q: `And since AE = AC, can we conclude that BD : DC = BA : AC? (yes/no):`,
+    hint: `Substitute equals for equals; the proportion remains true.` },
+  { q: `Therefore, if a line bisects an angle of a triangle, it divides the opposite side proportionally to the adjacent sides. Does that complete the first part? (yes/no):`,
+    hint: `This proves the “if” direction of the theorem.` },
+  { q: `Now, for the converse: Suppose in triangle ABC, the sides satisfy BA : AC = BD : DC, and let AD be joined. Can we do that? (yes/no):`,
+    hint: `Postulate 1 allows a straight line to be drawn from any point to any point.` },
+  { q: `Since BD : DC = BA : AC, and AD is drawn parallel to EC (as before), is it also true that BA : AE = BD : DC? (yes/no):`,
+    hint: `Proposition VI.2 applies again for the triangle BCE with AD ∥ EC.` },
+  { q: `From these proportions, do we have BA : AC = BA : AE? (yes/no):`,
+    hint: `Transitivity of proportions (Proposition V.11).` },
+  { q: `If BA : AC = BA : AE, can we conclude AC = AE? (yes/no):`,
+    hint: `If one quantity has the same ratio to two others, the two others are equal (Proposition V.9).` },
+  { q: `If AC = AE, are the angles ∠ACE and ∠AEC equal? (yes/no):`,
+    hint: `In an isosceles triangle, equal sides have equal opposite angles (Proposition I.5).` },
+  { q: `Is ∠AEC equal to the exterior angle ∠BAD? (yes/no):`,
+    hint: `∠AEC and ∠BAD are alternate interior and exterior angles on parallel lines AD and EC (Proposition I.29).` },
+  { q: `And is ∠ACE equal to ∠CAD? (yes/no):`,
+    hint: `They are alternate interior angles when AC cuts the parallels AD and EC.` },
+  { q: `Then, since ∠BAD = ∠AEC and ∠CAD = ∠ACE, can we conclude ∠BAD = ∠CAD? (yes/no):`,
+    hint: `∠AEC and ∠ACE are equal; therefore the angles BAD and CAD are equal.` },
+  { q: `Therefore, has the angle BAC been bisected by the line AD? (yes/no):`,
+    hint: `Yes — because ∠BAD = ∠CAD by construction.` }
+];
+
+const conclusion = `Congratulations! You just proved that a bisector of a triangle's angle divides the opposite side proportionally to the adjacent sides, and conversely that if the base is divided in that ratio, the joining line bisects the angle. 
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

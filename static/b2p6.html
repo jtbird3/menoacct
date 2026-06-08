@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>B2P6 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>II.6 - Prove that if a line is bisected and a line added, the rectangle by the whole and the added part plus the square on the half equals the square on the half and the added part.</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements II.6 chatbot!
+
+We are given a straight line AB bisected at point C, and another straight line BD added in a straight line. Do you agree? (yes/no):`,
+    hint: `C is the midpoint of AB, and D extends AB beyond B.` },
+  { q: `Our goal is to prove that the rectangle contained by AD and DB together with the square on CB equals the square on CD. Does that make sense? (yes/no):`,
+    hint: `We want to show AD x DB + CB² = CD².` },
+  { q: `Next, let us describe a square CEFD on CD. Can we do this? (yes/no):`,
+    hint: `By Proposition I.46, a square can be constructed on a given straight line.` },
+  { q: `Can we join DE? (yes/no):`,
+    hint: `Joining points with a straight line is allowed (Postulate 1).` },
+  { q: `Through point B, draw BG parallel to EC (or DF), crossing ED at H. Is this possible? (yes/no):`,
+    hint: `By Proposition I.31, we can draw a parallel line through a given point.` },
+  { q: `Through point H, draw KM parallel to AD (or EF), crossing CE at L. Can we do that? (yes/no):`,
+    hint: `Again, Proposition I.31 ensures parallels can be drawn through a point.` },
+  { q: `Through point A, draw AK parallel to CL (or DM). Possible? (yes/no):`,
+    hint: `Parallels can be drawn through any point to a given line (I.31).` },
+  { q: `Since AC = CB, is AL also equal to CH? (yes/no):`,
+    hint: `Parallelograms on equal bases between parallels are equal (Proposition I.36).` },
+  { q: `But is CH equal to HF? (yes/no):`,
+    hint: `Parallelograms with equal complements about the diagonal are equal (Proposition I.43).` },
+  { q: `Therefore, is AL also equal to HF? (yes/no):`,
+    hint: `Equal to the same thing implies equal to one another (Common Notion 1).` },
+  { q: `Now, if CM is added to each, is the whole AM equal to the gnomon NOP? (yes/no):`,
+    hint: `By construction, AM corresponds to AD x DB and the gnomon represents the same area.` },
+  { q: `But AM is the rectangle AD, DB, since DM = DB. Agreed? (yes/no):`,
+    hint: `Opposite sides of a parallelogram are equal, so DM = DB.` },
+  { q: `Therefore, is the gnomon NOP equal to the rectangle AD, DB? (yes/no):`,
+    hint: `Yes, both equal the same area.` },
+  { q: `If we add LG (the square on BC) to each, do we now have AD x DB + CB² equal to gnomon NOP + LG? (yes/no):`,
+    hint: `Adding equals to equals gives equals (Common Notion 2).` },
+  { q: `But are gnomon NOP and LG together the entire square CEFD on CD? (yes/no):`,
+    hint: `Yes, the gnomon and added square complete the square on CD.` },
+  { q: `Therefore, is AD x DB + CB² equal to CD²? (yes/no):`,
+    hint: `Hint: We showed that AD x DB + CB² equals the gnomon NOP plus LG, and that figure is exactly the full square on CD. So the two areas must be equal.` }
+];
+
+const conclusion = `Congratulations! You just proved that the rectangle contained by AD and DB together with the square on CB is equal to the square on CD.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

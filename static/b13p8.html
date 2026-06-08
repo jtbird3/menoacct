@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements XIII.8</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>XIII.8 – Prove that in an equilateral and equiangular pentagon, the straight lines subtending two consecutive angles intersect one another in extreme and mean ratio, and that their greater segments are equal to the side of the pentagon.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements XIII.8 chatbot!
+
+We are given an equilateral and equiangular pentagon ABCDE. Do you agree? (yes/no):`,
+    hint: `All sides and all angles of the pentagon are equal.` },
+
+  { q: `Straight lines AC and BE are drawn, subtending two angles taken in order, the angles at A and B, and they meet at point H. Is that correct? (yes/no):`,
+    hint: `AC subtends the angle at A, and BE subtends the angle at B.` },
+
+  { q: `Our goal is to show that AC and BE are cut at H in extreme and mean ratio, and that their greater segments are equal to the side of the pentagon. Does that make sense? (yes/no):`,
+    hint: `“Extreme and mean ratio” is the golden ratio.` },
+
+  { q: `Let a circle be circumscribed about the pentagon ABCDE. Is this possible? (yes/no):`,
+    hint: `A circle can be drawn through the vertices of a regular polygon. [IV.14]` },
+
+  { q: `Since EA equals AB, and AB equals BC, do the straight lines EA, AB equal AB, BC respectively? (yes/no):`,
+    hint: `All sides of the pentagon are equal.` },
+
+  { q: `Do the equal pairs EA, AB and AB, BC contain equal angles? (yes/no):`,
+    hint: `All interior angles of the pentagon are equal.` },
+
+  { q: `From this, is the base BE equal to the base AC, and triangle ABE equal to triangle ABC? (yes/no):`,
+    hint: `Two sides and the included angle are equal. [I.4]` },
+
+  { q: `Are the remaining angles equal, namely ∠BAC equal to ∠ABE? (yes/no):`,
+    hint: `Equal triangles have equal corresponding angles.` },
+
+  { q: `Therefore, is the angle AHE double of the angle BAH? (yes/no):`,
+    hint: `An exterior angle of a triangle equals the sum of the two interior opposite angles. [I.32]` },
+
+  { q: `Is the angle EAC also double of the angle BAC, since the arc EDC is double the arc CB? (yes/no):`,
+    hint: `Angles at the center or circumference correspond to arcs. [III.28, VI.33]` },
+
+  { q: `From this, is the angle HAE equal to the angle AHE? (yes/no):`,
+    hint: `Things equal to the same thing are equal to one another.` },
+
+  { q: `If the angles at HAE and AHE are equal, is HE equal to EA? (yes/no):`,
+    hint: `Equal angles in a triangle subtend equal sides. [I.6]` },
+
+  { q: `Is EA equal to AB? (yes/no):`,
+    hint: `All sides of the pentagon are equal.` },
+
+  { q: `Since BA equals AE, is the angle ABE equal to the angle AEB? (yes/no):`,
+    hint: `Base angles of an isosceles triangle are equal. [I.5]` },
+
+  { q: `Was the angle ABE already shown to equal the angle BAH? (yes/no):`,
+    hint: `This followed earlier from equal triangles.` },
+
+  { q: `Therefore, is the angle BEA also equal to the angle BAH? (yes/no):`,
+    hint: `Angles equal to the same angle are equal.` },
+
+  { q: `Is the angle ABE common to triangles ABE and ABH? (yes/no):`,
+    hint: `A common angle belongs to both triangles.` },
+
+  { q: `Do the remaining angles then satisfy ∠BAE = ∠AHB? (yes/no):`,
+    hint: `If two angles of two triangles are equal, the third angles are equal. [I.32]` },
+
+  { q: `From this, are triangles ABE and ABH equiangular? (yes/no):`,
+    hint: `All corresponding angles are equal.` },
+
+  { q: `Therefore, does it follow proportionally that as EB is to BA, so BA is to BH? (yes/no):`,
+    hint: `Equiangular triangles are in proportion. [VI.4]` },
+
+  { q: `Is BA equal to EH? (yes/no):`,
+    hint: `EH was shown equal to EA, and EA equals AB.` },
+
+  { q: `From this, does it follow that as BE is to EH, so EH is to HB? (yes/no):`,
+    hint: `Substitute equals into the proportion.` },
+
+  { q: `Is BE greater than EH? (yes/no):`,
+    hint: `BE is the whole line, EH only a part.` },
+
+  { q: `Therefore, is EH greater than HB? (yes/no):`,
+    hint: `In extreme and mean ratio, the mean is greater than the lesser part. [V.14]` },
+
+  { q: `Can we conclude that BE has been cut at H in extreme and mean ratio, and that the greater segment HE equals the side of the pentagon? (yes/no):`,
+    hint: `This matches the definition of extreme and mean ratio.` },
+
+  { q: `Similarly, can we conclude that AC is also cut at H in extreme and mean ratio, and that its greater segment CH equals the side of the pentagon? (yes/no):`,
+    hint: `The same reasoning applies by symmetry.` }
+]
+
+const conclusion = `Congratulations! You just proved that in an equilateral and equiangular pentagon, the straight lines subtending two consecutive angles intersect one another in extreme and mean ratio, and that their greater segments are equal to the side of the pentagon.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

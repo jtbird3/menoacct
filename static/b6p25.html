@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>VI.25 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>VI.25 - Construct a rectilinear figure equal to one given figure and similar to another.</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements VI.25 chatbot!
+
+We are given two rectilineal figures, ABC and D. ABC is the figure to which the new figure must be similar, and D is the figure to which it must be equal. Do you agree? (yes/no):`,
+    hint: `“Similar” means having the same shape but not necessarily the same size; “equal” here means equal in area.` },
+  { q: `Our goal is to construct one and the same rectilineal figure that is similar to ABC and equal to D. Does that make sense? (yes/no):`,
+    hint: `We want to make a single new figure that keeps the shape of ABC but the area of D.` },
+  { q: `First, on side BC of triangle ABC, let the parallelogram BE be applied equal in area to triangle ABC. Can we do that? (yes/no):`,
+    hint: `Proposition I.44 allows constructing a parallelogram equal to a given triangle on a given straight line and at a given angle.` },
+  { q: `Next, on side CE, let the parallelogram CM be applied equal to D and at an angle FCE equal to the angle CBL. Is that possible? (yes/no):`,
+    hint: `Proposition I.45 allows constructing a parallelogram equal to a given rectilineal figure in a given angle.` },
+  { q: `Since the sides BC and CF lie in one straight line, and LE is in line with EM, do you see that the construction keeps the directions continuous? (yes/no):`,
+    hint: `The parallelograms are placed so that their adjacent sides align, making BC–CF and LE–EM each a single straight line.` },
+  { q: `Now, let GH be taken a mean proportional between BC and CF. Can such a line GH be found? (yes/no):`,
+    hint: `Proposition VI.13 shows how to find a mean proportional between two straight lines.` },
+  { q: `On GH, construct a figure KGH that is similar and similarly situated to ABC. Can we do this? (yes/no):`,
+    hint: `Proposition VI.18 shows how to construct a rectilineal figure similar and similarly situated to a given figure on a given straight line.` },
+  { q: `Since BC : GH :: GH : CF, and when three straight lines are proportional, the first is to the third as the figure on the first is to the similar figure on the second, does it follow that triangle ABC : triangle KGH :: BC : CF? (yes/no):`,
+    hint: `This follows from Proposition VI.19 (Corollary): proportional lines give proportional similar figures.` },
+  { q: `But BC : CF :: parallelogram BE : parallelogram EF, correct? (yes/no):`,
+    hint: `Proposition VI.1 states that parallelograms on proportional bases and between the same parallels are in the same ratio as the bases.` },
+  { q: `Therefore, as triangle ABC : triangle KGH, so is parallelogram BE : parallelogram EF. Can we infer this relation? (yes/no):`,
+    hint: `By the equality of ratios, the same proportion holds between the figures.` },
+  { q: `Since the triangle ABC equals the parallelogram BE, can we conclude that triangle KGH equals parallelogram EF? (yes/no):`,
+    hint: `Since the triangles are proportional, the parallelograms are proportional, and triangle ABC = parallelogram BE, then triangle KGH = parallelogram EF.` },
+  { q: `But the parallelogram EF equals the given figure D, does it not? (yes/no):`,
+    hint: `By construction, EF was made equal in area to D (via CM).` },
+  { q: `Therefore, is triangle KGH equal in area to D? (yes/no):`,
+    hint: `KGH = EF and EF = D, so KGH = D by Common Notion 1 (“things equal to the same thing are equal to one another”).` },
+  { q: `And is KGH also similar to ABC? (yes/no):`,
+    hint: `KGH was constructed on GH to be similar and similarly situated to ABC (by VI.18).` },
+  { q: `Thus, have we constructed one and the same figure KGH that is similar to the given rectilineal figure ABC and equal to the other given figure D? (yes/no):`,
+    hint: `Yes — KGH satisfies both conditions of similarity and equality.` }
+];
+
+const conclusion = `Congratulations! You just constructed a rectilinear figure equal to one given figure and similar to another given figure.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements VIII.9</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>VIII.9 — Prove that if two numbers are prime to one another and admit numbers in continued proportion between them, then the same number of terms in continued proportion lies between each of them and a unit</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements VIII.9 chatbot!
+
+We are given two numbers A and B which are prime to one another. Do you agree? (yes/no):`,
+    hint: `“Prime to one another” means they have no common measure except the unit.` },
+
+  { q: `Numbers C, D fall between A, B in continued proportion. Acceptable? (yes/no):`,
+    hint: `Continued proportion means we have A to C as C to D as D to B.` },
+
+  { q: `Let us set out an unit E. Do you agree? (yes/no):`,
+    hint: `An unit is the measure of number; all numbers are multiples of it.` },
+
+  { q: `Our goal is to show that as many numbers as fall between A, B in continued proportion will also fall between each of the numbers A, B and the unit E in continued proportion. Does that make sense? (yes/no):`,
+    hint: `We want equal-length chains of proportional numbers from E to A and from E to B in continued proportion.` },
+
+  { q: `Next, take two numbers F, G, the least in the same ratio as A, C, D, B. Can we do this? (yes/no):`,
+    hint: `By VIII.2, least numbers exist in any given ratio of four numbers.` },
+
+  { q: `Now let us take three numbers H, K, L having the same property, and so on, each set increasing by one in count, until their multitude equals that of A, C, D, B. Possible? (yes/no):`,
+    hint: `VIII.2 guarantees successive multiples preserving ratio; VIII.1 ensures least sets exist.` },
+
+  { q: `Let these finally be M, N, O, P. Do you agree? (yes/no):`,
+    hint: `We choose exactly as many numbers as appear in the chain A, C, D, B.` },
+
+  { q: `Now, we have F multiplied by itself makes H, and H itself multiplied by H makes M. do you accept this? (yes/no):`,
+    hint: `By VIII.2, least numbers generate the next by multiplication.` },
+
+  { q: `Similarly, do we have G multiplied by itself makes L, and multiplied by L makes P? (yes/no):`,
+    hint: `Same reasoning for the second number of the pair.` },
+
+  { q: `Since M, N, O, P are the least with the same ratio as F, G, and A, C, D, B are also least with that ratio, and their multitudes are equal, do we have M equals A and P equals B? (yes/no):`,
+    hint: `Equal chains of least numbers with equal lengths correspond term-by-term (VIII.1).` },
+
+  { q: `Now, because F by multiplying itself made H, does F measure H according to the units in F? (yes/no):`,
+    hint: `Multiplying a number by itself means the smaller measures the larger that many times.` },
+
+  { q: `And since the unit E measures F, does the unit measure F the same number of times as F measures H? (yes/no):`,
+    hint: `Both counts depend on the number of units in F.` },
+
+  { q: `Therefore, is it true that as the unit E is to F, so is F to H? (yes/no):`,
+    hint: `This is the definition of proportion via equal numbers of measures (VII. Def. 20).` },
+
+  { q: `Next, since F multiplied H to make M, does H measure M according to the units in F? (yes/no):`,
+    hint: `Same multiplicative reasoning as before.` },
+
+  { q: `And since the unit E measures F, does it follow the unit measures F as many times as H measures M? (yes/no):`,
+    hint: `Measure counts agree because the multiplier is the same.` },
+
+  { q: `Then do we also have E is to F as H is to M? (yes/no):`,
+    hint: `Again by VII. Def. 20.` },
+
+  { q: `But if earlier we obtained E is to F as F is to H, do we now have a chain: E is to F as F is to H as H is to M? (yes/no):`,
+    hint: `If two ratios equal the same ratio, they are all equal.` },
+
+  { q: `And since we have M equal to A, do we have that as E is to F, F is to H, and H is to A? (yes/no):`,
+    hint: `Replace M with A.` },
+
+  { q: `By the same reasoning, can we also establish that E is to G as G is to L as L is to B? (yes/no):`,
+    hint: `Repeat the same argument using G, L, P, with P equal to B.` },
+
+  { q: `Therefore, since as many numbers fell between A, B in continued proportion, do the same number fall between E and each of the numbers A and B in continued proportion? (yes/no):`,
+    hint: `Each chain now has the same number of proportional steps.` }
+]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const conclusion = `Congratulations! You just proved that if two numbers are prime to one another and admit numbers in continued proportion between them, then the same number of terms in continued proportion lies between each of them and a unit.
+
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

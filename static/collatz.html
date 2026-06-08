@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Collatz Conjecture</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>Collatz Conjecture - Investigate whether every positive integer will eventually reach 1 under the Collatz algorithm</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to the Collatz Conjecture chatbot!
+
+We are studying a process on positive whole numbers (1, 2, 3, …). Do you agree? (yes/no):`,
+    hint: `A “positive whole number” is any integer 1, 2, 3, 4, and so on.` },
+
+  { q: `Our goal is to understand the Collatz Conjecture and why there is no known proof yet. Does that make sense? (yes/no):`,
+    hint: `We want to see what the conjecture says, look at examples, and see why proving it is so hard.` },
+
+  // 1. Defining the Collatz step
+  { q: `Take any positive whole number n. Do you agree this is our starting point? (yes/no):`,
+    hint: `Think of choosing any positive integer: 5, 12, 27, 1,000,000, etc.` },
+
+  { q: `If n is even, we define the next number as n/2. Does that rule make sense? (yes/no):`,
+    hint: `Even means divisible by 2 with no remainder. For example, 8 → 8/2 = 4.` },
+
+  { q: `If n is odd and greater than 1, we define the next number as 3n+1. Is that clear? (yes/no):`,
+    hint: `Odd means not divisible by 2. For example, 5 → 3·5 + 1 = 16.` },
+
+  { q: `So the Collatz step is: “if even, divide by 2; if odd (and >1), compute 3n+1.” Do you agree this defines a sequence once we pick a starting number? (yes/no):`,
+    hint: `From any starting number, we can repeat the rule again and again to get a chain of numbers (a sequence). Whenever we have an even number, we divide by 2. Whenever we have an odd number, we multiply by 3 and add 1.` },
+
+{ q: `The Collatz Conjecture states that every positive integer will eventually reach 1 under this algorithm. Does that make sense? (yes/no):`,
+    hint: `Yes, the conjecture claims that starting from any positive integer, the sequence will always eventually reach 1.` },
+
+  // 2. Trying examples
+  { q: `Let’s start with 6. Is 6 even? (yes/no):`,
+    hint: `6 ÷ 2 = 3 with no remainder, so yes, it is even.` },
+
+  { q: `From 6, using the rule “if even, divide by 2,” do we get 3 as the next number? (yes/no):`,
+    hint: `Apply the step: 6 → 6/2 = 3.` },
+
+  { q: `Is 3 odd? (yes/no):`,
+    hint: `3 is not divisible by 2, so it is odd.` },
+
+  { q: `From 3, using the rule “if odd, do 3n+1,” do we get 10? (yes/no):`,
+    hint: `Compute 3·3 + 1 = 9 + 1 = 10.` },
+
+  { q: `From 10 (even), do we get 5 by dividing by 2? (yes/no):`,
+    hint: `10 → 10/2 = 5.` },
+
+  { q: `From 5 (odd), do we get 16 by doing 3·5 + 1? (yes/no):`,
+    hint: `3·5 + 1 = 15 + 1 = 16.` },
+
+  { q: `If we keep going from 16 (even), do you see the pattern: 16 → 8 → 4 → 2 → 1? (yes/no):`,
+    hint: `Each of these is even, so we just divide by 2 each time.` },
+
+  { q: `So starting from 6, do we eventually reach 1? (yes/no):`,
+    hint: `The full chain is 6 → 3 → 10 → 5 → 16 → 8 → 4 → 2 → 1.` },
+
+  { q: `Try starting from 3. Is the chain 3 → 10 → 5 → 16 → 8 → 4 → 2 → 1? (yes/no):`,
+    hint: `Check each step: 3 (odd) → 10, 10 (even) → 5, 5 (odd) → 16, then halve repeatedly to get 1.` },
+
+  { q: `From these examples, does it seem that we always end up at 1 (at least for these starting values)? (yes/no):`,
+    hint: `For 3 and 6 (and many small numbers), repeated steps eventually reach 1.` },
+
+  // 3. Stating the Collatz Conjecture
+  { q: `The Collatz Conjecture says: Starting from any positive whole number, if we keep applying this rule, we will eventually reach 1. Is this the statement? (yes/no):`,
+    hint: `“Any” means every positive integer: 1, 2, 3, 4, 5, … with no exceptions.` },
+
+  { q: `Does the conjecture claim this happens for all positive integers, not just the ones we tested? (yes/no):`,
+    hint: `There are infinitely many positive integers; the conjecture talks about all of them at once.` },
+
+  { q: `Do you agree that checking only a few examples (like 3, 6, 7, 27) cannot prove the conjecture for all numbers? (yes/no):`,
+    hint: `A proof must cover every positive integer; we cannot test an infinite set by hand or by computer one-by-one.` },
+
+  // 4. Why it feels like there should be a simple proof
+  { q: `When a number is even, it gets smaller (n → n/2). Does that seem like we are “making progress” toward 1? (yes/no):`,
+    hint: `Halving reduces the size: 100 → 50 → 25 (then maybe it goes up again), but at least in that step it shrinks.` },
+
+  { q: `When a number is odd, we do 3n+1, which usually makes it larger. Does that sometimes “push us up” before going down again? (yes/no):`,
+    hint: `Example: 7 → 22 → 11 → 34 → … Sometimes it jumps up before eventually falling.` },
+
+  { q: `Do you see that the sequence tends to move up and down in a complicated way, even though the rule is very simple? (yes/no):`,
+    hint: `Small rules can create very complicated behavior; the pattern of ups and downs can be quite wild.` },
+
+  { q: `One might hope to show that “on average” the numbers go down. Does that sound like a natural idea for a proof? (yes/no):`,
+    hint: `If we could show the sequence cannot keep growing forever and must eventually get small, we might prove it reaches 1.` },
+
+  // 5. Why a proof is hard (at a simple level)
+  { q: `Are there infinitely many positive integers? (yes/no):`,
+    hint: `Yes: 1, 2, 3, 4, 5, … goes on without end.` },
+
+  { q: `Does testing each number one-by-one, even with a fast computer, leave an infinite list of untested numbers? (yes/no):`,
+    hint: `No; “infinite” means there is no last number to test. Computations, no matter how large, are not a proof.` },
+
+  { q: `Do some starting values (like 27) create very long, messy chains before reaching 1? (yes/no):`,
+    hint: `The sequence from 27 goes up and down many times and gets very large before coming back down to 1.
+    
+    27 → 82 → 41 → 124 → 62 → 31 → 94 → 47 → 142 → 71 → 214 → 107 → 322 → 161 → 484 → 242 → 121 → 364 → 182 → 91 → 274 → 137 → 412 → 206 → 103 → 310 → 155 → 466 → 233 → 700 → 350 → 175 → 526 → 263 → 790 → 395 → 1186 → 593 → 1780 → 890 → 445 → 1336 → 668 → 334 → 167 → 502 → 251 → 754 → 377 → 1132 → 566 → 283 → 850 → 425 → 1276 → 638 → 319 → 958 → 479 → 1438 → 719 → 2158 → 1079 → 3238 → 1619 → 4858 → 2429 → 7288 → 3644 → 1822 → 911 → 2734 → 1367 → 4102 → 2051 → 6154 → 3077 → 9232 → 4616 → 2308 → 1154 → 577 → 1732 → 866 → 433 → 1300 → 650 → 325 → 976 → 488 → 244 → 122 → 61 → 184 → 92 → 46 → 23 → 70 → 35 → 106 → 53 → 160 → 80 → 40 → 20 → 10 → 5 → 16 → 8 → 4 → 2 → 1` },
+
+  { q: `Because the chains can wander wildly, is it hard to find a simple pattern that works for all numbers? (yes/no):`,
+    hint: `There is no known simple formula that tells us exactly how each starting number will behave.` },
+
+  { q: `Could there theoretically be some extremely large number we have not checked yet, whose chain never reaches 1? (yes/no):`,
+    hint: `This is exactly what we don’t know. Either all numbers reach 1, or there is at least one that does not.` },
+
+  // 6. Why known strategies haven’t worked
+  { q: `One idea is to find some quantity that always goes down (or eventually goes down) as we apply the Collatz step. Does that seem like a natural strategy? (yes/no):`,
+    hint: `In many proofs, we use something like “energy” or “height” that decreases until it hits a minimum.` },
+
+  { q: `For Collatz, do we know of any simple quantity that strictly decreases at every step for all numbers? (yes/no):`,
+    hint: `No such quantity is known; attempts to find one have failed so far.` },
+
+  { q: `Another idea is to group numbers into patterns that always fall into smaller and smaller groups. Does that sound like another possible strategy? (yes/no):`,
+    hint: `For example, classifying by remainders (mod 2, mod 3, mod 4, etc.) to track how numbers transform.` },
+
+  { q: `Have these classification tricks so far given a complete, rigorous argument that every number reaches 1? (yes/no):`,
+    hint: `No. They give partial information, but not a full proof.` },
+
+  { q: `Do we know that the Collatz process can behave in a “random-looking” way, even though the rule is deterministic? (yes/no):`,
+    hint: `The sequences look random; this pseudo-random behavior makes it hard to control them with simple arguments.` },
+
+  // 7. What we do know
+  { q: `Mathematicians have checked the conjecture for very many starting values by computer. Is that true? (yes/no):`,
+    hint: `The conjecture has been verified for huge ranges of numbers, far beyond what we can test by hand.` },
+
+  { q: `Does verifying “many, many cases” automatically count as a proof for all cases? (yes/no):`,
+    hint: `No. A theorem must hold for all numbers, including ones larger than any we have checked.` },
+
+  { q: `Even if we checked a trillion starting numbers, would that settle what happens for numbers bigger than that? (yes/no):`,
+    hint: `No. There are still infinitely many numbers beyond any finite checking limit.` },
+
+  { q: `So, even though we have lots of numerical evidence supporting the conjecture, do we still lack a general logical argument? (yes/no):`,
+    hint: `A proof must explain why no counterexample can exist, not just fail to find one.` },
+
+  // 8. Summing up the status
+  { q: `From our discussion, is the Collatz Conjecture a statement about all positive integers eventually reaching 1 under this rule? (yes/no):`,
+    hint: `The conjecture is global: “For every positive integer n, repeating the rule leads to 1.”` },
+
+  { q: `Have we found a simple reason or formula that guarantees this for every possible starting number? (yes/no):`,
+    hint: `No such reason is known; that is why the problem is still open.` },
+
+  { q: `Even though many numbers have been checked and always reach 1, is it still possible (in principle) that a counterexample exists somewhere? (yes/no):`,
+    hint: `Until a proof is found, we cannot rule out the existence of a starting number whose sequence never reaches 1.` },
+
+  { q: `Therefore, do we currently have no proof that the Collatz Conjecture is true (or false)? (yes/no):`,
+    hint: `Correct: it is an unsolved problem. We have evidence, insight, and partial results, but no complete proof.` },
+
+  // 9. Final reflection
+  { q: `Does this help you see that the rule is very simple, but the long-term behavior of all sequences is extremely hard to control? (yes/no):`,
+    hint: `Simple rules can generate complex behavior; controlling that behavior for every number is the core difficulty.` },
+
+  { q: `Do you now understand why, despite much effort, mathematicians have not yet found a proof of the Collatz Conjecture? (yes/no):`,
+    hint: `The mix of wild trajectories, lack of a known decreasing quantity, and the infinite set of starting values all contribute to the difficulty.` }
+]
+
+
+
+
+
+
+
+
+
+
+
+
+
+;
+
+const conclusion = `You have investigated the Collatz Conjecture, that every positive integer will eventually reach 1 under the Collatz algorithm (n/2 if even, 3n+1 if odd), and found that it is still an open problem.
+This remains an unresolved problem in mathematics.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  // Steps 30, 32, 35, 36, and 39 (indices 30, 32, 35, 36, and 39) have "no" as the correct answer
+  const isStepWithNoAnswer = currentStep === 30 || currentStep === 32 || currentStep === 35 || currentStep === 36 || currentStep === 39;
+  if (isStepWithNoAnswer) {
+    if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+      currentStep++;
+      showStep();
+    } else if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+      addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+    } else {
+      addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+    }
+  } else {
+    if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+      currentStep++;
+      showStep();
+    } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+      addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+    } else {
+      addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+    }
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

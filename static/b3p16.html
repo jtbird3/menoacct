@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>III.16 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>III.16 - Prove that (1) the line perpendicular at the end of a diameter falls outside the circle, (2) no other line can be placed between it and the arc, and (3) the semicircle's angle is greater than any acute angle while the remaining angle is less.</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements III.16 chatbot!
+
+We are given a circle ABC with center D and diameter AB. Do you agree? (yes/no):`,
+    hint: `A diameter passes through the center and touches both sides of the circle.` },
+  { q: `Our goal is to show the perpendicular at A to AB falls outside the circle, and then prove the claims about angles. Does that make sense? (yes/no):`,
+    hint: `This proposition links perpendiculars, tangency, and angle comparisons.` },
+  { q: `For the sake of argument, suppose the perpendicular at A to AB falls inside the circle, say along AC. Can we make this assumption? (yes/no):`,
+    hint: `We are testing by contradiction.` },
+  { q: `If AC falls inside, join DC. Can we do that? (yes/no):`,
+    hint: `Postulate 1: a straight line may be drawn from any point to any point.` },
+  { q: `Since DA = DC (both radii), is ∠DAC equal to ∠ACD? (yes/no):`,
+    hint: `By I.5, equal sides of an isosceles triangle have equal angles opposite them.` },
+  { q: `But isn't ∠DAC a right angle? (yes/no):`,
+    hint: `AC was drawn perpendicular to AB at A.` },
+  { q: `If ∠DAC and ∠ACD are both right, triangle ACD have two right angles plus a third angle. Is this impossible? (yes/no):`,
+    hint: `That would make the sum > 2 right angles, contradicting I.17.` },
+  { q: `So must the perpendicular at A fall outside the circle? (yes/no):`,
+    hint: `By elimination, it cannot lie inside or on the circumference.` },
+  { q: `Now let AE be this perpendicular line outside the circle and draw a new radius DH between DA and DC. Is this possible? (yes/no):`,
+    hint: `We will again argue by contradiction.` },
+  { q: `Let us also draw another line FA between AE and arc CHA, crossing line DH at G so the DG is perpendicular to FA. For the sake of argument, we will claim that FA is at an angle wedged between AE and arc CHA. Can we do this? (yes/no):`,
+    hint: `We will again argue by contradiction.` },
+  { q: `If FA really is a line wedged between AE and arc CHA, let us drop perpendicular DG from D to FA. Possible? (yes/no):`,
+    hint: `From any point to a line, a perpendicular can be drawn.` },
+  { q: `Since ∠AGD is right, is ∠DAG less than a right angle? (yes/no):`,
+    hint: `Yes, because DAG is acute compared to the right angle AGD.` },
+  { q: `From I.19, if one angle is less, is the opposite side AD greater than DG? (yes/no):`,
+    hint: `In a triangle, the greater angle lies opposite the greater side.` },
+  { q: `But DA = DH (both radii). This means DH > DG, even though we said DG is on the line FA that does not cross the circle. Is this a contradiction? (yes/no):`,
+    hint: `That would contradict since DH = DA, but AD already > DG.` },
+  { q: `So did we prove that it is impossible to interpose a line between AE and arc CHA? (yes/no):`,
+    hint: `Contradiction shows it is impossible.` },
+  { q: `Next, is the angle of the semicircle (∠BDA) greater than any acute rectilineal angle? (yes/no):`,
+    hint: `If a greater rectilineal acute angle existed, then another line could be interposed between arc and AE: proven to be a contradiction.` },
+  { q: `And is the remaining angle (between AE and arc CHA) less than any acute rectilineal angle? (yes/no):`,
+    hint: `If it were not, again a line could be interposed making a smaller angle: proven contradiction.` },
+  { q: `Therefore, have we shown that the perpendicular at the end of the diameter falls outside the circle, that no line lies between it and the arc, and that the semicircle's angle is greater than any acute angle while the adjacent is less? (yes/no):`,
+    hint: `Yes, this completes the proof.` },
+  { q: `Porism: From this, do we see that the perpendicular at the end of the diameter touches the circle? (yes/no):`,
+    hint: `A line that meets the circle at exactly one point is tangent.` }
+];
+
+const conclusion = `Congratulations! You have proved the line perpendicular at the end of a diameter falls outside the circle, no other line can be placed between it and the arc, and the semicircle's angle is greater than any acute angle while the remaining angle is less.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

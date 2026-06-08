@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Principia Lemma 11</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>Lemma XI - Prove that for a curve having finite curvature at a point, the evanescent subtense of the angle of contact is proportional to the square of the evanescent arc</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [{ q: `Welcome to Newton's Principia Lemma 11 chatbot!
+
+We are given a curve with finite curvature at a point A. Do you agree? (yes/no):`,
+  hint: `The proposition assumes finite curvature at the point of contact.` },
+{ q: `Let AB be an arc of the curve, AD the tangent at A, and BD the subtense of the angle of contact, drawn perpendicular to the tangent AD. Is this construction clear? (yes/no):`,
+  hint: `BD measures the angle of contact by a perpendicular to the tangent.` },
+{ q: `Let AB also denote the subtense of the arc. Do you see that AB is used in this second sense? (yes/no):`,
+  hint: `Newton uses the same letters for the arc and its straight subtense.` },
+{ q: `Next, draw BG perpendicular to the subtense AB, and AG perpendicular to the tangent AD, meeting at G. Can we do this? (yes/no):`,
+  hint: `Perpendiculars can be drawn from given points to given lines.` },
+{ q: `Now let the points D, B, and G approach toward d, b, and g, and suppose J is the ultimate intersection of the lines BG and AG when D and B have come to A. Do you follow this limiting process? (yes/no):`,
+  hint: `The points move toward A, and the intersection approaches a final position.` },
+{ q: `Is it evident that the distance GJ may be made less than any assignable magnitude? (yes/no):`,
+  hint: `As the points approach A, G approaches g and J approaches that same location.` },
+{ q: `From the nature of the circles passing through the points A, B, G and A, b, g, do certain ratios of corresponding lines arise? (yes/no):`,
+  hint: `Newton appeals to the geometry of circles determined by these points.` },
+{ q: `Do we see that the ratio of the evanescent subtenses is compounded of the ratio of AG to Ag and of BD to bd? (yes/no):`,
+  hint: `A compounded ratio is formed from two successive ratios.` },
+{ q: `Since GJ can be assumed smaller than any assignable length, does the ratio of AG to Ag differ from equality by less than any assignable difference? (yes/no):`,
+  hint: `Lines with endpoints arbitrarily close have ratios arbitrarily close to 1.` },
+{ q: `Therefore, may the ratio of the evanescent subtenses differ from the ratio of BD to bd by less than any assignable difference? (yes/no):`,
+  hint: `One factor of the compounded ratio is arbitrarily close to equality.` },
+{ q: `By Lemma I, if two ratios differ by less than any assignable difference, do they have the same ultimate ratio? (yes/no):`,
+  hint: `Lemma I governs ultimate equality of ratios.` },
+{ q: `Therefore, is the ultimate ratio of the evanescent subtenses the same as the ultimate ratio of BD to bd? (yes/no):`,
+  hint: `This completes the limiting argument for Case 1.` },
+{ q: `Q.E.D.`,
+  hint: `` },
+
+// CASE 2
+{ q: `Now let BD be inclined to the tangent AD at any given angle. Is this a new geometric configuration? (yes/no):`,
+  hint: `The subtense is no longer perpendicular.` },
+{ q: `Will the ultimate ratio of BD to bd remain the same as in Case 1? (yes/no):`,
+  hint: `Newton asserts the limiting ratio is unaffected by the inclination.` },
+{ q: `Therefore, is the ultimate ratio of the evanescent subtenses the same as before? (yes/no):`,
+  hint: `The prior conclusion carries over unchanged.` },
+{ q: `Q.E.D.`,
+  hint: `` },
+
+// CASE 3
+{ q: `Now suppose the angle at D is not given, but the line BD converges to a given point or is determined by some other condition. Do you see that this allows many possible constructions? (yes/no):`,
+  hint: `The line BD may be defined in various ways.` },
+{ q: `Are the angles D and d determined by the same law in the limiting process? (yes/no):`,
+  hint: `Both arise from the same geometric rule.` },
+{ q: `As the points approach A, do these angles draw nearer to equality than by any assigned difference? (yes/no):`,
+  hint: `Their difference diminishes without bound.` },
+{ q: `By Lemma I, do angles that differ by less than any assignable difference ultimately become equal? (yes/no):`,
+  hint: `Lemma I applies to angles as well as ratios.` },
+{ q: `Therefore, are the lines BD and bd ultimately in the same ratio as before? (yes/no):`,
+  hint: `Equal angles enforce the same proportional behavior.` },
+{ q: `Thus, does the conclusion of Case 1 still hold under these conditions? (yes/no):`,
+  hint: `The limiting ratio is invariant under these changes.` },
+{ q: `Q.E.D.`,
+  hint: `` },
+
+]
+
+const conclusion = `Congratulations! You just proved that for a curve having finite curvature at a point, the evanescent subtense of the angle of contact is proportional to the square of the evanescent arc.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

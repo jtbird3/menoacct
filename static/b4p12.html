@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>IV.12 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>IV.12 - Circumscribe an equilateral and equiangular pentagon about a given circle</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements IV.12 chatbot!
+
+We are given a circle, which we will call ABCDE. Do you agree? (yes/no):`,
+    hint: `This circle ABCDE is our given figure, and all constructions will be drawn around it.` },
+  { q: `Our goal is to circumscribe an equilateral and equiangular pentagon about this circle. Does that make sense? (yes/no):`,
+    hint: `“Circumscribe” means that each side of the pentagon will touch the circle, and all sides and angles of the pentagon will be equal.` },
+  { q: `Through these points A, B, C, D, and E, let us draw tangents GAH, HBK, KCL, LDM, and MEG touching the circle. Can we do that? (yes/no):`,
+    hint: `Proposition III.16 allows a straight line to be drawn tangent to a circle from any point on its circumference.` },
+  { q: `Let the center of the circle be called F. Can we join the radii FB, FK, FC, FL, and FD? (yes/no):`,
+    hint: `From the center to any point on the circle we can draw a straight line (Postulate 1).` },
+  { q: `Since the tangent KL touches the circle at C, and FC joins the center to the point of contact, is FC perpendicular to KL? (yes/no):`,
+    hint: `By Proposition III.18, the radius to the point of tangency is perpendicular to the tangent.` },
+  { q: `Therefore, the angle at C is a right angle. Does that follow? (yes/no):`,
+    hint: `A radius to the point of contact makes a right angle with the tangent.` },
+  { q: `For the same reason, are the angles at B and D also right? (yes/no):`,
+    hint: `Each tangent meets its radius at a right angle, by the same reasoning.` },
+  { q: `Now, since ∠FCK is right, the square on FK is equal to the sum of the squares on FC and CK. Do you agree? (yes/no):`,
+    hint: `By Proposition I.47 (the Pythagorean Theorem), the square on the hypotenuse equals the sum on the sides containing the right angle.` },
+  { q: `Similarly, is the square on FK also equal to the sum of the squares on FB and BK? (yes/no):`,
+    hint: `The same reasoning applies for triangle FBK, which is also right-angled at B.` },
+  { q: `If both are equal to the square on FK, can we say that the squares on FC and CK equal the squares on FB and BK? (yes/no):`,
+    hint: `If two things are each equal to the same thing, they are equal to one another (Common Notion 1).` },
+  { q: `Since the squares on FC and FB are equal, does it follow that the squares on CK and BK are equal? (yes/no):`,
+    hint: `Subtract equals from equals; the remainders are equal (Common Notion 3).` },
+  { q: `Then, are BK and CK equal in length? (yes/no):`,
+    hint: `Equal squares correspond to equal sides.` },
+  { q: `Since the three pairs of sides are equal, do the triangles BFK and CFK have equal sides in pairs and equal included angle? (yes/no):`,
+    hint: `Two sides and the included angle are equal (SAS condition).` },
+  { q: `Therefore, is the angle BFK equal to the angle KFC? (yes/no):`,
+    hint: `Corresponding angles in equal triangles are equal.` },
+  { q: `Then, is ∠BFC double ∠KFC, and ∠BKC double ∠FKC? (yes/no):`,
+    hint: `The larger angle at the center is composed of two equal adjacent angles.` },
+  { q: `For the same reason, is ∠CFD double ∠CFL, and ∠DLC double ∠FLC? (yes/no):`,
+    hint: `The same construction applies at each consecutive vertex.` },
+  { q: `Since arc BC = arc CD, does ∠BFC = ∠CFD? (yes/no):`,
+    hint: `Equal arcs subtend equal angles at the center (Proposition III.27).` },
+  { q: `Then, if ∠BFC = ∠CFD, and each is double of its adjacent smaller angle, is ∠KFC = ∠LFC? (yes/no):`,
+    hint: `Halves of equal doubles are equal.` },
+  { q: `Since ∠FCK = ∠FCL and side FC is common, are triangles FKC and FLC equal? (yes/no):`,
+    hint: `By Proposition I.26, if two angles and the included side are equal, the triangles are equal.` },
+  { q: `Therefore, are sides KC and CL equal? (yes/no):`,
+    hint: `Corresponding sides of equal triangles are equal.` },
+  { q: `Then, is KL double KC? (yes/no):`,
+    hint: `KL is composed of KC + CL, and since KC = CL, the total is double.` },
+  { q: `Can we similarly prove that HK is double BK? (yes/no):`,
+    hint: `The same reasoning applies to the preceding sides.` },
+  { q: `Since BK = KC and HK = KL, are all the sides equal? (yes/no):`,
+    hint: `Each tangent side repeats the same proportional relation, giving equality all around.` },
+  { q: `Therefore, is pentagon GHKLM equilateral? (yes/no):`,
+    hint: `All its sides have been shown equal.` },
+  { q: `Next, shall we prove it is also equiangular? (yes/no):`,
+    hint: `Equal sides alone give equilateral, but we must show equal angles for equiangular.` },
+  { q: `Since ∠FKC = ∠FLC, and ∠HKL and ∠KLM are each double of those, are ∠HKL and ∠KLM equal? (yes/no):`,
+    hint: `Equal doubles imply equal results.` },
+  { q: `By the same reasoning, are all the remaining angles KHG, HGM, and GML equal as well? (yes/no):`,
+    hint: `Each follows the same proportional argument through symmetry of the construction.` },
+  { q: `Therefore, is pentagon GHKLM equiangular as well as equilateral? (yes/no):`,
+    hint: `All sides and all angles are equal.` }
+];
+
+const conclusion = `Congratulations! You just inscribed an equilateral and equiangular pentagon in a given circle.
+Q.E.F. (Quod Erat Faciendum — which was to be done)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

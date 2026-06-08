@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Eratosthenes' Circumference — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>Eratosthenes's Calculation of the Circumference of the Earth</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Eratosthenes's Calculation of the Circumference of the Earth!
+
+It is the year 240 BC in Alexandria, Egypt. We have two cities, Syene and Alexandria, located along the same meridian (north-south line). Do you agree? (yes/no):`,
+    hint: `Eratosthenes assumed both cities were approximately on the same line of longitude.` },
+  { q: `We are also given a rumor that at noon on the summer solstice in Syene, the Sun shines directly overhead, lighting up the bottom of a deep well with no shadow. Do you see why? (yes/no):`,
+    hint: `When the Sun is at the zenith (tip-top of the sky), its rays fall straight down; Syene is near the Tropic of Cancer, the latitude where this occurs in the Northern Hemisphere on the summer solstice (shortest day of the year).` },
+  { q: `At the same time in Alexandria, a vertical stick does cast a shadow. Agreed? (yes/no):`,
+    hint: `The Sun's rays are nearly parallel, so any difference in shadow shows a difference in the angle between the local verticals.` },
+  { q: `Our goal is to find the total circumference of the Earth using the angle of the shadow at Alexandria. Does that make sense? (yes/no):`,
+    hint: `The difference in the Sun's angle between the two cities corresponds to the angle at the Earth's center between them.` },
+  { q: `Eratosthenes measures the Sun's angle at Alexandria to be about 7.2°, which is 1/50 of a full circle. Do you follow? (yes/no):`,
+    hint: `360° ÷ 50 = 7.2°, so the arc between the cities represents 1/50 of Earth's full circle.` },
+  { q: `Now, let us imagine two straight lines drawn from both cities to the center of the Earth. Can we do that? (yes/no):`,
+    hint: `If we imagine both cities on the earth's surface, we can imagine radii from the Earth's core to the cities.` },
+  { q: `Now, the sun is so far away that its rays are essentially parallel, whether you are at Syene or Alexandria. Is that correct? (yes/no):`,
+    hint: `The Sun is approximately 150 million kilometers away and astronomers of the time knew it was far away, so we assume that the rays are essentially parallel to each other because of the vast distance.` },
+  { q: `Since the Sun rays in both cities are parallel, the angle of the stick's shadow at Alexandria and the angle of the two lines at the center form a pair of alternate interior angles. Do you see that? (yes/no):`,
+    hint: `The Sun is so far away that its rays are essentially parallel to each other, so the lines from the center of the Earth to Syene and Alexandria are parallel to each other.` },
+  { q: `Now, since alternate interior angles are equal, the angle of the stick at Alexandria is equal to the angle of the two lines at the center. Is that correct? (yes/no):`,
+    hint: `Alternate interior angles between parallel lines are always equal.` },
+  { q: `Now, we know that the distance between the two cities is approximately 5,000 stadia (800 km). Do you agree?`,
+    hint: `Eratosthenes knew the distance between the two cities.` },
+  { q: `We also know that the angle at the center of the earth between these two cities is 7.2°, which is 1/50 of a full circle. Do you agree?`,
+    hint: `We know this from the alternate interior angles.` },
+  { q: `So, to find the whole circumference, can we multiply 5,000 stadia by 50? (yes/no):`,
+    hint: `The entire circle is 50 times larger than the 1/50 part measured.` },
+  { q: `So, does this give a total circumference of 250,000 stadia? (yes/no):`,
+    hint: `5,000 x 50 = 250,000; this was Eratosthenes' result.` },
+  { q: `If we convert that into modern units, it corresponds roughly to about 40,000 kilometers. Do you agree? (yes/no):`,
+    hint: `Depending on the stadium length, Eratosthenes' estimate is remarkably close to the modern value of 40,000 kilometers.` },
+  { q: `Therefore, by observing the Sun's shadow and applying geometry, did Eratosthenes demonstrate a method to calculate Earth's circumference? (yes/no):`,
+    hint: `The reasoning uses parallel rays, a central angle, and proportional geometry — no need to travel around the globe.` }
+];
+
+const conclusion = `Congratulations! You just calculated the circumference of the Earth.
+Q.E.F. (Quod Erat Faciendum — which was to be done)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

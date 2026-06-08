@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements VIII.3</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>VIII.3 — Prove that if numbers in continued proportion are the least having a given ratio, then their extremes are prime to one another</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements VIII.3 chatbot!
+
+We are given numbers A, B, C, D in continued proportion, and they are the least numbers having that ratio. Do you see this assumption? (yes/no):`,
+    hint: `“Least” means no smaller numbers have the same proportional sequence.`
+  },
+  {
+    q: `We want to show that the extremes A and D are prime to one another. Is that clear? (yes/no):`,
+    hint: `The goal is to prove gcd(A, D) = an unit (1).`
+  },
+  {
+    q: `Let us take two numbers E and F which are the least with the same ratio as A, B, C, D. Does that step make sense? (yes/no):`,
+    hint: `By VII.33, we may choose the least numbers having a given ratio.`
+  },
+  {
+    q: `Let us now construct more numbers G, H, K similarly, and continue until we have as many numbers as A, B, C, D. Do you follow? (yes/no):`,
+    hint: `By VIII.2, least proportional numbers can be built step-by-step by self-multiplication.`
+  },
+  {
+    q: `Let us call these constructed numbers L, M, N, O. Can we do this? (yes/no):`,
+    hint: `L, M, N, O are the least numbers in the same proportion as A, B, C, D.`
+  },
+  {
+    q: `If E and F are the least in their ratio, must they be prime to one another? (yes/no):`,
+    hint: `VII.22 says least numbers with a given ratio are relatively prime.`
+  },
+  {
+    q: `If E, F produce G, K by multiplying themselves, and similarly G, K produce L, O, do we conclude G is prime to K and L is prime to O? (yes/no):`,
+    hint: `VII.27: numbers arising by proportional multiplication preserve relative primeness.`
+  },
+  {
+    q: `Since A, B, C, D and L, M, N, O are both the least sets with the same ratio and have equal length, must they match term-for-term? (yes/no):`,
+    hint: `Least proportional sequences with equal length must be equal.`
+  },
+  {
+    q: `Therefore A is equal to L and D is equal to O. Agreed? (yes/no):`,
+    hint: `Corresponding terms in equal least proportional sets coincide.`
+  },
+  {
+    q: `Since L and O are prime to one another, must A and D also be prime to one another? (yes/no):`,
+    hint: `Equality transfers relative primeness.`
+  }
+]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const conclusion = `Congratulations! You just proved that if numbers in continued proportion are the least having a given ratio, then their extremes are prime to one another.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements VIII.15</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>VIII.15 — Prove that if one cube number measures another, then their sides also measure one another; and if the sides measure one another, the cubes measure one another</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements VIII.15 chatbot!
+
+We are given two cube numbers A and B, and A measures B. Do you agree? (yes/no):`,
+    hint:`“Measures” means B is an exact multiple of A.` },
+
+  { q:`Let C be the side of cube A, and D the side of cube B. Acceptable? (yes/no):`,
+    hint:`A = C × C × C, and B = D × D × D.` },
+
+  { q:`Our goal is to prove that C measures D. Does that make sense? (yes/no):`,
+    hint:`We want D to be an exact multiple of C.` },
+
+  { q:`Let C multiplied by itself make E. Can we form E as C multiplied by C? (yes/no):`,
+    hint:`A cube’s side squared is part of its construction.` },
+
+  { q:`Let D multiplied by itself make G. Is that allowed? (yes/no):`,
+    hint:`G = D·D.` },
+
+  { q:`Now let C multiplied by D make F. Possible? (yes/no):`,
+    hint:`F = C·D is their product.` },
+
+  { q:`Next, let C multiplied by F make H, and D multiplied by F make K. All right? (yes/no):`,
+    hint:`H = C·F and K = D·F.` },
+
+  { q:`Do you see that E, F, G and A, H, K, B are in continuous proportion in the ratio C to D? (yes/no):`,
+    hint:`By VIII.11–12, products arranged this way form a continued proportion.` },
+
+  { q:`Since A, H, K, B are continuously proportional and A measures B, do you agree that A also measures H? (yes/no):`,
+    hint:`VIII.7: If the first measures the last in a continuous proportion, it also measures those between.` },
+
+  { q:`If A is to H as C is to D, and A measures H, must we conclude C measures D? (yes/no):`,
+    hint:`VII.Def.20: If equals stand in the same ratio, measurement transfers through the ratio.` },
+
+  { q:`Thus, if cube A measures cube B, side C measures side D. Agreed? (yes/no):`,
+    hint:`Measurement of cubes forces measurement of sides.` },
+
+  { q:`Part 2 — If side measures side, then cube measures cube. Now assume C measures D. Do you agree? (yes/no):`,
+    hint:`D is an exact multiple of C.` },
+
+  { q:`Our goal is to prove A measures B. Does this follow? (yes/no):`,
+    hint:`A = C³, B = D³.` },
+
+  { q:`Using the same construction (E, F, G, H, K), do A, H, K, B again fall in continuous proportion in ratio C:D? (yes/no):`,
+    hint:`The proportionality does not change.` },
+
+  { q:`Since C measures D, and C is to D as A is toH, do you agree that A measures H? (yes/no):`,
+    hint:`VII.Def.20 again: measurement passes through a like ratio.` },
+
+  { q:`If A measures H, and H lies in the continuous proportion leading to B, do we conclude A measures B? (yes/no):`,
+    hint:`As before, measurement extends along the proportion.` },
+
+  { q:`Therefore, if side C measures side D, cube A measures cube B. Does that follow? (yes/no):`,
+    hint:`Cubes correspond exactly to their sides raised to the third power.` }
+]
+
+
+
+
+
+
+
+
+
+
+
+
+
+const conclusion = `Congratulations! You just proved that if one cube number measures another, then their sides also measure one another; and if the sides measure one another, the cubes measure one another.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

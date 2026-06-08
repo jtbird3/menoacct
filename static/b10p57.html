@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.57</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.57 – Prove that if an area is contained by a rational straight line and the fourth binomial, the side of the area is the irrational straight line called major.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+{ q: `Welcome to Elements X.57 chatbot!
+
+We are given an area AC contained by a rational straight line AB and a fourth binomial straight line AD. Do you agree? (yes/no):`, hint: `AB is rational, and AD is given as a fourth binomial.` },
+{ q: `The fourth binomial AD is divided into its terms at E, with AE the greater term. Do you agree? (yes/no):`, hint: `This is part of the definition of a fourth binomial.` },
+{ q: `Our goal is to prove that the side of the area AC is the irrational straight line called major. Does that make sense? (yes/no):`, hint: `We want to identify the irrational species of AC.` },
+
+{ q: `Since AD is a fourth binomial, are AE and ED rational straight lines commensurable in square only? (yes/no):`, hint: `From Definition II.4 of Book X.` },
+{ q: `Is the square on AE greater than the square on ED by the square on a straight line incommensurable with AE? (yes/no):`, hint: `This distinguishes the fourth binomial.` },
+{ q: `Is AE commensurable in length with AB? (yes/no):`, hint: `This is given in the definition.` },
+
+{ q: `Is DE bisected at F? (yes/no):`, hint: `This is a construction step.` },
+{ q: `Is a parallelogram AG, GE applied to AE equal to the square on EF? (yes/no):`, hint: `By Proposition X.18.` },
+{ q: `From this, is AG incommensurable in length with GE? (yes/no):`, hint: `This follows from X.18.` },
+
+{ q: `Are GH, EK, and FL drawn parallel to AB, with the rest of the construction as before? (yes/no):`, hint: `Euclid refers explicitly to the prior construction.` },
+{ q: `Is it manifest that MO is the side of the area AC? (yes/no):`, hint: `This follows from the construction.` },
+
+{ q: `Since AG is incommensurable with EG, is AH also incommensurable with GK, that is, SN with NQ? (yes/no):`, hint: `By VI.1 and X.11.` },
+{ q: `Therefore, are MN and NO incommensurable in square? (yes/no):`, hint: `This follows from the construction.` },
+
+{ q: `Since AE is commensurable with AB, is AK rational? (yes/no):`, hint: `By Proposition X.19.` },
+{ q: `Is AK equal to the sum of the squares on MN and NO? (yes/no):`, hint: `This follows from the construction.` },
+{ q: `Therefore, is the sum of the squares on MN and NO rational? (yes/no):`, hint: `Equal to a rational straight line.` },
+
+{ q: `Since DE is incommensurable in length with AB, that is, with EK, and DE is commensurable with EF, is EF incommensurable in length with EK? (yes/no):`, hint: `By Proposition X.13.` },
+{ q: `Are EK and EF rational straight lines commensurable in square only? (yes/no):`, hint: `Rational but not commensurable in length.` },
+{ q: `Therefore, is LE, that is MR, medial? (yes/no):`, hint: `By Proposition X.21.` },
+
+{ q: `Is MR contained by MN and NO? (yes/no):`, hint: `This follows from the construction.` },
+{ q: `Therefore, is the rectangle contained by MN and NO medial? (yes/no):`, hint: `A rectangle contained by medial lines is medial.` },
+
+{ q: `Are MN and NO incommensurable in square, while the sum of their squares is rational? (yes/no):`, hint: `Both conditions have been shown.` },
+{ q: `If such straight lines are added together, is the whole irrational and called major? (yes/no):`, hint: `By Proposition X.39.` },
+{ q: `Therefore, is MO the irrational straight line called major and the side of the area AC? (yes/no):`, hint: `This completes the proof.` },
+]
+
+const conclusion = `Congratulations! You just proved that if an area is contained by a rational straight line and the fourth binomial, the side of the area is the irrational straight line called major.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

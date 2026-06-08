@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>I.21 — MenoChat (Toggle: Pure ↔ Graph)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>I.21 - Prove that if two lines are drawn from the ends of a triangle's side to a point within it, the sum of those lines is less than the sum of the other two sides, but contains a greater angle</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements I.21 chatbot!
+
+We are given a triangle ABC. Do you agree? (yes/no):`,
+    hint: `Think of △ABC, with BC as the base.` },
+  { q: `Now, from points B and C, let us draw two internal straight lines BD and DC inside the triangle. Okay? (yes/no):`,
+    hint: `BD is drawn from B into the triangle, DC from C into the triangle, meeting at D.` },
+  { q: `Our claim: BD + DC is less than BA + AC, and ∠BDC is greater than ∠BAC. Does that make sense? (yes/no):`,
+    hint: `We are comparing the combined lines inside with the two outer sides, and also the angles.` },
+  { q: `Can we extend BD beyond D to a new point E on side AC? (yes/no):`,
+    hint: `Postulate 2 allows us to extend any finite line.` },
+  { q: `Now, in triangle ABE, is AB + AE > BE? (yes/no):`,
+    hint: `By Proposition I.20, in any triangle, two sides are greater than the remaining one.` },
+  { q: `If we now add EC to both, is BA + AC greater than BE + EC? (yes/no):`,
+    hint: `Adding the same length EC to both sides of the inequality preserves it.` },
+  { q: `Next, in triangle CED, are CE + ED greater than CD? (yes/no):`,
+    hint: `Again, by Proposition I.20, two sides of a triangle are greater than the third.` },
+  { q: `If we add DB to both, do we get CE + EB > CD + DB? (yes/no):`,
+    hint: `Adding the same segment DB preserves inequality.` },
+  { q: `But earlier, we showed BA + AC > BE + EC. Combine this with BE + EC > CD + DB. Does it follow that BA + AC is much greater than CD + DB? (yes/no):`,
+    hint: `Putting the inequalities together shows the outer two sides exceed the inner two.` },
+  { q: `Now, consider the angles: in triangle CDE, is external ∠BDC greater than internal ∠CED? (yes/no):`,
+    hint: `Proposition I.16 states that an external angle of a triangle is greater than the internal opposite angle.` },
+  { q: `Likewise, in triangle ABE, is external ∠CEB greater than ∠BAC? (yes/no):`,
+    hint: `By the same reasoning (Prop. I.16), the external angle exceeds the opposite internal angle.` },
+  { q: `But we already showed ∠BDC > ∠CEB. Then, is ∠BDC much greater than ∠BAC? (yes/no):`,
+    hint: `If ∠BDC > ∠CEB and ∠CEB > ∠BAC, then ∠BDC > ∠BAC.` },
+  { q: `Therefore, BD + DC < BA + AC, but ∠BDC > ∠BAC. Have we proved the claim? (yes/no):`,
+    hint: `Yes — the inner lines are shorter, but they enclose a greater angle.` }
+];
+
+const conclusion = `Congratulations, You have shown that when two straight lines are drawn inside a triangle from the ends of one side, these lines together are shorter than the other two sides of the triangle, but they enclose a larger angle! 
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

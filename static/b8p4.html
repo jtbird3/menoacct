@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements VIII.4</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>VIII.4 — Prove that if numbers in continued proportion are the least having a given ratio, then their extremes are prime to one another</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements VIII.4 chatbot!
+
+We are given three ratios in least numbers: A to B, C to D, and E to F. Do you agree? (yes/no):`,
+    hint: `“Least numbers” means each ratio is already reduced to its smallest whole-number form.`
+  },
+  {
+    q: `Our goal is to find numbers in continued proportion that are the least which match these three ratios. Does that make sense? (yes/no):`,
+    hint: `We want four numbers in order, each pair having the required ratio.`
+  },
+  {
+    q: `First, let us take G to be the least number measured by B and C. Can we do this? (yes/no):`,
+    hint: `Proposition VII.34 guarantees a least common multiple (the least number measured by both).`
+  },
+  {
+    q: `Next, let A measure H as many times as B measures G. Possible? (yes/no):`,
+    hint: `We repeat A just as many times as B fits into G.`
+  },
+  {
+    q: `Similarly, let D measure K as many times as C measures G. Can we do this? (yes/no):`,
+    hint: `Same idea: number of measures matches.`
+  },
+  {
+    q: `Now let us check whether E measures K or does not. Possible? (yes/no):`,
+    hint: `Two cases arise depending on whether E divides K.`
+  },
+  {
+    q: `Case 1: Let E measure K. If E does measure K, then let F measure a new number L as many times as E measures K. Possible? (yes/no):`,
+    hint: `Match F to E’s number of measures.`
+  },
+  {
+    q: `If A measures H as many times as B measures G, do we have A to B equal to H to G? (yes/no):`,
+    hint: `Equal measure counts give equal ratios (VII. Def. 20 & VII.13).`
+  },
+  {
+    q: `Likewise, if C measures G as many times as D measures K, do we have C to D equal to G to K? (yes/no):`,
+    hint: `Equal measure counts give equal ratios (VII. Def. 20 & VII.13).`
+  },
+  {
+    q: `And since E measures K as many times as F measures L, do we have E is to F equal to K is to L? (yes/no):`,
+    hint: `Matching measure counts form equal ratios.`
+  },
+  {
+    q: `If H to G equals A to B, and G to K equals C to D, and K to L equals E to F, do H, G, K, L form a continued proportion with the required ratios? (yes/no):`,
+    hint: `The sequence H–G–K–L carries the three given ratios in order.`
+  },
+  {
+    q: `Next, must we show that H, G, K, L are the least numbers with this property? (yes/no):`,
+    hint: `Euclid now proves minimality by contradiction.`
+  },
+  {
+    q: `Suppose they are not the least, and that smaller numbers N, O, M, P also have the same continued ratios. Can we assume this for contradiction? (yes/no):`,
+    hint: `This is Euclid’s standard minimality argument.`
+  },
+  {
+    q: `If A to B equals N to O and A, B are least, must B measure O? (yes/no):`,
+    hint: `Least numbers measuring another ratio force the consequent to be measured (VII.20).`
+  },
+  {
+    q: `For the same reason, must C also measure O? (yes/no):`,
+    hint: `C plays the same role relative to its matching ratio.`
+  },
+  {
+    q: `If both B and C measure O, must the least number measured by B and C also measure O? (yes/no):`,
+    hint: `VII.35 states the least common measured number also measures any number they both measure.`
+  },
+  {
+    q: `But G is the least number measured by B and C. If G measures O, is that impossible since we have G less than O required? (yes/no):`,
+    hint: `A smaller number cannot measure a larger one in this context.`
+  },
+  {
+    q: `Therefore, are H, G, K, L indeed the least continued-proportion numbers for the case where E measures K? (yes/no):`,
+    hint: `The contradiction shows no smaller set exists.`
+  },
+  {
+    q: `Case 2: SupposeE does not measure K. If E does not measure K, do we take M as the least number measured by E and K? (yes/no):`,
+    hint: `Again by VII.34, take the least common measured number.`
+  },
+  {
+    q: `Let H and G measure N and O as many times as K measures M. Can we do this? (yes/no):`,
+    hint: `Repeat H and G according to the measure count of K into M.`
+  },
+  {
+    q: `Let F measure P as many times as E measures M. Reasonable? (yes/no):`,
+    hint: `Parallel construction to the earlier case.`
+  },
+  {
+    q: `If H measures N as many times as G measures O, is H to G equal to N to O? (yes/no):`,
+    hint: `Equal measure counts yield equal ratios (VII.13 & Def.20).`
+  },
+  {
+    q: `If H to G equals A to B, do we have A to B equals N to O? (yes/no):`,
+    hint: `Transitivity of equal ratios.`
+  },
+  {
+    q: `Similarly, is C to D equal to O to M? (yes/no):`,
+    hint: `The same argument applied to C, D, G, K.`
+  },
+  {
+    q: `And since E measures M as many times as F measures P, is E to F equal to M to P? (yes/no):`,
+    hint: `Matching measure counts again.`
+  },
+  {
+    q: `Do N, O, M, P therefore form the required continued proportion? (yes/no):`,
+    hint: `Their consecutive ratios match A to B, C to D, E to F.`
+  },
+  {
+    q: `Now, must we prove they are the least such numbers? (yes/no):`,
+    hint: `Again Euclid argues by contradiction.`
+  },
+  {
+    q: `Assume smaller numbers Q, R, S, T have the same continued ratios. Can we suppose this? (yes/no):`,
+    hint: `Standard minimality contradiction.`
+  },
+  {
+    q: `Since A to B gives Q to R and A, B are presumed least, must B measure R? (yes/no):`,
+    hint: `From VII.20, least numbers in a ratio measure those with the same ratio.`
+  },
+  {
+    q: `Similarly, does C also measure R? (yes/no):`,
+    hint: `Apply the same rule for C, D and R.`
+  },
+  {
+    q: `If both B and C measure R, must the least number measured by B and C also measure R? (yes/no):`,
+    hint: `VII.35 again.`
+  },
+  {
+    q: `But that least number is G, so does G measure R? (yes/no):`,
+    hint: `This follows from the previous step.`
+  },
+  {
+    q: `And since we have G to R equals K to S, must K measure S? (yes/no):`,
+    hint: `VII.13: equal ratios imply equal measurement counts.`
+  },
+  {
+    q: `Since E also measures S, must the least number measured by E and K also measure S? (yes/no):`,
+    hint: `Again VII.35 about least common measured number.`
+  },
+  {
+    q: `But that least number is M. If M measures S, is this impossible because M must be less than S? (yes/no):`,
+    hint: `This yields the contradiction.`
+  },
+  {
+    q: `Therefore, are N, O, M, P the least numbers in continued proportion for this case? (yes/no):`,
+    hint: `No smaller numbers can satisfy the same ratios.`
+  }
+]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const conclusion = `Congratulations! You just proved that if numbers in continued proportion are the least having a given ratio, then their extremes are prime to one another.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

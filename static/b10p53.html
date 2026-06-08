@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.53</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.53 – Find the sixth binomial straight line.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+{ q: `Welcome to Elements X.53 chatbot!
+
+We are given two numbers AC and CB, arranged so that AB has not to either AC or CB the ratio which a square number has to a square number. Do you agree? (yes/no):`, hint: `This means AB is not in a square-to-square ratio with AC or CB.` },
+{ q: `We are also given another number D, which is not a square, and which has not to either BA or AC the ratio which a square number has to a square number. Is that clear? (yes/no):`, hint: `D fails the square-number ratio condition with both BA and AC.` },
+{ q: `Our goal is to find a sixth binomial straight line. Does that make sense? (yes/no):`, hint: `A sixth binomial has a specific structure defined earlier in Book X.` },
+
+{ q: `Let any rational straight line E be set out. Can we do this? (yes/no):`, hint: `A rational straight line is assumed as a starting construction.` },
+{ q: `Let it be contrived that, as D is to AB, so is the square on E to the square on FG. Is this construction allowed? (yes/no):`, hint: `This follows from Proposition X.6, Porism.` },
+{ q: `From this proportion, is the square on E commensurable with the square on FG? (yes/no):`, hint: `Proposition X.6 shows equality of ratios implies commensurability of squares.` },
+{ q: `Since E is rational, does it follow that FG is also rational? (yes/no):`, hint: `A straight line commensurable in square with a rational square is itself rational.` },
+
+{ q: `Since D does not have to AB the ratio which a square number has to a square number, does it follow that the square on E does not have to the square on FG such a ratio? (yes/no):`, hint: `Equal ratios preserve the property of being square-number ratios.` },
+{ q: `Therefore, is E incommensurable in length with FG? (yes/no):`, hint: `By Proposition X.9, failure of square-number ratio implies incommensurability in length.` },
+
+{ q: `Next, let it be contrived that, as BA is to AC, so is the square on FG to the square on GH. Is this possible? (yes/no):`, hint: `Again, this follows from Proposition X.6, Porism.` },
+{ q: `Does it follow that the square on FG is commensurable with the square on GH? (yes/no):`, hint: `Same squares-ratio reasoning as before.` },
+{ q: `Therefore, is GH rational? (yes/no):`, hint: `A square commensurable with a rational square is itself rational.` },
+{ q: `Since BA does not have to AC the ratio which a square number has to a square number, does it follow that FG is incommensurable in length with GH? (yes/no):`, hint: `By Proposition X.9 again.` },
+
+{ q: `Are FG and GH rational straight lines commensurable in square only? (yes/no):`, hint: `They are rational, square-commensurable, but length-incommensurable.` },
+{ q: `Does it then follow that FH is a binomial straight line? (yes/no):`, hint: `Proposition X.36 defines such a sum as binomial.` },
+
+{ q: `It is next to be proved that FH is a sixth binomial straight line. Does that make sense? (yes/no):`, hint: `We must verify the additional defining conditions.` },
+{ q: `Since, as D is to AB, so is the square on E to the square on FG, and as BA is to AC, so is the square on FG to the square on GH, can we conclude ex aequali that, as D is to AC, so is the square on E to the square on GH? (yes/no):`, hint: `Proposition V.22 (ex aequali).` },
+{ q: `Since D does not have to AC the ratio which a square number has to a square number, does it follow that E is incommensurable in length with GH? (yes/no):`, hint: `Proposition X.9 again.` },
+{ q: `Was E already shown to be incommensurable in length with FG? (yes/no):`, hint: `This was proved earlier.` },
+{ q: `Therefore, is each of FG and GH incommensurable in length with E? (yes/no):`, hint: `Both comparisons have now been established.` },
+
+{ q: `Since, as BA is to AC, so is the square on FG to the square on GH, is the square on FG greater than the square on GH? (yes/no):`, hint: `The ratio BA:AC implies magnitude comparison.` },
+{ q: `Let the square on GH together with another square K be equal to the square on FG. Is this construction possible? (yes/no):`, hint: `Euclid represents excess of squares geometrically.` },
+{ q: `From this, does it follow by conversion that, as AB is to BC, so is the square on FG to the square on K? (yes/no):`, hint: `Proposition V.19, Porism.` },
+{ q: `Since AB does not have to BC the ratio which a square number has to a square number, does it follow that FG is incommensurable in length with K? (yes/no):`, hint: `Proposition X.9.` },
+{ q: `Therefore, is the square on FG greater than the square on GH by the square on a straight line incommensurable with FG? (yes/no):`, hint: `This is the defining excess condition.` },
+
+{ q: `Since FG and GH are rational straight lines commensurable in square only, and neither is commensurable in length with the rational straight line E, does it follow that FH is a sixth binomial straight line? (yes/no):`, hint: `This matches exactly the definition of a sixth binomial.` },
+]
+
+const conclusion = `Congratulations! You just found the sixth binomial straight line.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

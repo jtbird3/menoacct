@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Anamnesis: Aristotle's Equivocals</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { background: #fdfdfd; color: #222; font-family: "Hoefler Text", "Baskerville", serif; padding: 20px; max-width: 750px; margin: auto; border-top: 5px solid #000; }
+    #chat { border: 1px solid #ccc; background: #fff; padding: 30px; min-height: 400px; display: flex; flex-direction: column; gap: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    .msg { line-height: 1.6; font-size: 1.1em; }
+    .bot { color: #000; }
+    .user { font-style: italic; color: #444; border-right: 3px solid #ddd; padding-right: 15px; text-align: right; margin-left: auto; max-width: 80%; }
+    #options { margin-top: 30px; display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; }
+    button { padding: 12px 24px; border: 1px solid #000; background: #fff; cursor: pointer; font-family: inherit; font-size: 1em; transition: 0.2s; }
+    button:hover { background: #000; color: #fff; }
+    h1 { text-align: center; text-transform: uppercase; letter-spacing: 2px; }
+    .source-note { font-size: 0.8em; color: #888; text-align: center; margin-bottom: 20px; }
+  </style>
+</head>
+<body>
+
+<h1>The Discovery of Equivocals</h1>
+<p class="source-note">Derived from Aristotle, <i>Categories</i> (Edgehill Edition)</p>
+
+<div id="chat"></div>
+<div id="options"></div>
+
+<script>
+const ontology = {
+  question: "Look upon a <b>living man</b> standing before you, and a <b>painted figure</b> on a canvas. Could we not call them both 'Animal'?",
+  options: [
+    { text: "Yes, they share that name.", next: "common_name" },
+    { text: "No, a painting is just paint.", next: "aporia_nominalism" }
+  ],
+  common_name: {
+    question: "We have a <b>Common Name</b>: 'Animal'. Now, if I ask you what it means for the <i>living man</i> to be an animal, is the answer the same as what it means for the <i>painting</i> to be one?",
+    options: [
+      { text: "No, the definition differs for each.", next: "definition_split" },
+      { text: "Yes, they are essentially the same.", next: "aporia_essentialism" }
+    ]
+  },
+  definition_split: {
+    question: "Precisely. The definition for the man involves breath and blood; the definition for the painting involves pigment and proportion. Since they share a <b>name</b> but have different <b>definitions</b>, are they truly the same 'kind' of thing?",
+    options: [
+      { text: "They are named 'equivocally'.", next: "final_articulation" }
+    ]
+  },
+  final_articulation: {
+    question: "You have recollected the truth: Things are 'equivocal' when the name is common, but the account of their essence is distinct. Do you now see why the man and the painting are equivocal 'Animals'?",
+    options: [
+      { text: "I see it clearly. The definition is appropriate to each case only.", next: "end" }
+    ]
+  },
+  aporia_nominalism: {
+    question: "Yet, if you pointed to the painting and asked a child 'What is this creature?', would they not say 'A man' or 'An animal'? Is the name not applied to both?",
+    options: [{ text: "It is. They share the name.", next: "common_name" }]
+  },
+  aporia_essentialism: {
+    question: "Consider: If the painting were an 'animal' in the same sense as the man, would the painting not need to eat, breathe, and move?",
+    options: [{ text: "True. The definition must be different.", next: "definition_split" }]
+  }
+};
+
+let currentNode = ontology;
+const chatDiv = document.getElementById('chat');
+const optionsDiv = document.getElementById('options');
+
+function render() {
+  const msg = document.createElement('div');
+  msg.className = 'msg bot';
+  msg.innerHTML = currentNode.question;
+  chatDiv.appendChild(msg);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+
+  optionsDiv.innerHTML = '';
+  if (currentNode.options) {
+    currentNode.options.forEach(opt => {
+      const btn = document.createElement('button');
+      btn.innerText = opt.text;
+      btn.onclick = () => selectOption(opt);
+      optionsDiv.appendChild(btn);
+    });
+  }
+}
+
+function selectOption(opt) {
+  const msg = document.createElement('div');
+  msg.className = 'msg user';
+  msg.innerText = opt.text;
+  chatDiv.appendChild(msg);
+
+  if (opt.next === "end") {
+    const endMsg = document.createElement('div');
+    endMsg.className = 'msg bot';
+    endMsg.innerHTML = "<b>Q.E.D.</b> You have articulated the nature of Equivocals. The knowledge was within you all along.";
+    chatDiv.appendChild(endMsg);
+    optionsDiv.innerHTML = '';
+  } else {
+    currentNode = findNode(ontology, opt.next);
+    setTimeout(render, 500);
+  }
+}
+
+function findNode(obj, key) {
+  if (obj[key]) return obj[key];
+  for (let k in obj) {
+    if (typeof obj[k] === 'object') {
+      let found = findNode(obj[k], key);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+render();
+</script>
+</body>
+</html>

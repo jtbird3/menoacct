@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.101</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.101 – Prove that if the square on the straight line which produces with a rational area a medial whole is applied to a rational straight line, the breadth produced is a fifth apotome.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+{ q: `Welcome to Elements X.101 chatbot!
+
+We are given a straight line AB which produces with a rational area a medial whole, and CD a rational straight line. Do you agree? (yes/no)`,
+  hint: `AB produces a medial whole with a rational area, and CD is a rational line.` },
+
+{ q: `Our goal is to apply the square on AB to CD as a breadth and show that the resulting line CF is a fifth apotome. Does that make sense? (yes/no)`,
+  hint: `We want to construct CF such that it has the properties of a fifth apotome.` },
+
+{ q: `Let BG be the annex to AB, so that AG and GB are incommensurable in square, making the sum of the squares on them medial but twice their rectangle rational. Can we do this? (yes/no)`,
+  hint: `By X.77, the annex construction produces these properties.` },
+
+{ q: `To CD, can we apply CH equal to the square on AG, and KL equal to the square on GB, so that CL = CH + KL? (yes/no)`,
+  hint: `By Euclidean construction, the whole CL equals the sum of the squares on AG and GB.` },
+{ q: `Since the sum of squares on AG and GB is medial, is CL medial? (yes/no)`,
+  hint: `Sum of medial squares remains medial.` },
+{ q: `When applied to the rational line CD, does CL produce CM as breadth, which is rational and incommensurable with CD? (yes/no)`,
+  hint: `By X.22, applying a medial area to a rational line produces a rational line incommensurable in length with the base.` },
+
+{ q: `If CE = square on AB, then is the remainder FL equal to twice the rectangle AG, GB? (yes/no)`,
+  hint: `By II.7, subtraction of areas yields the remaining rectangle.` },
+
+{ q: `Let FM be bisected at N, and through N draw NO parallel to CD or ML. Then are the rectangles FO and NL each equal to rectangle AG, GB? (yes/no)`,
+  hint: `Constructed parallelogram divides area as required.` },
+
+{ q: `Since twice the rectangle AG, GB is rational and equal to FL, is FL rational? (yes/no)`,
+  hint: `Twice a rational area is rational.` },
+{ q: `Applying FL to rational line EF, does it produce FM as breadth, rational and commensurable with CD? (yes/no)`,
+  hint: `X.20 ensures rational lines applied to rational lines yield rational breadth.` },
+
+{ q: `Since CL is medial and FL rational, is CL incommensurable with FL? (yes/no)`,
+  hint: `A medial line is incommensurable with a rational line.` },
+{ q: `Since CL:FL = CM:MF (VI.1), is CM incommensurable in length with MF? (yes/no)`,
+  hint: `Proportions preserve incommensurability.` },
+{ q: `If both CM and MF are rational, then are they commensurable in square only, so CF is an apotome? (yes/no)`,
+  hint: `By X.73, rational lines incommensurable in length but commensurable in square form an apotome.` },
+
+{ q: `To prove it is a fifth apotome, can we show rectangle CK, KM = ¼ square on FM, with CH and KL incommensurable, making CK incommensurable with KM? (yes/no)`,
+  hint: `VI.1 and X.11 ensure incommensurability of parts implies fifth apotome structure.` },
+{ q: `Since CM and MF are unequal, and a parallelogram equal to ¼ square on FM, deficient by a square figure, divides CM into incommensurable parts, is square on CM greater than square on MF by a square incommensurable with CM? (yes/no)`,
+  hint: `X.18 confirms the geometric property of fifth apotome.` },
+{ q: `Since FM is commensurable with rational line CD, can we conclude that CF is a fifth apotome? (yes/no)`,
+  hint: `Definition III.5 confirms that this construction yields a fifth apotome.` },
+]
+
+const conclusion = `Congratulations! You just proved that if the square on the straight line which produces with a rational area a medial whole is applied to a rational straight line, the breadth produced is a fifth apotome.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

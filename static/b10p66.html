@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.66</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.66 – Prove that a straight line commensurable in length with a binomial straight line is itself binomial and of the same order.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+{ q: `Welcome to Elements X.66 chatbot!
+
+We are given a straight line AB which is binomial, and a straight line CD which is commensurable in length with AB. Do you agree? (yes/no):`, hint: `“Commensurable in length” means the lengths have a common measure.` },
+{ q: `Our goal is to prove that CD is binomial, and that CD is the same in order with AB. Does that make sense? (yes/no):`, hint: `“Same in order” means they fall under the same binomial class (first, second, … sixth).` },
+
+{ q: `Since AB is binomial, can we divide AB into its terms at some point E, with AE the greater term? (yes/no):`, hint: `A binomial is composed of two rational terms.` },
+{ q: `From AB being binomial, do we have that AE and EB are rational straight lines commensurable in square only? (yes/no):`, hint: `This is the cited property of the terms of a binomial.` },
+
+{ q: `Can we contrive a line CF so that, as AB is to CD, so is AE to CF? (yes/no):`, hint: `This uses a proportional construction (VI.12).` },
+{ q: `If AB:CD = AE:CF, does it follow that the remainder EB is to the remainder FD as AB is to CD? (yes/no):`, hint: `This is the “remainders are in the same ratio” step (V.19).` },
+
+{ q: `Since AB is commensurable in length with CD, does it follow that AE is commensurable in length with CF, and EB with FD? (yes/no):`, hint: `Commensurability transfers through the set proportion (X.11 as cited).` },
+{ q: `Since AE and EB are rational, can we conclude that CF and FD are also rational? (yes/no):`, hint: `If a line is commensurable in length with a rational line, it is rational.` },
+
+{ q: `From the construction, do we also have AE:CF = EB:FD? (yes/no):`, hint: `This is the cited proportional relation (V.11).` },
+{ q: `From AE:CF = EB:FD, can we infer alternately that AE:EB = CF:FD? (yes/no):`, hint: `Alternation of proportions (V.16).` },
+
+{ q: `Since AE and EB are commensurable in square only, does AE:EB = CF:FD imply that CF and FD are also commensurable in square only? (yes/no):`, hint: `This uses the cited transfer principle (X.11).` },
+{ q: `Since CF and FD are rational and commensurable in square only, can we conclude that CD is binomial? (yes/no):`, hint: `This matches the definition/criterion used for a binomial (X.36 as cited).` },
+
+{ q: `Now we must show CD is the same in order with AB. Is that our next goal? (yes/no):`, hint: `We already showed “CD is binomial”; now we match its “order.”` },
+
+{ q: `Is it true that the square on AE is greater than the square on EB either by the square on a straight line commensurable with AE or by the square on a straight line incommensurable with AE? (yes/no):`, hint: `These are the two cases Euclid separates.` },
+
+{ q: `If the square on AE is greater than the square on EB by the square on a straight line commensurable with AE, does it follow that the square on CF is greater than the square on FD by the square on a straight line commensurable with CF? (yes/no):`, hint: `This is the cited parallel step (X.14).` },
+
+{ q: `In this “commensurable excess” case, if AE is commensurable with the rational straight line set out, is CF also commensurable with that same rational straight line? (yes/no):`, hint: `The commensurability condition is preserved (X.12).` },
+{ q: `If AE (and so CF) is commensurable with the rational straight line set out, do we conclude that AB and CD are each first binomials, and so the same in order? (yes/no):`, hint: `This is exactly “first binomial” (X. Deff. II.1).` },
+
+{ q: `Still in this “commensurable excess” case: if instead EB is commensurable with the rational straight line set out, is FD also commensurable with it? (yes/no):`, hint: `Again, X.12 transfers the commensurability.` },
+{ q: `If EB (and so FD) is commensurable with the rational straight line set out, do we conclude that AB and CD are each second binomials, and so the same in order? (yes/no):`, hint: `This is “second binomial” (X. Deff. II.2).` },
+
+{ q: `Still in this “commensurable excess” case: if neither AE nor EB is commensurable with the rational straight line set out, is it true that neither CF nor FD is commensurable with it? (yes/no):`, hint: `This is the cited parallel result (X.13).` },
+{ q: `If neither pair is commensurable with the rational straight line set out, do we conclude that AB and CD are each third binomials, and so the same in order? (yes/no):`, hint: `This is “third binomial” (X. Deff. II.3).` },
+
+{ q: `Now take the other main case: if the square on AE is greater than the square on EB by the square on a straight line incommensurable with AE, does it follow that the square on CF is greater than the square on FD by the square on a straight line incommensurable with CF? (yes/no):`, hint: `This again uses X.14 as cited.` },
+
+{ q: `In this “incommensurable excess” case: if AE is commensurable with the rational straight line set out, is CF also commensurable with it? (yes/no):`, hint: `This is the same commensurability transfer used above.` },
+{ q: `If AE (and so CF) is commensurable with the rational straight line set out, do we conclude that AB and CD are each fourth binomials, and so the same in order? (yes/no):`, hint: `This is “fourth binomial” (X. Deff. II.4).` },
+
+{ q: `In this “incommensurable excess” case: if EB is commensurable with the rational straight line set out, is FD also commensurable with it? (yes/no):`, hint: `Same transfer principle as before.` },
+{ q: `If EB (and so FD) is commensurable with the rational straight line set out, do we conclude that AB and CD are each fifth binomials, and so the same in order? (yes/no):`, hint: `This is “fifth binomial” (X. Deff. II.5).` },
+
+{ q: `Finally in this “incommensurable excess” case: if neither AE nor EB is commensurable with the rational straight line set out, is it true that neither CF nor FD is commensurable with it? (yes/no):`, hint: `This matches the cited non-commensurability result (X.13).` },
+{ q: `If neither pair is commensurable with the rational straight line set out, do we conclude that AB and CD are each sixth binomials, and so the same in order? (yes/no):`, hint: `This is “sixth binomial” (X. Deff. II.6).` },
+
+{ q: `Therefore, have we shown that a straight line commensurable in length with a binomial straight line is itself binomial and the same in order? (yes/no):`, hint: `We proved “CD is binomial,” and then matched the order case-by-case. Q.E.D.` },
+]
+
+const conclusion = `Congratulations! You just proved that a straight line commensurable in length with a binomial straight line is itself binomial and of the same order.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>III.37 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>III.37 - Prove that if from a point outside a circle, one line cuts the circle and another meets it, then the rectangle of the whole cutting line and its external part equals the square on the line falling on the circle</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements III.37 chatbot!
+
+We are given a circle ABC and a point D outside it. Do you agree? (yes/no):`,
+    hint: `The point lies outside the convex circumference.` },
+  { q: `From D, two straight lines are drawn: one, DCA, cuts the circle; the other, DB, falls on the circle. Do you see this setup? (yes/no):`,
+    hint: `One line passes through the circle (secant), the other just meets it.` },
+  { q: `The rectangle contained by AD and DC equals the square on DB. Does that make sense? (yes/no):`,
+    hint: `AD x DC = (DB)².` },
+  { q: `Our goal is to prove that DB touches the circle ABC. Does that make sense? (yes/no):`,
+    hint: `To show DB is tangent at B.` },
+  { q: `Now, suppose DE is drawn touching the circle at some point E. Can we assume this? (yes/no):`,
+    hint: `Postulate that a tangent from D exists, to compare lengths.` },
+  { q: `Let F be the centre of the circle. Then join FE, FB, and FD. Can we do this? (yes/no):`,
+    hint: `Any point can be joined to another by a straight line (Post.1).` },
+  { q: `Is the angle ∠FED right? (yes/no):`,
+    hint: `From III.18, the line from the centre to the tangent point is perpendicular to the tangent.` },
+  { q: `Since DE touches the circle and DCA cuts it, do we know that AD x DC = (DE)²? (yes/no):`,
+    hint: `By Proposition III.36, rectangle of secant equals square on tangent.` },
+  { q: `But we were also given AD x DC = (DB)². Does that imply (DE)² = (DB)²? (yes/no):`,
+    hint: `Two expressions equal to the same thing are equal (Common Notion 1).` },
+  { q: `Therefore is DE = DB? (yes/no):`,
+    hint: `Equal squares imply equal straight lines.` },
+  { q: `Now FE = FB, since both are radii. Do you see this? (yes/no):`,
+    hint: `Centre F joined to E and to B gives equal radii.` },
+  { q: `So triangles DEF and DBF have DE = DB, FE = FB, and common side FD. Can we say they are equal by I.8? (yes/no):`,
+    hint: `SSS equality implies equal triangles.` },
+  { q: `Thus ∠DEF = ∠DBF. Do you follow? (yes/no):`,
+    hint: `Corresponding angles of equal triangles are equal.` },
+  { q: `But ∠DEF is right. Then is ∠DBF also right? (yes/no):`,
+    hint: `Equality carries over: ∠DEF = ∠DBF.` },
+  { q: `Since FB produced is a diameter, and DB is drawn at right angles to it at the end point B, does that mean DB touches the circle? (yes/no):`,
+    hint: `From III.16 (Porism), the line at right angles to a diameter at its extremity is tangent.` }
+];
+
+const conclusion = `Congratulations! You just proved that if a point lies outside a circle, and the rectangle formed by the secant segments equals the square on the line falling on the circle, then that line is tangent to the circle. 
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

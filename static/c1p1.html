@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Conics - I.1</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>I.1 - Prove that the straight lines drawn from the vertex of the conic surface to points on the surface are on that surface.</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Conics I.1 chatbot!
+
+We are given a conic surface with vertex A, and a point B on that surface. Do you agree? (yes/no):`,
+    hint: `B lies on the conic surface by assumption of the setup.` },
+  { q: `Let us join the straight line ACB from A to B. can we do that? (yes/no):`,
+    hint: `A straight line can be drawn between any two points (Postulate 1 analogue).` },
+  { q: `Our goal is to show that the straight line ACB lies on the conic surface. Clear? (yes/no):`,
+    hint: `This is the claim of Proposition 1.` },
+  { q: `Suppose for contradiction that ACB is not on the surface. Can we assume this? (yes/no):`,
+    hint: `This is a proof by contradiction: assume the opposite of what is to be shown, find a contradiction, and conclude the original statement is true.` },
+  { q: `Let DE be the generating straight line of the conic surface. Acceptable? (yes/no):`,
+    hint: `By definition of a conic surface, one line (DE) is moved to generate it (Def. 1 of Apollonius).` },
+  { q: `And let EF be the circle along which DE is moved. Acceptable? (yes/no):`,
+    hint: `The generator moves along a fixed circle while one endpoint remains at A (Def. 1).` },
+  { q: `If A is fixed and DE moves along EF, will DE pass through every point on the surface, including B? (yes/no):`,
+    hint: `By the definition of the conic surface, the generator traces every point of the surface.` },
+  { q: `If DE reaches B, does that mean B is an endpoint on the generator at some position? (yes/no):`,
+    hint: `When DE reaches B, its endpoint is at B.` },
+  { q: `But A is the fixed endpoint for every position of DE. So would DE and ACB both share endpoints A and B? (yes/no):`,
+    hint: `If generator passes through B, its endpoints coincide with those of ACB.` },
+  { q: `If two straight lines both share endpoints A and B, must they be on the same straight line? (yes/no):`,
+    hint: `In Euclid, two distinct straight lines cannot share both endpoints (Postulate 1 uniqueness).` },
+  { q: `But we assumed that ACB is not on the surface. Do we have a contradiction? (yes/no):`,
+    hint: `Between two points, there is only one straight line.` },
+  { q: `Therefore, is the assumption that ACB is not on the surface impossible? (yes/no):`,
+    hint: `Contradiction eliminates the assumption.` },
+  { q: `So, does the straight line ACB lie on the conic surface? (yes/no):`,
+    hint: `Having refuted the contrary, the claim follows (Q.E.D.).` },
+  { q: `Q.E.D. Ready to prove the porism?`,
+    hint: `The contradiction completes the demonstration.` },
+  { q: `PORISM: If a straight line is joined from A to a point inside the surface, will it fall within the conic surface? (yes/no):`,
+    hint: `Points inside the surface lie on some generator position interior to the boundary.` },
+  { q: `And if it is joined from A to a point outside, will it fall outside the surface? (yes/no):`,
+    hint: `A segment from A to an external point cannot lie on any generator or between them.` },
+  { q: `Therefore inner points join to A within, and outer points join without. Do you agree? (yes/no):`,
+    hint: `Direct consequences of the definition of the conic surface.` }
+];
+
+const conclusion = `Congratulations! You just proved that the straight lines drawn from the vertex of a conic surface to points on the surface are on the surface.
+
+Q.E.D. (Quod Erat Demonstrandum - which was to be proved)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

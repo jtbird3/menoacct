@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Apollonius I.13: The Ellipse</title>
+  <style>
+    body { font-family: 'Courier New', monospace; padding: 20px; max-width: 800px; margin: auto; }
+    #chat { border: 1px solid #000; padding: 15px; height: 400px; overflow-y: auto; background: #fff; }
+    .bot { margin-bottom: 20px; font-weight: bold; }
+    .hint { color: #555; font-style: italic; border-left: 2px solid #000; padding-left: 10px; margin-top: 5px; }
+    #input-area { margin-top: 10px; display: flex; gap: 10px; }
+    input { flex-grow: 1; padding: 10px; border: 1px solid #000; }
+  </style>
+</head>
+<body>
+
+<h3>Apollonius I.13 — The Ellipse</h3>
+<div id="chat"></div>
+<div id="input-area">
+  <input id="userInput" type="text" placeholder="Do you grant this? (yes/no)">
+</div>
+
+<script>
+const apolloniusSteps = [
+  {
+    q: "Let there be a cone with vertex A and base circle BC. Let it be cut by a plane through the axis to make triangle ABC. Do you grant this initial set-up?",
+    hint: "This is the 'Axial Triangle'. Without it, we have no reference for our cutting plane."
+  },
+  {
+    q: "Now, let a second plane cut the cone, meeting both sides of our triangle but NOT parallel to the base. It makes a closed curve DE. Is it clear that DE is a finite line within the cone?",
+    hint: "If the plane is not parallel to the base or a side, it must enter one side and exit the other, forming a finite diameter."
+  },
+  {
+    q: "We define EH (latus rectum) such that AK² : (BK·KC) = DE : EH. Can we assume this EH is a fixed magnitude for this specific cone?",
+    hint: "Per Euclid VI.23, we are simply compounding ratios to find a fourth proportional. EH is a constant of the section."
+  },
+  {
+    q: "Take point L on the section. We draw LM parallel to the base section. By Prop II.14 of Euclid, is LM² = PM·MR?",
+    hint: "Any line perpendicular to the diameter of a circle (the cross-section of the cone) relates to the segments of the diameter in this way."
+  },
+  {
+    q: "Apollonius claims LM² is equal to a rectangle applied to EH, but 'decreased by a figure similar to rect. DE,EH'. Does this 'shortfall' (ellipse) define the curve's closed nature?",
+    hint: "Unlike a parabola, the ellipse 'falls short' (elleipsis) of the full rectangular area, causing it to curve back toward its start."
+  }
+];
+
+let current = 0;
+const chat = document.getElementById('chat');
+const input = document.getElementById('userInput');
+
+function log(text, type) {
+  const div = document.createElement('div');
+  div.className = type;
+  div.innerHTML = text;
+  chat.appendChild(div);
+  chat.scrollTop = chat.scrollHeight;
+}
+
+function ask() {
+  log(apolloniusSteps[current].q, 'bot');
+}
+
+input.addEventListener('keypress', (e) => {
+  if (e.key === 'Enter') {
+    const val = input.value.toLowerCase();
+    if (val === 'yes' || val === 'y') {
+      current++;
+      if (current < apolloniusSteps.length) ask();
+      else log("Q.E.F. The Ellipse is defined.", 'bot');
+    } else {
+      log(`<div class="hint">Doubt encountered: ${apolloniusSteps[current].hint}</div>`, 'bot');
+    }
+    input.value = '';
+  }
+});
+
+ask();
+</script>
+</body>
+</html>

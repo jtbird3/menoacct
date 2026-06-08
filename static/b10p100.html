@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.100</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.100 – Prove that if the square on a minor straight line is applied to a rational straight line, the breadth produced is a fourth apotome.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+{ q: `Welcome to Elements X.100 chatbot!
+
+We are given a minor straight line AB and a rational straight line CD. Do you agree? (yes/no):`,
+  hint: `A minor line is part of the classification of lines from Book X; a rational line is one whose square is commensurable with a given square.` },
+
+{ q: `Our goal is to apply the square on AB to CD and show that the breadth CF is a fourth apotome. Does that make sense? (yes/no):`,
+  hint: `A fourth apotome is a rational line commensurable in square only with another rational line under certain conditions.` },
+
+{ q: `Let BG be the annex to AB, so that AG and GB are incommensurable in square. Can we do this? (yes/no):`,
+  hint: `Proposition X.76 defines annex lines where AG and GB are incommensurable in square, with sum of squares rational and twice the rectangle medial.` },
+
+{ q: `Let CE be applied to CD equal to the square on AB, producing CF as breadth. Is this possible? (yes/no):`,
+  hint: `Application of areas to lines is allowed by Euclid's constructions (Book VI & X).` },
+
+{ q: `Let CH be applied equal to the square on AG, producing CK as breadth, and KL equal to the square on GB, producing KM as breadth. Shall we proceed? (yes/no):`,
+  hint: `This breaks the square on AB into parts corresponding to AG and GB.` },
+
+{ q: `Since CL = CH + KL = sum of squares on AG and GB, is CL rational? (yes/no):`,
+  hint: `Sum of squares on AG, GB is rational, so CL is rational (Book X.20).` },
+
+{ q: `If CE = square on AB, then remainder FL = 2·AG·GB. Do you see that? (yes/no):`,
+  hint: `Subtracting squares yields the remainder as twice the rectangle AG·GB (Book II.7).` },
+
+{ q: `Let FM be bisected at N, and draw NO through N parallel to CD (or ML). Is that construction valid? (yes/no):`,
+  hint: `Parallel lines allow decomposition of rectangles into equal parts.` },
+
+{ q: `Since twice the rectangle AG·GB is medial, and FL = 2·AG·GB, is FL medial? (yes/no):`,
+  hint: `A medial line is defined as one whose square is rational but the line is incommensurable with a rational.` },
+
+{ q: `Applied to rational FE, producing FM as breadth, is FM rational and incommensurable in length with CD? (yes/no):`,
+  hint: `By Book X.22, application of medial lines produces rational lines incommensurable in length with the original rational.` },
+
+{ q: `Are CL and FL incommensurable? (yes/no):`,
+  hint: `CL is rational, FL is medial, so they are incommensurable (Book X.11).` },
+
+{ q: `Since CM : MF = CL : FL, are CM and MF incommensurable in length? (yes/no):`,
+  hint: `Euclid VI.1 defines proportional incommensurability.` },
+
+{ q: `Are CM and MF rational, and commensurable in square only? (yes/no):`,
+  hint: `Rational lines commensurable in square only define an apotome (Book X.73).` },
+
+{ q: `Shall we conclude that CF is an apotome? (yes/no):`,
+  hint: `CF = CM + MF; both rational and commensurable in square only → CF is an apotome.` },
+
+{ q: `Do we also agree that it is a fourth apotome? (yes/no):`,
+  hint: `By the definitions and ratios, the decomposition of CF shows it meets the criteria of a fourth apotome (Definition X.III.4).` },
+
+{ q: `Therefore, the square on a minor applied to a rational produces a fourth apotome. Does that summarize our goal? (yes/no):`,
+  hint: `Q.E.D. — all steps logically follow Book X constructions.` },
+]
+
+const conclusion = `Congratulations! You just proved that if the square on a minor straight line is applied to a rational straight line, the breadth produced is a fourth apotome.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

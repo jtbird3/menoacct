@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements XI.18</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>XI.18 – Prove that if a straight line is at right angles to any plane, all the planes through it are also at right angles to the same plane.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements XI.18 chatbot!
+
+We are given a straight line AB which is at right angles to a plane of reference. Do you agree? (yes/no):`,
+    hint: `This means AB is perpendicular to the given plane.` },
+
+  { q: `Let a plane DE be drawn through the straight line AB. Is this possible? (yes/no):`,
+    hint: `Any plane can be drawn through a given straight line.` },
+
+  { q: `Let CE be the common section of the plane DE and the plane of reference. Do you agree? (yes/no):`,
+    hint: `Two planes intersect in a straight line, called their common section.` },
+
+  { q: `Let a point F be taken at random on the line CE. Is this allowed? (yes/no):`,
+    hint: `Any point may be chosen on a straight line.` },
+
+  { q: `From point F, let FG be drawn in the plane DE at right angles to CE. Can we do this? (yes/no):`,
+    hint: `By Proposition I.11, a straight line can be drawn at right angles to a given straight line in a plane.` },
+
+  { q: `Now, since AB is at right angles to the plane of reference, is AB at right angles to every straight line in that plane which meets it? (yes/no):`,
+    hint: `This follows from Definition 3 of Book XI.` },
+
+  { q: `Does the straight line CE lie in the plane of reference and meet AB? (yes/no):`,
+    hint: `CE is the common section and intersects AB.` },
+
+  { q: `Therefore, is AB at right angles to CE? (yes/no):`,
+    hint: `A line perpendicular to a plane is perpendicular to all intersecting lines in that plane.` },
+
+  { q: `Is the angle ABF therefore a right angle? (yes/no):`,
+    hint: `AB is perpendicular to CE at point F.` },
+
+  { q: `Is the angle GFB also a right angle? (yes/no):`,
+    hint: `FG was drawn at right angles to CE at F.` },
+
+  { q: `Since angle ABF equals angle GFB, are AB and FG parallel? (yes/no):`,
+    hint: `If a straight line makes equal alternate interior angles, the lines are parallel (Proposition I.28).` },
+
+  { q: `Now, since AB is at right angles to the plane of reference, is any line parallel to AB also at right angles to that plane? (yes/no):`,
+    hint: `Proposition XI.8 establishes this.` },
+
+  { q: `Therefore, is FG at right angles to the plane of reference? (yes/no):`,
+    hint: `FG is parallel to AB.` },
+
+  { q: `Recall the definition: is a plane said to be at right angles to another plane when a straight line drawn in it at right angles to their common section is also at right angles to the other plane? (yes/no):`,
+    hint: `This is Definition 4 of Book XI.` },
+
+  { q: `Was FG drawn in plane DE at right angles to CE, the common section of the planes? (yes/no):`,
+    hint: `This was part of the construction.` },
+
+  { q: `And was FG proved to be at right angles to the plane of reference? (yes/no):`,
+    hint: `This followed from its parallelism to AB.` },
+
+  { q: `Therefore, is the plane DE at right angles to the plane of reference? (yes/no):`,
+    hint: `The definition of perpendicular planes is satisfied.` },
+
+  { q: `Our goal is to show that all planes through AB are at right angles to the plane of reference. Does that make sense? (yes/no):`,
+    hint: `DE was arbitrary among planes through AB.` },
+
+  { q: `Since the same reasoning applies to any plane drawn through AB, can we conclude that all such planes are at right angles to the plane of reference? (yes/no):`,
+    hint: `No special property of DE was used.` },
+
+  { q: `Therefore, if a straight line be at right angles to a plane, are all the planes through it also at right angles to the same plane? (yes/no):`,
+    hint: `This restates the proven proposition.` }
+]
+
+const conclusion = `Congratulations! You just if a straight line is at right angles to any plane, all the planes through it are also at right angles to the same plane.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

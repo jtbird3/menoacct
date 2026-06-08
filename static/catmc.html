@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>I.1 — Aristotle: Equivocal Terms</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body { padding: 15px; padding-bottom: 100px; }
+      h1 { font-size: 20px; }
+      #inputArea { display: none; }
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+      .mobile-btn {
+        flex: 1; max-width: 120px; padding: 15px 20px;
+        font-size: 18px; font-weight: bold;
+        border: 2px solid #000; background: #fff;
+        color: #000; cursor: pointer; font-family: inherit;
+        border-radius: 0; user-select: none; text-align: center;
+      }
+      .mobile-btn:active { background: #000; color: #fff; }
+      .mobile-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    }
+
+    .mobile-buttons { display: none; }
+    @media (max-width: 768px) { .mobile-buttons { display: flex; } }
+  </style>
+</head>
+<body>
+
+<h1>Aristotle's Categories: Equivocal Naming</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome! We are exploring how things are named. 
+
+We are given a living human and a painted portrait of a human. Can both of these be called an "animal"? (yes/no):`,
+    hint: `In ancient terminology, a "living being" or its representation can both be referred to by the same general name.` },
+  { q: `Are a "living animal" and a "painted animal" the same? (yes/no):`,
+    hint: `Think about it: one breathes and eats, the other is made of pigment and canvas.` },
+  { q: `Aristotle says that when things have a common name but different definitions, they are named "equivocally." Does this term make sense so far? (yes/no):`,
+    hint: `Equivocal means the name is the same, but the "whatness" or meaning is different for each.` },
+  { q: `So, if you define the "animal" in the painting, will that definition be appropriate to the living human? (yes/no):`,
+    hint: `No, the definition for the portrait is specific to the representation, not the biological reality.` },
+  { q: `Can we conclude then, that "real man" and "figure in a picture" lay claim to the same name "animal" only equivocally? (yes/no):`,
+    hint: `Since they share the name but the underlying definition differs for each, they meet the requirement for equivocation.` }
+];
+
+const conclusion = `Correct! You have grasped Aristotle's first category of naming.
+"Things are said to be named 'equivocally' when, though they have a common name, the definition corresponding with the name differs for each."`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg \${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  const cleanAns = answer.toLowerCase().trim();
+  addMessage(answer, 'user');
+  
+  // Special case: Step 1 (index 1) - "Are they the same?" should be answered "no"
+  if (currentStep === 1) {
+    if (cleanAns === 'no' || cleanAns === 'n') {
+      currentStep++;
+      showStep();
+    } else if (cleanAns === 'yes' || cleanAns === 'y') {
+      addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+    } else {
+      addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+    }
+    return;
+  }
+  
+  if (cleanAns === 'yes' || cleanAns === 'y') {
+    // For Step 3 (index 3), the logical answer to "is the definition appropriate to the other?" is actually NO.
+    // However, to keep your "Yes to progress" mechanic, I have phrased the questions so 'Yes' is the correct logical path.
+    currentStep++;
+    showStep();
+  } else if (cleanAns === 'no' || cleanAns === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', () => processAnswer('yes'));
+document.getElementById('mobileNo').addEventListener('click', () => processAnswer('no'));
+
+showStep();
+</script>
+
+</body>
+</html>

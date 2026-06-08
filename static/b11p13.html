@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements XI.13</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>XI.13 – Prove that from the same point two straight lines cannot be drawn perpendicular to the same plane on the same side of it.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements XI.13 chatbot!
+
+We are given a point A and we are asked to consider two straight lines AB and AC from this point. Do you agree? (yes/no):`,
+    hint: `Start by identifying the given elements: a point A and two lines from it.` },
+
+  { q: `Our goal is to show that AB and AC cannot both be perpendicular to the same plane on the same side. Does that make sense? (yes/no):`,
+    hint: `Perpendicular lines from a point to a plane can only exist singly on a given side.` },
+
+  { q: `Suppose, for the sake of argument, that AB and AC are both perpendicular to the plane and lie on the same side. Can we assume this temporarily? (yes/no):`,
+    hint: `This is the standard method of proof by contradiction (reductio ad absurdum).` },
+
+  { q: `Let a plane be drawn through BA and AC. Can we do this? (yes/no):`,
+    hint: `Euclid XI.3 allows a plane to be drawn through two lines not in the same straight line.` },
+
+  { q: `This plane intersects the original reference plane in a straight line, which we call DAE. Do you see that such a line exists? (yes/no):`,
+    hint: `The intersection of two planes is a straight line.` },
+
+  { q: `Are the straight lines AB, AC, and DAE all in one plane? (yes/no):`,
+    hint: `By construction, AB and AC lie in the plane drawn, and DAE is the intersection line.` },
+
+  { q: `Since AC is perpendicular to the plane of reference, does it form right angles with all lines in that plane that meet it? (yes/no):`,
+    hint: `Definition XI.3: A line perpendicular to a plane is perpendicular to every line in that plane through its foot.` },
+
+  { q: `Does DAE meet AC and lie in the plane of reference? (yes/no):`,
+    hint: `By construction, DAE is in the plane and passes through A.` },
+
+  { q: `Therefore, is the angle CAE a right angle? (yes/no):`,
+    hint: `AC perpendicular to the plane implies ∠CAE = 90°.` },
+
+  { q: `By the same reasoning, is the angle BAE also right? (yes/no):`,
+    hint: `Similarly, AB perpendicular to the plane implies ∠BAE = 90°.` },
+
+  { q: `Can we conclude that angle CAE = angle BAE? (yes/no):`,
+    hint: `Both are right angles; therefore, they are equal.` },
+
+  { q: `Are these angles in the same plane? (yes/no):`,
+    hint: `The plane was drawn through AB and AC, so both angles lie in it.` },
+
+  { q: `Is it possible for two equal right angles to exist at the same point in the same plane in this configuration? (yes/no):`,
+    hint: `Two right angles at the same point in one plane cannot coexist this way; this is the contradiction.` },
+
+  { q: `Therefore, can two straight lines from the same point be perpendicular to the same plane on the same side? (yes/no):`,
+    hint: `The contradiction proves the impossibility.` }
+]
+
+const conclusion = `Congratulations! You just from the same point two straight lines cannot be drawn perpendicular to the same plane on the same side of it.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

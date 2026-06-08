@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Conics I.18</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>I.18 — If a cone is cut by a plane through its axis, and by another plane perpendicular to the base of the axial triangle, and if the diameter of the section, when produced, meets one side of the axial triangle beyond the vertex, then the section has the property that the square on a line drawn from the section to its diameter equals a rectangle applied to a straight line increased by a certain segment; and such a section is called a hyperbola.</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  {
+q: `Welcome to Conics I.18 chatbot!
+
+We are given a section of a cone and a straight line AFB meeting it. Do you agree? (yes/no):`,
+  hint: `The section is fixed, and AFB intersects it.` },
+{ q: `The straight line AFB, when continued both ways, falls outside the section. Do you agree? (yes/no):`,
+  hint: `This is given in the proposition.` },
+{ q: `Some point C is taken within the section. Do you agree? (yes/no):`,
+  hint: `The point C lies strictly inside the boundary of the section.` },
+{ q: `Through point C, let CD be drawn parallel to AB. Is this construction possible? (yes/no):`,
+  hint: `A straight line can be drawn through a given point parallel to a given straight line.` },
+{ q: `Our goal is to show that CD, when continued both ways, will meet the section. Does that make sense? (yes/no):`,
+  hint: `We want to prove intersection with the section in both directions.` },
+{ q: `Let some point E be taken on the section. Is this possible? (yes/no):`,
+  hint: `The section contains points on its boundary.` },
+{ q: `Join the straight line EF. Can we do that? (yes/no):`,
+  hint: `A straight line can be drawn from any point to any point.` },
+{ q: `Since AB is parallel to CD, and the straight line EF meets AB, does EF also meet CD when CD is continued? (yes/no):`,
+  hint: `A line meeting one of two parallel lines must meet the other if produced.` },
+{ q: `If CD meets EF between E and F, does it clearly meet the section if produced? (yes/no):`,
+  hint: `That part of EF lies inside the section.` },
+{ q: `If CD meets EF beyond point E, will it first meet the section before reaching that point? (yes/no):`,
+  hint: `The boundary of the section lies between the interior and exterior.` },
+{ q: `Therefore, if CD is continued toward D and E, does it meet the section? (yes/no):`,
+  hint: `In either case, intersection with the section occurs.` },
+{ q: `Likewise, can we show that if CD is continued in the direction of F to B, it also meets the section? (yes/no):`,
+  hint: `The same reasoning applies symmetrically.` },
+{ q: `Therefore, does CD, when continued both ways, meet the section? (yes/no):`,
+  hint: `Both directions of extension have been shown to intersect the section.` },
+
+
+
+
+
+
+
+];
+
+const conclusion = `Congratulations! You just proved that a parallel drawn through a point within a conic section meets the section.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements VIII.8</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>VIII.8 — Prove that if numbers fall in continued proportion between two numbers, then the same number of numbers fall in continued proportion between any two numbers having the same ratio</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements VIII.8 chatbot!
+
+We are given two numbers A and B, and between them fall the numbers C and D in continued proportion. Do you agree? (yes/no):`,
+    hint: `“Continued proportion” means we have A to C as C to D as D to B.` },
+
+  { q: `We also construct E and F so that E has to F the same ratio that A has to B. Do you follow this setup? (yes/no):`,
+    hint: `We are told E to F as A to B.` },
+
+  { q: `Our goal is to show that just as two numbers (C, D) fall between A and B in continued proportion, so the same number of mean proportional numbers will fall between E and F. Does that make sense? (yes/no):`,
+    hint: `We want to find numbers between E and F in continued proportion matching the count between A and B.` },
+
+  { q: `First, let us take as many numbers G, H, K, L as A, C, D, B are in multitude, and let them be the least numbers having the same ratio as A, C, D, B. Is that allowed? (yes/no):`,
+    hint: `Proposition VII.33 allows us to take the least numbers in a given ratio.` },
+
+  { q: `Do you see that the extremes G and L must be prime to one another? (yes/no):`,
+    hint: `Proposition VIII.3 states that the least numbers in a given ratio have their extremes relatively prime.` },
+
+  { q: `Since A, C, D, B are in the same ratio as G, H, K, L, and the multitudes match, can we say ex aequali that A is to B a G is to L? (yes/no):`,
+    hint: `Proposition VII.14: equal-step ratios yield A to B as G to L.` },
+
+  { q: `And if we have A to B as E to F, may we conclude G is to L as E is to F? (yes/no):`,
+    hint: `If A is to B as E is to F and A is to B as G is to L, then G is to L as E is to F.` },
+
+  { q: `If G and L are prime, and primes are least in the same ratio, do they measure E and F some exact number of times? (yes/no):`,
+    hint: `By VII.21 and VII.20, least numbers measure corresponding numbers: G measures E, L measures F.` },
+
+  { q: `Then does G measure E the same number of times that L measures F? (yes/no):`,
+    hint: `Equal ratios of least numbers imply equal numbers of measures.` },
+
+  { q: `Now, as many times as G measures E, let H and K measure M and N respectively. Possible? (yes/no):`,
+    hint: `We imitate the measure pattern: G→E, H→M, K→N, L→F.` },
+
+  { q: `Then do G, H, K, L measure E, M, N, F the same number of times? (yes/no):`,
+    hint: `We arranged each to measure the corresponding number equally often.` },
+
+  { q: `From this, are G, H, K, L in the same ratio as E, M, N, F? (yes/no):`,
+    hint: `Definition VII.20: numbers measuring others equally many times stand in the same ratio.` },
+
+  { q: `But we already had G, H, K, L in the same ratio as A, C, D, B. Does that imply A, C, D, B are in the same ratio as E, M, N, F? (yes/no):`,
+    hint: `If two sequences share their ratio with a third, they share the same ratio with each other.` },
+
+  { q: `Since A, C, D, B were in continued proportion, must E, M, N, F also be in continued proportion? (yes/no):`,
+    hint: `Matching ratios step by step forces the same continuous-proportion structure.` },
+
+  { q: `Therefore, have we shown that as many numbers as fall between A and B in continued proportion also fall between E and F in continued proportion? (yes/no):`,
+    hint: `C and D fall between A and B; likewise M and N fall between E and F.` }
+]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const conclusion = `Congratulations! You just proved that if two numbers are prime to one another and admit numbers in continued proportion between them, then the same number of terms in continued proportion lies between each of them and a unit.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,1113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Meno - Doubling the Square - MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root { --border:#ccc; }
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+      padding-bottom: 120px; /* Space for fixed mobile buttons */
+    }
+    header {
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      margin-bottom:10px;
+    }
+    h1 { font-size: 24px; margin: 0; }
+    #sub { margin: 6px 0 14px; font-size:14px; }
+    #chat {
+      border: 1px solid var(--border);
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background:#fff;
+    }
+    #diagramBox {
+      border: 2px solid var(--border);
+      height: 400px;
+      background: #fff;
+      position: relative;
+      cursor: default;
+      user-select: none;
+      touch-action: manipulation;
+      margin-top: 10px;
+      display: none; /* hidden in Pure mode */
+    }
+    #inputArea {
+      margin-top: 10px;
+      position: sticky;
+      bottom: 0;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      border: 1px solid var(--border);
+    }
+    .ghost-visible { stroke: black; stroke-width: 2; stroke-dasharray: 6 6; }
+    .ghost-hover { stroke-width: 3.5; stroke-dasharray: 2 4; }
+    .solid { stroke: black; stroke-width: 2; }
+    .label { font-family: inherit; font-size: 16px; }
+    .muted { color:#000; font-size:14px; }
+    .point-dot { fill:#000; }
+    .bar { display: flex; align-items: center; }
+    .toggle-btn {
+      padding: 4px 10px;
+      border: 1px solid #000;
+      background: #fff;
+      color: #000;
+      cursor: pointer;
+      font: inherit;
+      font-size: 12px;
+      line-height: 1.2;
+      border-radius: 0;
+      user-select: none;
+    }
+    .toggle-btn[aria-pressed="true"] {
+      background: #000;
+      color: #fff;
+    }
+    .toggle-btn:focus { outline: none; }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid var(--border);
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+        transition: all 0.2s ease;
+        min-height: 50px;
+      }
+
+      .mobile-btn:hover {
+        background: #f0f0f0;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .mobile-btn:disabled:hover {
+        background: #fff;
+        color: #000;
+      }
+
+      /* Disable graph mode toggle on mobile */
+      #modeBtn {
+        display: none;
+      }
+
+      /* Ensure diagram box is visible but non-interactive on mobile */
+      #diagramBox {
+        display: block !important;
+        pointer-events: none;
+        touch-action: none;
+      }
+    }
+
+    /* Desktop styles */
+    @media (min-width: 769px) {
+      .mobile-buttons {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Meno — Doubling the Square</h1>
+  <div class="bar">
+    <button id="modeBtn" class="toggle-btn" title="Toggle between Pure chat and Graph mode">Graph mode</button>
+  </div>
+</header>
+<div id="sub" class="muted">Type your answer and press Enter.</div>
+
+<div id="chat"></div>
+<div id="diagramBox"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Socrates' famous 'doubling the square' proof from Plato's Meno!
+  
+We start with a square ABCD. Do you agree? (yes/no):`,
+    hint: `A square has four equal sides and right angles.` },
+  { q: `Our goal is to double the area of square ABCD by constructing another square of twice its area. Does that make sense? (yes/no):`,
+    hint: `We want a new square that is two times as big.` },
+  { q: `Suppose we doubled the side length of ABCD, would that double the area? (yes/no):`,
+    hint: `Area of a square scales with the square of its side; doubling the side multiplies area by 4.` },
+  { q: `Do you see that doubling the side length quadruples the area instead of doubles it?`,
+    hint: `We have a figure equal to four times the original square.` },
+  { q: `Consider the diagonal AC of the original square. Does the diagonal cut ABCD into two equal right triangles? (yes/no):`,
+    hint: `In any square, the diagonal bisects it into two congruent right isosceles triangles.` },
+  { q: `Now imagine using AC itself as the side of a new square. Would a square built on AC contain four right triangles equal to those halves we just saw? (yes/no):`,
+    hint: `The new square on AC can be dissected into 4 congruent copies of those triangles, while ABCD had 2.` },
+  { q: `Since the new square has four of those triangles and the original had two, is its area exactly double? (yes/no):`,
+    hint: `Four is twice two: the new square is twice the area of ABCD.` }
+];
+
+const conclusion = `Congratulations! You just constructed a square that has exactly twice the area of the original square. 
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+// --- App state ---
+let mode = 'pure'; // 'pure' | 'graph'
+let currentStep = 0;
+let chatEl, inputEl, diagramEl;
+let isMobile = false;
+
+// --- SVG + geometry state (graph mode) ---
+const svgNS = "http://www.w3.org/2000/svg";
+let svg = null;
+
+// State variables for the square ABCD
+let A=null,B=null,C=null,D=null; // square ABCD vertices
+
+// Square placement state for 3 additional squares (B1P47-style mechanics)
+let square1Placed = false, square2Placed = false, square3Placed = false;
+let square1Segments = [], square2Segments = [], square3Segments = [];
+let mobileSquare1Segments = [], mobileSquare2Segments = [], mobileSquare3Segments = [];
+
+// Diagonal AC placement state
+let acPlaced = false;
+let ghostAC = null;
+let mobileACSegment = null;
+
+// Square on AC placement state
+let squareOnACPlaced = false;
+let squareOnACSegments = [];
+let mobileSquareOnACSegments = [];
+
+// --- Utilities ---
+function $(id){ return document.getElementById(id); }
+
+// Mobile detection
+function detectMobile() {
+  isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  return isMobile;
+}
+
+function refocusInput(){
+  if (!isMobile) {
+    try { inputEl.focus(); } catch(e){}
+  }
+}
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatEl.appendChild(div);
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+function resetGraphState(){
+  svg = null;
+  // Reset square state variables
+  A=null;B=null;C=null;D=null;
+
+  // Reset square placement state
+  square1Placed = false; square2Placed = false; square3Placed = false;
+  square1Segments = []; square2Segments = []; square3Segments = [];
+  mobileSquare1Segments = []; mobileSquare2Segments = []; mobileSquare3Segments = [];
+
+  // Reset diagonal AC state
+  acPlaced = false;
+  ghostAC = null;
+  mobileACSegment = null;
+
+  // Reset square on AC state
+  squareOnACPlaced = false;
+  squareOnACSegments = [];
+  mobileSquareOnACSegments = [];
+}
+
+function resetState(){
+  currentStep = 0;
+  chatEl.textContent = '';
+  inputEl.disabled = false;
+  inputEl.value = '';
+  refocusInput();
+  diagramEl.innerHTML = '';
+  resetGraphState();
+
+  const isGraph = mode === 'graph';
+  const modeBtn = $('modeBtn');
+  modeBtn.textContent = isGraph ? 'Pure chat' : 'Graph mode';
+  modeBtn.setAttribute('aria-pressed', String(isGraph));
+
+  // Diagram visibility
+  if (isMobile) {
+    mode = 'graph'; // Force graph mode on mobile
+    diagramEl.style.display = 'block'; // Always show on mobile
+    initDiagram();
+  } else {
+    diagramEl.style.display = isGraph ? 'block' : 'none';
+    if(isGraph){ initDiagram(); }
+  }
+
+  showStep();
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+    
+    // Enable interactive elements based on current step
+    if(mode === 'graph' && !isMobile){
+      if(currentStep === 2){
+        enableSquare1Placement(); // Now enables all three squares at once
+      }
+      if(currentStep === 4){
+        enableACPlacement();
+      }
+      if(currentStep === 5){
+        enableSquareOnACPlacement();
+      }
+    }
+
+    // On mobile, show elements automatically without interaction
+    if(isMobile){
+      if(currentStep === 2){
+        mobileAutoPlaceSquares();
+      }
+      if(currentStep === 4){
+        mobileAutoPlaceAC();
+      }
+      if(currentStep === 5){
+        mobileAutoPlaceSquareOnAC();
+      }
+    }
+  } else {
+    addMessage(conclusion, 'bot');
+    inputEl.disabled = true;
+    if (isMobile) {
+      $('mobileYes').disabled = true;
+      $('mobileNo').disabled = true;
+    }
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  const a = answer.trim().toLowerCase();
+  
+  // Special case for step 2: accept both yes and no as correct answers
+  if(currentStep === 2){
+    if(a==='yes' || a==='y' || a==='no' || a==='n'){
+      // Auto-place all squares on desktop graph mode
+      if (!isMobile && mode === 'graph' && A && B && C && D) {
+        placeAllSquares();
+      }
+      // Handle mobile solidification if needed
+      if (isMobile) {
+        solidifyMobileSquares();
+      }
+      currentStep++;
+      showStep();
+    } else {
+      addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+    }
+    return;
+  }
+  
+  // Special case for step 4: if user says yes, auto-complete the interactive step
+  if(currentStep === 4){
+    if(a==='yes' || a==='y'){
+      // Always set acPlaced to true when user answers yes (for both pure chat and graph mode)
+      acPlaced = true;
+      
+      // Auto-complete the AC placement on desktop graph mode
+      if (!isMobile && mode === 'graph' && A && C) {
+        // Remove ghost AC if it exists
+        if (ghostAC && ghostAC.group && ghostAC.group.parentNode) {
+          ghostAC.group.parentNode.removeChild(ghostAC.group);
+        }
+        ghostAC = null;
+
+        // Add the diagonal AC as a solid line
+        const solidAC = document.createElementNS(svgNS,'line');
+        solidAC.setAttribute('x1', A.x); solidAC.setAttribute('y1', A.y);
+        solidAC.setAttribute('x2', C.x); solidAC.setAttribute('y2', C.y);
+        solidAC.setAttribute('stroke','black'); solidAC.setAttribute('stroke-width','2');
+        solidAC.setAttribute('stroke-linecap','round');
+        solidAC.setAttribute('class','solid');
+        svg.appendChild(solidAC);
+      }
+      // Handle mobile solidification if needed
+      if (isMobile) {
+        solidifyMobileAC();
+      }
+      // Always advance for step 4 when user says yes
+      currentStep++;
+      showStep();
+    } else if(a==='no' || a==='n'){
+      addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+    } else {
+      addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+    }
+    return;
+  }
+  
+  // Special case for step 5: if user says yes, auto-complete the square on AC placement
+  if(currentStep === 5){
+    if(a==='yes' || a==='y'){
+      // Always set squareOnACPlaced to true when user answers yes
+      squareOnACPlaced = true;
+
+      // Auto-complete the square on AC placement on desktop graph mode
+      if (!isMobile && mode === 'graph' && A && C) {
+        // Remove ghost square on AC segments if they exist
+        squareOnACSegments.forEach(seg => {
+          if(seg && seg.group && seg.group.parentNode) {
+            seg.group.parentNode.removeChild(seg.group);
+          }
+        });
+        squareOnACSegments = [];
+
+        // Calculate square vertices and add solid lines
+        const vx = C.x - A.x;
+        const vy = C.y - A.y;
+        const len = Math.hypot(vx, vy);
+        const ux = vx / len;
+        const uy = vy / len;
+        const px = -uy;
+        const py = ux;
+
+        const R = { x: C.x + px * len, y: C.y + py * len };
+        const S = { x: A.x + px * len, y: A.y + py * len };
+
+        // Add solid segments for the square on AC
+        solidLine(C.x, C.y, R.x, R.y); // CR
+        solidLine(R.x, R.y, S.x, S.y); // RS
+        solidLine(S.x, S.y, A.x, A.y); // SA
+      }
+      // Handle mobile solidification if needed
+      if (isMobile) {
+        solidifyMobileSquareOnAC();
+      }
+      // Always advance for step 5 when user says yes
+      currentStep++;
+      showStep();
+    } else if(a==='no' || a==='n'){
+      addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+    } else {
+      addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+    }
+    return;
+  }
+
+  // Normal logic for other steps
+  if(a==='yes' || a==='y'){
+    if (canAdvance()) {
+      // Handle mobile solidification if needed
+      if (isMobile && currentStep === 4) {
+        solidifyMobileAC();
+      }
+      if (isMobile && currentStep === 5) {
+        solidifyMobileSquareOnAC();
+      }
+      currentStep++;
+      showStep();
+    }
+  } else if(a==='no' || a==='n'){
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+function canAdvance(){
+  if(mode !== 'graph' && !isMobile) return true;
+
+  // On mobile, allow progression without interactive steps
+  if(isMobile) return true;
+
+  // Check interactive elements for current step (desktop only)
+  if(currentStep === 2 && (!square1Placed || !square2Placed || !square3Placed)){
+    return false;
+  }
+  if(currentStep === 4 && !acPlaced){
+    return false;
+  }
+  if(currentStep === 5 && !squareOnACPlaced){
+    return false;
+  }
+
+  return true;
+}
+
+// === Geometry helpers ===
+function solidLine(x1,y1,x2,y2){
+  const ln=document.createElementNS(svgNS,'line');
+  ln.setAttribute('x1', x1); ln.setAttribute('y1', y1);
+  ln.setAttribute('x2', x2); ln.setAttribute('y2', y2);
+  ln.setAttribute('class','solid');
+  ln.setAttribute('stroke-linecap','round');
+  svg.appendChild(ln);
+  return ln;
+}
+
+function rect(x,y,w,h, klass='solid', fill='none'){
+  const el=document.createElementNS(svgNS,'rect');
+  el.setAttribute('x',x); el.setAttribute('y',y);
+  el.setAttribute('width',w); el.setAttribute('height',h);
+  el.setAttribute('fill',fill); el.setAttribute('class',klass);
+  svg.appendChild(el); return el;
+}
+
+function dot(x,y){
+  const el=document.createElementNS(svgNS,'circle');
+  el.setAttribute('cx',x); el.setAttribute('cy',y);
+  el.setAttribute('r',4); el.setAttribute('class','point-dot');
+  svg.appendChild(el); return el;
+}
+
+function label(x,y,t,dx=8,dy=-8){
+  const el=document.createElementNS(svgNS,'text');
+  el.setAttribute('x',x+dx); el.setAttribute('y',y+dy);
+  el.setAttribute('class','label'); el.textContent=t;
+  svg.appendChild(el); return el;
+}
+
+function makeGhostSegment(from, to, onFinalize){
+  if (isMobile) {
+    // On mobile, draw dashed line that will be solidified later
+    const dashed = document.createElementNS(svgNS,'line');
+    dashed.setAttribute('x1', from.x); dashed.setAttribute('y1', from.y);
+    dashed.setAttribute('x2', to.x);   dashed.setAttribute('y2', to.y);
+    dashed.setAttribute('stroke','black'); dashed.setAttribute('stroke-width','2');
+    dashed.setAttribute('stroke-dasharray','6,6');
+    dashed.setAttribute('stroke-linecap','round');
+    dashed.setAttribute('class','ghost-visible');
+    svg.appendChild(dashed);
+    // Store reference for later solidification
+    if(typeof onFinalize==='function') onFinalize(dashed);
+    return null;
+  }
+
+  const g = document.createElementNS(svgNS, 'g');
+  g.setAttribute('role','button');
+  g.setAttribute('tabindex','0');
+  g.setAttribute('aria-label','Place segment');
+
+  const visible = document.createElementNS(svgNS,'line');
+  visible.setAttribute('x1', from.x); visible.setAttribute('y1', from.y);
+  visible.setAttribute('x2', to.x);   visible.setAttribute('y2', to.y);
+  visible.setAttribute('class','ghost-visible');
+  visible.setAttribute('stroke-linecap','round');
+
+  const hit = document.createElementNS(svgNS,'line');
+  hit.setAttribute('x1', from.x); hit.setAttribute('y1', from.y);
+  hit.setAttribute('x2', to.x);   hit.setAttribute('y2', to.y);
+  hit.setAttribute('stroke','transparent');
+  hit.setAttribute('stroke-width','16');
+  hit.setAttribute('stroke-linecap','round');
+  hit.style.cursor='pointer';
+
+  g.appendChild(visible);
+  g.appendChild(hit);
+  svg.appendChild(g);
+
+  function hover(on){
+    visible.classList.toggle('ghost-hover', on);
+  }
+  function finalize(){
+    const solid = document.createElementNS(svgNS,'line');
+    solid.setAttribute('x1', from.x); solid.setAttribute('y1', from.y);
+    solid.setAttribute('x2', to.x);   solid.setAttribute('y2', to.y);
+    solid.setAttribute('stroke','black'); solid.setAttribute('stroke-width','2');
+    solid.setAttribute('stroke-linecap','round');
+    svg.appendChild(solid);
+    if(g && g.parentNode) g.parentNode.removeChild(g);
+    if(typeof onFinalize==='function') onFinalize();
+    refocusInput();
+  }
+
+  hit.addEventListener('mouseenter', ()=>hover(true));
+  hit.addEventListener('mouseleave', ()=>hover(false));
+  hit.addEventListener('click', finalize);
+  g.addEventListener('keydown', (e)=>{
+    if(e.key==='Enter' || e.key===' ') { e.preventDefault(); finalize(); }
+  });
+
+  return { group:g, visible, hit };
+}
+
+// === B1P47-style Square Placement Functions ===
+function makeGhostSquareSegment(x1, y1, x2, y2, onFinalize){
+  if (isMobile) {
+    // On mobile, create dashed line without labels
+    const dashed = document.createElementNS(svgNS,'line');
+    dashed.setAttribute('x1', x1); dashed.setAttribute('y1', y1);
+    dashed.setAttribute('x2', x2); dashed.setAttribute('y2', y2);
+    dashed.setAttribute('stroke','black'); dashed.setAttribute('stroke-width','2');
+    dashed.setAttribute('stroke-dasharray','6 6');
+    dashed.setAttribute('stroke-linecap','round');
+    svg.appendChild(dashed);
+    return {element: dashed, onFinalize};
+  }
+
+  const g = document.createElementNS(svgNS, 'g');
+  g.setAttribute('role','button');
+  g.setAttribute('tabindex','0');
+  g.setAttribute('aria-label','Place square');
+
+  const visible = document.createElementNS(svgNS,'line');
+  visible.setAttribute('x1', x1); visible.setAttribute('y1', y1);
+  visible.setAttribute('x2', x2); visible.setAttribute('y2', y2);
+  visible.setAttribute('class','ghost-visible');
+  visible.setAttribute('stroke-linecap','round');
+
+  const hit = document.createElementNS(svgNS,'line');
+  hit.setAttribute('x1', x1); hit.setAttribute('y1', y1);
+  hit.setAttribute('x2', x2); hit.setAttribute('y2', y2);
+  hit.setAttribute('stroke','transparent');
+  hit.setAttribute('stroke-width','16');
+  hit.setAttribute('stroke-linecap','round');
+  hit.style.cursor='pointer';
+
+  g.appendChild(visible);
+  g.appendChild(hit);
+  svg.appendChild(g);
+
+  function finalize(){
+    const solid = document.createElementNS(svgNS,'line');
+    solid.setAttribute('x1', x1); solid.setAttribute('y1', y1);
+    solid.setAttribute('x2', x2); solid.setAttribute('y2', y2);
+    solid.setAttribute('stroke','black'); solid.setAttribute('stroke-width','2');
+    solid.setAttribute('stroke-linecap','round');
+    svg.appendChild(solid);
+    if(g && g.parentNode) g.parentNode.removeChild(g);
+    if(typeof onFinalize==='function') onFinalize();
+    refocusInput();
+  }
+
+  hit.addEventListener('click', finalize);
+  g.addEventListener('keydown', (e)=>{
+    if(e.key==='Enter' || e.key===' ') { e.preventDefault(); finalize(); }
+  });
+
+  return { group:g, visible, hit };
+}
+
+// === Square Placement Functions ===
+function enableSquare1Placement(){
+  if(square1Placed || !A || !B || !C || !D) return;
+
+  const s = Math.abs(B.x - A.x); // side length of original square
+
+  // Create all ghost segments for all three squares at once
+  // Square 1: Top-left of 2x2 grid (left of original)
+  const sq1seg1 = makeGhostSquareSegment(A.x - s, A.y, A.x, A.y, placeAllSquares);
+  const sq1seg2 = makeGhostSquareSegment(A.x - s, A.y, A.x - s, A.y + s, placeAllSquares);
+  const sq1seg3 = makeGhostSquareSegment(A.x - s, A.y + s, A.x, A.y + s, placeAllSquares);
+
+  // Square 2: Bottom-left of 2x2 grid
+  const sq2seg1 = makeGhostSquareSegment(A.x - s, A.y + s, A.x, A.y + s, placeAllSquares);
+  const sq2seg2 = makeGhostSquareSegment(A.x - s, A.y + s, A.x - s, A.y + 2*s, placeAllSquares);
+  const sq2seg3 = makeGhostSquareSegment(A.x - s, A.y + 2*s, A.x, A.y + 2*s, placeAllSquares);
+  const sq2seg4 = makeGhostSquareSegment(A.x, A.y + s, A.x, A.y + 2*s, placeAllSquares);
+
+  // Square 3: Bottom-right of 2x2 grid
+  const sq3seg1 = makeGhostSquareSegment(A.x, A.y + s, A.x + s, A.y + s, placeAllSquares);
+  const sq3seg2 = makeGhostSquareSegment(A.x, A.y + s, A.x, A.y + 2*s, placeAllSquares);
+  const sq3seg3 = makeGhostSquareSegment(A.x, A.y + 2*s, A.x + s, A.y + 2*s, placeAllSquares);
+  const sq3seg4 = makeGhostSquareSegment(A.x + s, A.y + s, A.x + s, A.y + 2*s, placeAllSquares);
+
+  // Combine all segments into arrays for collective management
+  square1Segments = [sq1seg1, sq1seg2, sq1seg3].filter(seg => seg !== null);
+  square2Segments = [sq2seg1, sq2seg2, sq2seg3, sq2seg4].filter(seg => seg !== null);
+  square3Segments = [sq3seg1, sq3seg2, sq3seg3, sq3seg4].filter(seg => seg !== null);
+
+  const allSegments = [...square1Segments, ...square2Segments, ...square3Segments];
+
+  // Add group hover effects for all squares (B1P47-style)
+  allSegments.forEach(seg => {
+    if(seg && seg.hit) {
+      seg.hit.addEventListener('mouseenter', () => {
+        if(!square1Placed || !square2Placed || !square3Placed){
+          allSegments.forEach(s => {
+            if(s && s.visible) s.visible.classList.add('ghost-hover');
+          });
+        }
+      });
+      seg.hit.addEventListener('mouseleave', () => {
+        if(!square1Placed || !square2Placed || !square3Placed){
+          allSegments.forEach(s => {
+            if(s && s.visible) s.visible.classList.remove('ghost-hover');
+          });
+        }
+      });
+    }
+  });
+}
+
+function placeAllSquares(){
+  if(square1Placed && square2Placed && square3Placed) return;
+
+  square1Placed = true;
+  square2Placed = true;
+  square3Placed = true;
+
+  // Remove all ghost segments
+  const allSegments = [...square1Segments, ...square2Segments, ...square3Segments];
+  allSegments.forEach(seg => {
+    if(seg && seg.group && seg.group.parentNode) {
+      seg.group.parentNode.removeChild(seg.group);
+    }
+  });
+  square1Segments = [];
+  square2Segments = [];
+  square3Segments = [];
+
+  const s = Math.abs(B.x - A.x);
+
+  // Add solid segments for all three squares
+  // Square 1: Top-left
+  solidLine(A.x - s, A.y, A.x, A.y); // top
+  solidLine(A.x - s, A.y, A.x - s, A.y + s); // left
+  solidLine(A.x - s, A.y + s, A.x, A.y + s); // bottom
+
+  // Square 2: Bottom-left
+  solidLine(A.x - s, A.y + s, A.x, A.y + s); // top (shared)
+  solidLine(A.x - s, A.y + s, A.x - s, A.y + 2*s); // left
+  solidLine(A.x - s, A.y + 2*s, A.x, A.y + 2*s); // bottom
+  solidLine(A.x, A.y + s, A.x, A.y + 2*s); // right
+
+  // Square 3: Bottom-right
+  solidLine(A.x, A.y + s, A.x + s, A.y + s); // top (shared)
+  solidLine(A.x, A.y + s, A.x, A.y + 2*s); // left (shared)
+  solidLine(A.x, A.y + 2*s, A.x + s, A.y + 2*s); // bottom
+  solidLine(A.x + s, A.y + s, A.x + s, A.y + 2*s); // right
+
+  refocusInput();
+}
+
+// === AC Diagonal Placement Functions ===
+function enableACPlacement(){
+  if(acPlaced || !A || !C) return;
+
+  // Create ghost segment for diagonal AC
+  ghostAC = makeGhostSegment(A, C, () => {
+    acPlaced = true;
+  });
+}
+
+// === Square on AC Placement Functions ===
+function enableSquareOnACPlacement(){
+  if(squareOnACPlaced || !A || !C) return;
+
+  // Calculate the square built on diagonal AC
+  // AC is one side, we need to construct the other 3 sides
+  const vx = C.x - A.x;
+  const vy = C.y - A.y;
+  const len = Math.hypot(vx, vy);
+
+  // Unit vector along AC
+  const ux = vx / len;
+  const uy = vy / len;
+
+  // Perpendicular unit vector (rotate 90 degrees)
+  const px = -uy;
+  const py = ux;
+
+  // The four vertices of the square on AC
+  // P = A, Q = C (already exist)
+  // R and S are the other two vertices
+  const R = { x: C.x + px * len, y: C.y + py * len };
+  const S = { x: A.x + px * len, y: A.y + py * len };
+
+  // Create ghost segments for the three new sides (AC already exists)
+  const seg1 = makeGhostSquareSegment(C.x, C.y, R.x, R.y, placeSquareOnAC); // CR
+  const seg2 = makeGhostSquareSegment(R.x, R.y, S.x, S.y, placeSquareOnAC); // RS
+  const seg3 = makeGhostSquareSegment(S.x, S.y, A.x, A.y, placeSquareOnAC); // SA
+
+  squareOnACSegments = [seg1, seg2, seg3].filter(seg => seg !== null);
+
+  // Add group hover effects (B1P47-style)
+  squareOnACSegments.forEach(seg => {
+    if(seg && seg.hit) {
+      seg.hit.addEventListener('mouseenter', () => {
+        if(!squareOnACPlaced){
+          squareOnACSegments.forEach(s => {
+            if(s && s.visible) s.visible.classList.add('ghost-hover');
+          });
+        }
+      });
+      seg.hit.addEventListener('mouseleave', () => {
+        if(!squareOnACPlaced){
+          squareOnACSegments.forEach(s => {
+            if(s && s.visible) s.visible.classList.remove('ghost-hover');
+          });
+        }
+      });
+    }
+  });
+}
+
+function placeSquareOnAC(){
+  if(squareOnACPlaced || !A || !C) return;
+  squareOnACPlaced = true;
+
+  // Remove ghost segments
+  squareOnACSegments.forEach(seg => {
+    if(seg && seg.group && seg.group.parentNode) {
+      seg.group.parentNode.removeChild(seg.group);
+    }
+  });
+  squareOnACSegments = [];
+
+  // Calculate square vertices again
+  const vx = C.x - A.x;
+  const vy = C.y - A.y;
+  const len = Math.hypot(vx, vy);
+  const ux = vx / len;
+  const uy = vy / len;
+  const px = -uy;
+  const py = ux;
+
+  const R = { x: C.x + px * len, y: C.y + py * len };
+  const S = { x: A.x + px * len, y: A.y + py * len };
+
+  // Add solid segments for the square on AC
+  solidLine(C.x, C.y, R.x, R.y); // CR
+  solidLine(R.x, R.y, S.x, S.y); // RS
+  solidLine(S.x, S.y, A.x, A.y); // SA
+  // AC already exists as diagonal
+
+  refocusInput();
+}
+
+// === Mobile Auto-Placement Functions ===
+function mobileAutoPlaceSquares(){
+  if(!A || !B || !C || !D) return;
+
+  const s = Math.abs(B.x - A.x); // side length of original square
+
+  // Place all 3 squares as dashed segments
+  // Square 1: Top-left
+  const sq1seg1 = document.createElementNS(svgNS,'line');
+  sq1seg1.setAttribute('x1', A.x - s); sq1seg1.setAttribute('y1', A.y);
+  sq1seg1.setAttribute('x2', A.x); sq1seg1.setAttribute('y2', A.y);
+  sq1seg1.setAttribute('stroke','black'); sq1seg1.setAttribute('stroke-width','2');
+  sq1seg1.setAttribute('stroke-dasharray','6 6'); sq1seg1.setAttribute('stroke-linecap','round');
+  svg.appendChild(sq1seg1); mobileSquare1Segments.push(sq1seg1);
+
+  const sq1seg2 = document.createElementNS(svgNS,'line');
+  sq1seg2.setAttribute('x1', A.x - s); sq1seg2.setAttribute('y1', A.y);
+  sq1seg2.setAttribute('x2', A.x - s); sq1seg2.setAttribute('y2', A.y + s);
+  sq1seg2.setAttribute('stroke','black'); sq1seg2.setAttribute('stroke-width','2');
+  sq1seg2.setAttribute('stroke-dasharray','6 6'); sq1seg2.setAttribute('stroke-linecap','round');
+  svg.appendChild(sq1seg2); mobileSquare1Segments.push(sq1seg2);
+
+  const sq1seg3 = document.createElementNS(svgNS,'line');
+  sq1seg3.setAttribute('x1', A.x - s); sq1seg3.setAttribute('y1', A.y + s);
+  sq1seg3.setAttribute('x2', A.x); sq1seg3.setAttribute('y2', A.y + s);
+  sq1seg3.setAttribute('stroke','black'); sq1seg3.setAttribute('stroke-width','2');
+  sq1seg3.setAttribute('stroke-dasharray','6 6'); sq1seg3.setAttribute('stroke-linecap','round');
+  svg.appendChild(sq1seg3); mobileSquare1Segments.push(sq1seg3);
+
+  // Square 2: Bottom-left
+  const sq2seg1 = document.createElementNS(svgNS,'line');
+  sq2seg1.setAttribute('x1', A.x - s); sq2seg1.setAttribute('y1', A.y + s);
+  sq2seg1.setAttribute('x2', A.x); sq2seg1.setAttribute('y2', A.y + s);
+  sq2seg1.setAttribute('stroke','black'); sq2seg1.setAttribute('stroke-width','2');
+  sq2seg1.setAttribute('stroke-dasharray','6 6'); sq2seg1.setAttribute('stroke-linecap','round');
+  svg.appendChild(sq2seg1); mobileSquare2Segments.push(sq2seg1);
+
+  const sq2seg2 = document.createElementNS(svgNS,'line');
+  sq2seg2.setAttribute('x1', A.x - s); sq2seg2.setAttribute('y1', A.y + s);
+  sq2seg2.setAttribute('x2', A.x - s); sq2seg2.setAttribute('y2', A.y + 2*s);
+  sq2seg2.setAttribute('stroke','black'); sq2seg2.setAttribute('stroke-width','2');
+  sq2seg2.setAttribute('stroke-dasharray','6 6'); sq2seg2.setAttribute('stroke-linecap','round');
+  svg.appendChild(sq2seg2); mobileSquare2Segments.push(sq2seg2);
+
+  const sq2seg3 = document.createElementNS(svgNS,'line');
+  sq2seg3.setAttribute('x1', A.x - s); sq2seg3.setAttribute('y1', A.y + 2*s);
+  sq2seg3.setAttribute('x2', A.x); sq2seg3.setAttribute('y2', A.y + 2*s);
+  sq2seg3.setAttribute('stroke','black'); sq2seg3.setAttribute('stroke-width','2');
+  sq2seg3.setAttribute('stroke-dasharray','6 6'); sq2seg3.setAttribute('stroke-linecap','round');
+  svg.appendChild(sq2seg3); mobileSquare2Segments.push(sq2seg3);
+
+  const sq2seg4 = document.createElementNS(svgNS,'line');
+  sq2seg4.setAttribute('x1', A.x); sq2seg4.setAttribute('y1', A.y + s);
+  sq2seg4.setAttribute('x2', A.x); sq2seg4.setAttribute('y2', A.y + 2*s);
+  sq2seg4.setAttribute('stroke','black'); sq2seg4.setAttribute('stroke-width','2');
+  sq2seg4.setAttribute('stroke-dasharray','6 6'); sq2seg4.setAttribute('stroke-linecap','round');
+  svg.appendChild(sq2seg4); mobileSquare2Segments.push(sq2seg4);
+
+  // Square 3: Bottom-right
+  const sq3seg1 = document.createElementNS(svgNS,'line');
+  sq3seg1.setAttribute('x1', A.x); sq3seg1.setAttribute('y1', A.y + s);
+  sq3seg1.setAttribute('x2', A.x + s); sq3seg1.setAttribute('y2', A.y + s);
+  sq3seg1.setAttribute('stroke','black'); sq3seg1.setAttribute('stroke-width','2');
+  sq3seg1.setAttribute('stroke-dasharray','6 6'); sq3seg1.setAttribute('stroke-linecap','round');
+  svg.appendChild(sq3seg1); mobileSquare3Segments.push(sq3seg1);
+
+  const sq3seg2 = document.createElementNS(svgNS,'line');
+  sq3seg2.setAttribute('x1', A.x); sq3seg2.setAttribute('y1', A.y + s);
+  sq3seg2.setAttribute('x2', A.x); sq3seg2.setAttribute('y2', A.y + 2*s);
+  sq3seg2.setAttribute('stroke','black'); sq3seg2.setAttribute('stroke-width','2');
+  sq3seg2.setAttribute('stroke-dasharray','6 6'); sq3seg2.setAttribute('stroke-linecap','round');
+  svg.appendChild(sq3seg2); mobileSquare3Segments.push(sq3seg2);
+
+  const sq3seg3 = document.createElementNS(svgNS,'line');
+  sq3seg3.setAttribute('x1', A.x); sq3seg3.setAttribute('y1', A.y + 2*s);
+  sq3seg3.setAttribute('x2', A.x + s); sq3seg3.setAttribute('y2', A.y + 2*s);
+  sq3seg3.setAttribute('stroke','black'); sq3seg3.setAttribute('stroke-width','2');
+  sq3seg3.setAttribute('stroke-dasharray','6 6'); sq3seg3.setAttribute('stroke-linecap','round');
+  svg.appendChild(sq3seg3); mobileSquare3Segments.push(sq3seg3);
+
+  const sq3seg4 = document.createElementNS(svgNS,'line');
+  sq3seg4.setAttribute('x1', A.x + s); sq3seg4.setAttribute('y1', A.y + s);
+  sq3seg4.setAttribute('x2', A.x + s); sq3seg4.setAttribute('y2', A.y + 2*s);
+  sq3seg4.setAttribute('stroke','black'); sq3seg4.setAttribute('stroke-width','2');
+  sq3seg4.setAttribute('stroke-dasharray','6 6'); sq3seg4.setAttribute('stroke-linecap','round');
+  svg.appendChild(sq3seg4); mobileSquare3Segments.push(sq3seg4);
+
+  square1Placed = true; square2Placed = true; square3Placed = true;
+}
+
+function solidifyMobileSquares(){
+  if (!isMobile) return;
+
+  mobileSquare1Segments.forEach(segment => {
+    if (segment && segment.parentNode) {
+      segment.removeAttribute('stroke-dasharray');
+    }
+  });
+
+  mobileSquare2Segments.forEach(segment => {
+    if (segment && segment.parentNode) {
+      segment.removeAttribute('stroke-dasharray');
+    }
+  });
+
+  mobileSquare3Segments.forEach(segment => {
+    if (segment && segment.parentNode) {
+      segment.removeAttribute('stroke-dasharray');
+    }
+  });
+}
+
+function mobileAutoPlaceAC(){
+  if(!A || !C || acPlaced) return;
+
+  // Draw dashed AC diagonal
+  const ac = document.createElementNS(svgNS,'line');
+  ac.setAttribute('x1', A.x); ac.setAttribute('y1', A.y);
+  ac.setAttribute('x2', C.x); ac.setAttribute('y2', C.y);
+  ac.setAttribute('stroke','black'); ac.setAttribute('stroke-width','2');
+  ac.setAttribute('stroke-dasharray','6 6'); ac.setAttribute('stroke-linecap','round');
+  svg.appendChild(ac);
+  mobileACSegment = ac;
+
+  acPlaced = true;
+}
+
+function solidifyMobileAC(){
+  if (!isMobile || !mobileACSegment) return;
+
+  mobileACSegment.removeAttribute('stroke-dasharray');
+}
+
+function mobileAutoPlaceSquareOnAC(){
+  if(!A || !C || squareOnACPlaced) return;
+
+  // Calculate the square built on diagonal AC
+  const vx = C.x - A.x;
+  const vy = C.y - A.y;
+  const len = Math.hypot(vx, vy);
+  const ux = vx / len;
+  const uy = vy / len;
+  const px = -uy;
+  const py = ux;
+
+  const R = { x: C.x + px * len, y: C.y + py * len };
+  const S = { x: A.x + px * len, y: A.y + py * len };
+
+  // Draw dashed segments for the square on AC
+  const cr = document.createElementNS(svgNS,'line');
+  cr.setAttribute('x1', C.x); cr.setAttribute('y1', C.y);
+  cr.setAttribute('x2', R.x); cr.setAttribute('y2', R.y);
+  cr.setAttribute('stroke','black'); cr.setAttribute('stroke-width','2');
+  cr.setAttribute('stroke-dasharray','6 6'); cr.setAttribute('stroke-linecap','round');
+  svg.appendChild(cr);
+  mobileSquareOnACSegments.push(cr);
+
+  const rs = document.createElementNS(svgNS,'line');
+  rs.setAttribute('x1', R.x); rs.setAttribute('y1', R.y);
+  rs.setAttribute('x2', S.x); rs.setAttribute('y2', S.y);
+  rs.setAttribute('stroke','black'); rs.setAttribute('stroke-width','2');
+  rs.setAttribute('stroke-dasharray','6 6'); rs.setAttribute('stroke-linecap','round');
+  svg.appendChild(rs);
+  mobileSquareOnACSegments.push(rs);
+
+  const sa = document.createElementNS(svgNS,'line');
+  sa.setAttribute('x1', S.x); sa.setAttribute('y1', S.y);
+  sa.setAttribute('x2', A.x); sa.setAttribute('y2', A.y);
+  sa.setAttribute('stroke','black'); sa.setAttribute('stroke-width','2');
+  sa.setAttribute('stroke-dasharray','6 6'); sa.setAttribute('stroke-linecap','round');
+  svg.appendChild(sa);
+  mobileSquareOnACSegments.push(sa);
+
+  squareOnACPlaced = true;
+}
+
+function solidifyMobileSquareOnAC(){
+  if (!isMobile) return;
+
+  mobileSquareOnACSegments.forEach(segment => {
+    if (segment && segment.parentNode) {
+      segment.removeAttribute('stroke-dasharray');
+    }
+  });
+}
+
+// --- Diagram init ---
+function initDiagram(){
+  // create svg
+  svg = document.createElementNS(svgNS, "svg");
+  svg.setAttribute("width", "100%");
+  svg.setAttribute("height", "100%");
+  if(!isMobile){ svg.setAttribute('viewBox','0 0 800 400'); }
+  diagramEl.appendChild(svg);
+
+  // keep focus on input during interactions (desktop only)
+  if (!isMobile) {
+    ['mousedown','mouseup','click','mousemove'].forEach(evt => {
+      svg.addEventListener(evt, refocusInput);
+      diagramEl.addEventListener(evt, refocusInput);
+    });
+  }
+
+  // Base square ABCD positioned so D will be center of 2x2 grid
+  const W = diagramEl.getBoundingClientRect().width || 800;
+  const H = diagramEl.getBoundingClientRect().height || 400;
+  const s = Math.min(W, H) * 0.25; // base side (smaller to fit 2x2 grid)
+
+  // Position original square so its bottom-left corner (D) is at center
+  // This means the square goes from center to top-right of the 2x2 grid
+  const centerX = W / 2;
+  const centerY = H / 2;
+
+  // Original square A is at center, extends right and up
+  A = { x: centerX,     y: centerY - s };  // top-left of original
+  B = { x: centerX + s, y: centerY - s };  // top-right of original
+  C = { x: centerX + s, y: centerY };      // bottom-right of original
+  D = { x: centerX,     y: centerY };      // bottom-left of original (center point)
+
+  // Draw square ABCD
+  rect(A.x, A.y, s, s, 'solid');
+  dot(A.x, A.y); label(A.x, A.y, 'A');
+  dot(B.x, B.y); label(B.x, B.y, 'B');
+  dot(C.x, C.y); label(C.x, C.y, 'C');
+  dot(D.x, D.y); label(D.x, D.y, 'D');
+}
+
+// --- Boot ---
+window.addEventListener('DOMContentLoaded', () => {
+  chatEl = $('chat');
+  diagramEl = $('diagramBox');
+  inputEl = $('userInput');
+
+  // Detect mobile on load and resize
+  detectMobile();
+  window.addEventListener('resize', detectMobile);
+
+  $('modeBtn').addEventListener('click', () => {
+    if (!isMobile) { // Only allow mode toggle on desktop
+      mode = (mode === 'graph') ? 'pure' : 'graph';
+      resetState();
+    }
+  });
+  
+  inputEl.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter'){
+      const ans = inputEl.value.trim();
+      if(ans){ processAnswer(ans); inputEl.value = ''; }
+    }
+  });
+
+  // Mobile button handlers
+  $('mobileYes').addEventListener('click', () => {
+    if (isMobile) {
+      processAnswer('yes');
+    }
+  });
+
+  document.getElementById('mobileNo').addEventListener('click', function() {
+    if (isMobile) {
+      processAnswer('no');
+    }
+  });
+
+  // Initialize state (this will set up diagram on mobile and show first step)
+  resetState();
+});
+</script>
+
+</body>
+</html>

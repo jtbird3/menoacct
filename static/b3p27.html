@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>III.27 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>III.27 - In equal circles, angles on equal arcs are equal, whether at the centres or at the circumferences</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements III.27 chatbot!
+
+We are given two equal circles, ABC with center G and DEF with center H, with equal circumferences BC and EF. Do you agree? (yes/no):`,
+    hint: `Equal circles have the same radius length.` },
+  { q: `At the centers G and H, the angles ∠BGC and ∠EHF stand on BC and EF. Does that make sense? (yes/no):`,
+    hint: `The angle at the center is formed by joining the center to the ends of the circumference.` },
+  { q: `At the circumferences A and D, the angles ∠BAC and ∠EDF stand on BC and EF. Is this clear? (yes/no):`,
+    hint: `The angle at the circumference is made with its vertex on the circle.` },
+  { q: `Our goal is to prove that ∠BGC = ∠EHF and ∠BAC = ∠EDF. Does that make sense? (yes/no):`,
+    hint: `We want to show central angles equal, and then their corresponding circumference angles equal.` },
+  { q: `Suppose ∠BGC is not equal to ∠EHF. Then one must be greater. Can we assume ∠BGC > ∠EHF for a proof by contradiction? (yes/no):`,
+    hint: `If two magnitudes are unequal, one must be greater.` },
+  { q: `Let us then construct at G an angle ∠BGK equal to ∠EHF. Can we do this? (yes/no):`,
+    hint: `Proposition I.23 allows us to construct an angle equal to a given angle at a given point on a line.` },
+  { q: `Since ∠BGK = ∠EHF, do equal angles at centers stand on equal circumferences? (yes/no):`,
+    hint: `Proposition III.26 states equal central angles cut off equal circumferences.` },
+  { q: `Therefore, does circumference BK equal circumference EF? (yes/no):`,
+    hint: `Equal central angles cut off equal arcs.` },
+  { q: `But we were given EF = BC. Therefore is BK = BC? (yes/no):`,
+    hint: `Substitution: EF = BC, and BK = EF, so BK = BC.` },
+  { q: `So now we have BK = BC, even though BK is clearly less. Do we have a contradiction? (yes/no):`,
+    hint: `A part cannot equal the whole.` },
+  { q: `Therefore our assumption that ∠BGC ≠ ∠EHF is impossible. Do we conclude ∠BGC = ∠EHF? (yes/no):`,
+    hint: `By contradiction, the angles must be equal.` },
+  { q: `Now, is ∠BAC half of ∠BGC? (yes/no):`,
+    hint: `Proposition III.20: An angle at the circumference is half the angle at the center standing on the same arc.` },
+  { q: `Similarly, is ∠EDF half of ∠EHF? (yes/no):`,
+    hint: `The same reasoning applies in circle DEF.` },
+  { q: `Since ∠BGC = ∠EHF, and ∠BAC = ½ ∠BGC, ∠EDF = ½ ∠EHF, can we conclude ∠BAC = ∠EDF? (yes/no):`,
+    hint: `Halves of equal magnitudes are equal.` }
+];
+
+const conclusion = `Congratulations! You just proved that in equal circles, angles on equal arcs are equal, whether at the centers or at the circumferences 
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

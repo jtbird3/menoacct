@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Conics I.21</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>I.21 - Prove that in a conic section, the squares on ordinates to the diameter are to the rectangles under the corresponding segments of the diameter as the latus rectum is to the latus transversum.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [{ q: `Welcome to Apollonius's Conics I.21 chatbot!
+
+Let there be a hyperbola, or an ellipse, or the circumference of a circle. Do you agree? (yes/no):`,
+hint: `The proposition applies equally to all three cases.` },
+{ q: `Let AB be the diameter of the eidos, and let AC be the latus rectum for ordinates to the diameter. Is this given? (yes/no):`,
+hint: `These are named explicitly in the construction.` },
+{ q: `Let the straight lines DE and FG be dropped as ordinates to the diameter ΑΒ. Do you see that this is possible? (yes/no):`,
+hint: `Ordinates are straight lines drawn to the diameter from the curve.` },
+{ q: `Let ΒC determining the eidos be joined. Can we join this straight line? (yes/no):`,
+hint: `A straight line can be drawn from any point to any point.` },
+{ q: `Through points E and G, let EH and GK be drawn parallel to ΑC. Is this construction allowed? (yes/no):`,
+hint: `A straight line can be drawn parallel to a given straight line through a given point.` },
+{ q: `Do you agree that sq.FG is equal to rect.KG,GA? (yes/no):`,
+hint: `By the cited propositions, the square on an ordinate equals a rectangle under the parallel segment and the corresponding diameter segment.` },
+{ q: `Do you also agree that sq.DE is equal to rect.HE,EA? (yes/no):`,
+hint: `The same reasoning applies to the other ordinate.` },
+{ q: `Is it true that as KG is to GB, so CA is to AB? (yes/no):`,
+hint: `This follows from the defining property of the eidos.` },
+{ q: `With AG taken as a common height, do you see that as KG is to GB, so rect.KG,GA is to rect.BG,GA? (yes/no):`,
+hint: `Rectangles with equal heights are in the ratio of their bases.` },
+{ q: `Can we then conclude that as CA is to AB, so rect.KG,GA is to rect.BG,GA? (yes/no):`,
+hint: `Substitute equal ratios.` },
+{ q: `Since rect.KG,GA equals sq.FG, do we have as CA is to AB, so sq.FG is to rect.BG,GA? (yes/no):`,
+hint: `Replace equals with equals.` },
+{ q: `For the same reasons, is it also true that as CA is to AB, so sq.DE is to rect.BE,EA? (yes/no):`,
+hint: `The construction and argument are identical for DE.` },
+{ q: `Therefore, as sq.FG is to rect.BG,GA, so sq.DE is to rect.BE,EA. Do you agree? (yes/no):`,
+hint: `Both ratios are equal to CA : AB.` },
+{ q: `And alternately, as sq.FG is to sq.DE, so rect.BG,GA is to rect.BE,EA. Does this follow? (yes/no):`,
+hint: `This is the alternation of equal ratios.` },
+
+
+]
+
+const conclusion = `Congratulations! You just proved that in a conic section, the squares on ordinates to the diameter are to the rectangles under the corresponding segments of the diameter as the latus rectum is to the latus transversum.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

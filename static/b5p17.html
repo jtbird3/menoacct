@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>V.17 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>V.17 - If magnitudes are proportional by composition (componendo), they are also proportional by separation (separando)</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements V.17 chatbot!
+
+We are given magnitudes AB, BE, CD, DF that are proportional componendo, so that as AB is to BE, so is CD to DF. Do you agree? (yes/no):`,
+    hint: `“Proportional componendo” means AB : BE = CD : DF (wholes to parts).` },
+  { q: `Our goal is to show they are also proportional separando—that is, as AE is to EB, so is CF to FD. Does that make sense? (yes/no):`,
+    hint: `Separando equates the ratios of the remainders.` },
+  { q: `Shall we take equimultiples of the magnitudes AE, EB, CF, FD, and call them GH, HK, LM, MN? (yes/no):`,
+    hint: `Proposition V.1 allows taking equimultiples of any magnitudes.` },
+  { q: `Also, shall we take other, chance, equimultiples of EB and FD, and call them KO and NP? (yes/no):`,
+    hint: `“Other, chance, equimultiples” are additional multiples not tied to the first set.` },
+  { q: `Since GH is the same multiple of AE that HK is of EB, is GH also the same multiple of AE that GK is of AB? (yes/no):`,
+    hint: `From V.1: sums/differences of equal multiples preserve the relation.` },
+  { q: `And since GH is the same multiple of AE that LM is of CF, does it follow that GK is the same multiple of AB that LM is of CF? (yes/no):`,
+    hint: `Replacing AE with AB in corresponding positions preserves proportionality.` },
+  { q: `Likewise, since LM is the same multiple of CF that MN is of FD, is LM also the same multiple of CF that LN is of CD? (yes/no):`,
+    hint: `By the same reasoning (V.1), equal ratios extend through sums of equimultiples.` },
+  { q: `But LM was the same multiple of CF that GK is of AB; can we conclude that GK and LN are equimultiples of AB and CD? (yes/no):`,
+    hint: `Yes—taken in the same ratio to their respective magnitudes.` },
+  { q: `Since HK is the same multiple of EB that MN is of FD, and KO the same multiple of EB that NP is of FD, is HO the same multiple of EB that MP is of FD? (yes/no):`,
+    hint: `From V.2, sums of equimultiples preserve equality of multiples.` },
+  { q: `Given that AB : BE = CD : DF, and we have taken equimultiples GK, LN of AB, CD and HO, MP of EB, FD, if GK is greater than HO, will LN also be greater than MP? (yes/no):`,
+    hint: `Equal ratios imply corresponding inequalities (Definition of proportionality).` },
+  { q: `If we subtract equal parts HK from GK and HO, does it follow that GH is greater than KO? (yes/no):`,
+    hint: `Subtracting equals from equals leaves equal differences (Common Notion 3).` },
+  { q: `Then since LN > MP, if MN is subtracted from each, will LM also be greater than NP? (yes/no):`,
+    hint: `The same subtraction logic applies to the other pair.` },
+  { q: `Therefore, if GH is greater than KO, is LM also greater than NP? (yes/no):`,
+    hint: `This links the inequalities for AE : EB and CF : FD.` },
+  { q: `And if GH = KO, will LM = NP; and if less, less? (yes/no):`,
+    hint: `Equality or inequality in equimultiples implies the same in their bases.` },
+  { q: `Since GH, LM are equimultiples of AE, CF, and KO, NP are equimultiples of EB, FD, do we conclude that as AE is to EB, so is CF to FD? (yes/no):`,
+    hint: `By the definition of proportional magnitudes via equimultiples (Def. V.5).` }
+];
+
+const conclusion = `Congratulations! You just proved that if magnitudes are proportional by composition (componendo), they are also proportional by separation (separando).
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

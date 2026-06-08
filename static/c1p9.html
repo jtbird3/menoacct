@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Conics I.9 — Menochat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>I.9 - Prove that a plane meeting both sides of the axial triangle, but neither parallel nor antiparallel to the base, produces a non-circular section</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Conics I.9 chatbot!
+
+We are given a cone with vertex A and base circle BC and axial triangle ABC. Do you agree? (yes/no):`,
+  hint: `This is our given: a cone whose base is the circle BC, vertex point A, and axial triangle ABC which we will use to prove the theorem.` },
+{ q: `We are also given a cutting plane that meets two sides of the axial triangle and is neither parallel nor antiparallel to the base, making the section DKE. Do you agree? (yes/no):`,
+  hint: `This plane cuts the cone and produces the curve (section) DKE on the conic surface such that it is neither parallel nor antiparallel to the base, but cut at some other angle.` },
+{ q: `Our goal is to show that the section DKE is not a circle. Does that make sense? (yes/no):`,
+  hint: `We want to prove that DKE cannot be a circle under these conditions.` },
+{ q: `Let us suppose, for contradiction, that DKE is a circle. Can we assume this for contradiction? (yes/no):`,
+  hint: `This is a proof by contradiction. We begin by assuming the opposite of what we want to prove and show that it leads to a contradiction.` },
+{ q: `First, let us extend the cutting plane to meet the base circle or the extension of BC at FG, a line perpendicular to diameter BC. Possible? (yes/no):`,
+  hint: `The common section of the planes gives line FG.` },
+{ q: `Let us take point as H the center of the base circle, making line HG perpendicular to FG. Can we do this? (yes/no):`,
+  hint: `A radius perpendicular to a chord meets it at right angles.` },
+{ q: `Do points D, E, G lie in both the cutting plane and the plane through A, B, C? (yes/no):`,
+  hint: `Points common to two planes lie on their intersection.` },
+{ q: `Therefore, is DEG a straight line? (yes/no):`,
+  hint: `By Euclid XI.3: If two planes cut one another, their common section is a straight line.` },
+{ q: `Let us choose any point K on DKE and draw a new line KML through to the other side of the cone, parallel to FG. Is this possible? (yes/no):`,
+  hint: `Drawing a parallel line to a given line is a standard construction.` },
+{ q: `Does KM then equal ML? (yes/no):`,
+  hint: `By Conics I.7, lines drawn parallel to a base-perpendicular are bisected by the axial section.` },
+{ q: `Hence, is DE the diameter of the supposed circle DKEL? (yes/no):`,
+  hint: `If from a point on a circle you drop a perpendicular to a chord at its midpoint, that perpendicular lies along the diameter.` },
+{ q: `From point M, lets us draw NMX parallel to line BC. Possible? (yes/no):`,
+  hint: `Construct the parallel to the base.` },
+{ q: `Was KL drawn parallel to FG? (yes/no):`,
+  hint: `Already constructed as parallel.` },
+{ q: `Therefore, is the plane through NX and KM parallel to the plane through BC and FG? (yes/no):`,
+  hint: `Use Euclid XI.15 to compare planes made by parallels.` },
+{ q: `Then, by Conics I.4, is the section in plane NKXL a circle? (yes/no):`,
+  hint: `A plane parallel to the base cuts a circle (Conics I.4).` },
+{ q: `Since the cutting plane is a circle, FG ⟂ BG, and KM ⟂ NX, is rectangle NM, MX equal to sq KM? (yes/no):`,
+  hint: `We know that the rectangle NM, MX is equal to the square on KM because the cutting plane is a circle and KM is perpendicular to NX at its midpoint.` },
+{ q: `And since rect(DM, ME) = sq(KM) (since DKEL was supposed to be a circle), do we get rect(NM, MX) = rect(DM, ME)? (yes/no):? (yes/no):`,
+  hint: `Both equal the same square.` },
+{ q: `Therefore, is MN to MD as EM is to MX? (yes/no):`,
+  hint: `By Euclid VI.16: If four straight lines are proportional, their cross-products (extremes x extremes and means x means) are equal, and if their cross-products are equal, the lines are proportional.` },
+{ q: `Thus are triangles DMN and XME similar? (yes/no):`,
+  hint: `Use VI.6 and the definition of proportional triangles.` },
+{ q: `Is angle DNM equal to angle MEX? (yes/no):`,
+  hint: `Corresponding angles in similar triangles.` },
+{ q: `Since DNM equals ABC (because NX ∥ BC), does angle ABC equal angle MEX? (yes/no):`,
+  hint: `Parallels give equal corresponding angles.` },
+{ q: `Therefore, is the cutting plane antiparallel to the base? (yes/no):`,
+  hint: `Use Euclid I.5 for equality of corresponding angles.` },
+{ q: `But is this contrary to our original assumption? (yes/no):`,
+  hint: `We assumed the plane is not antiparallel or parallel to the base.` },
+{ q: `Therefore, is it impossible for DKE to be a circle? (yes/no):`,
+  hint: `The contradiction shows the assumption was false.` },
+{ q: `Therefore, have we proven that a plane meeting both sides of the axial triangle, but neither parallel nor antiparallel to the base, produces a non-circular section? (yes/no):`,
+  hint: `The contradiction shows the assumption was false.` },
+
+
+
+
+
+
+];
+
+const conclusion = `Congratulations! You just proved that a plane meeting both sides of the axial triangle, but neither parallel nor antiparallel to the base, produces a non-circular section.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

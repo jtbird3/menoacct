@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>V.7 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>V.7 - Prove that equal magnitudes have the same ratio to the same magnitude, and the same magnitude has the same ratio to equal magnitudes</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements V.7 chatbot!
+
+We are given two equal magnitudes, A and B, and another arbitrary magnitude C. Do you agree? (yes/no):`,
+    hint: `A and B are equal magnitudes; C is any other magnitude we choose.` },
+  { q: `Our goal is to show that each of A and B has the same ratio to C, and that C has the same ratio to each of A and B. Does that make sense? (yes/no):`,
+    hint: `We must prove both the direct and the inverse proportionalities.` },
+  { q: `Let equimultiples D and E of A and B be taken. Can we do this? (yes/no):`,
+    hint: `By definition, equimultiples are formed by multiplying each magnitude by the same number.` },
+  { q: `Also take another multiple F of C. Is that allowed? (yes/no):`,
+    hint: `Any multiple may be taken of any magnitude (Definition of multiple).` },
+  { q: `Since D is the same multiple of A that E is of B, and A = B, is D equal to E? (yes/no):`,
+    hint: `Equal magnitudes have equal equimultiples.` },
+  { q: `Now, if D is greater than F, must E also be greater than F? (yes/no):`,
+    hint: `Because D = E, they must both exceed, equal, or fall short of F together.` },
+  { q: `If D = F, is E also = F? (yes/no):`,
+    hint: `Equality of D and E preserves their relation to F.` },
+  { q: `If D < F, is E also < F? (yes/no):`,
+    hint: `Equal magnitudes stand in like relations to a third magnitude.` },
+  { q: `Since D, E are equimultiples of A, B and F is a multiple of C, can we now say that as A is to C, so B is to C? (yes/no):`,
+    hint: `By Definition 5 of Book V, equal comparisons of equimultiples establish equal ratios.` },
+  { q: `Next, shall we show that C has the same ratio to each of A and B? (yes/no):`,
+    hint: `We repeat the reasoning but now compare C to A and B.` },
+  { q: `Let F again be a multiple of C, and D, E equimultiples of A and B. Are these the same as before? (yes/no):`,
+    hint: `We use the same construction.` },
+  { q: `Since A = B, do D and E remain equal? (yes/no):`,
+    hint: `Equal bases yield equal equimultiples.` },
+  { q: `If F is greater than D, is it also greater than E? (yes/no):`,
+    hint: `Because D = E, their comparisons with F are alike.` },
+  { q: `If F = D, is F = E? (yes/no):`,
+    hint: `Equal magnitudes have equal relations to the same.` },
+  { q: `If F < D, is F < E? (yes/no):`,
+    hint: `The relative inequality is preserved.` },
+  { q: `Then, since F is a multiple of C, and D, E are equimultiples of A, B, may we conclude that as C is to A, so C is to B? (yes/no):`,
+    hint: `Again, by Definition 5, equal relations of equimultiples give equal ratios.` },
+  { q: `Therefore, have we shown that equal magnitudes have the same ratio to the same, and the same has the same ratio to equal magnitudes? (yes/no):`,
+    hint: `Yes — both direct and inverse proportionalities are established.` },
+  { q: `Porism: If any magnitudes are proportional, will they also be proportional inversely? Do you see why? (yes/no):`,
+    hint: `Because equality of ratios in one order implies equality when inverted.` }
+];
+
+const conclusion = `Congratulations! You just proved that equal magnitudes have the same ratio to the same magnitude, and the same magnitude has the same ratio to equal magnitudes.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.26</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.26 – Prove that a medial area cannot exceed a medial area by a rational area.</h1><div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements X.26 chatbot!
+
+We suppose two medial areas AB and AC. Do you agree? (yes/no):`,
+hint: `AB and AC are assumed to be medial areas as stated.` },
+{ q: `Suppose, if possible, that the medial area AB exceeds the medial area AC by the rational area DB. Is that the assumption? (yes/no):`,
+hint: `This is a proof by contradiction.` },
+{ q: `A rational straight line EF is set out. Do you agree? (yes/no):`,
+hint: `EF is assumed to be a rational straight line.` },
+{ q: `Our goal is to show that this assumption leads to an impossibility. Does that make sense? (yes/no):`,
+hint: `We will derive a contradiction concerning rationality.` },
+
+{ q: `To the straight line EF, let the rectangular parallelogram FH equal to AB be applied, with EH as breadth. Is this construction allowed? (yes/no):`,
+hint: `A rectangle equal to a given area can be applied to a given straight line.` },
+{ q: `From the same straight line EF, let the rectangle FG equal to AC be subtracted. Can we do this? (yes/no):`,
+hint: `Subtraction of equal rectangles from the same base is permitted.` },
+{ q: `Is the remainder BD equal to the remainder KH? (yes/no):`,
+hint: `Equals subtracted from equals leave equal remainders.` },
+
+{ q: `DB is rational. Do you agree? (yes/no):`,
+hint: `This was assumed at the start.` },
+{ q: `Since DB equals KH, is KH also rational? (yes/no):`,
+hint: `Things equal to the same thing are equal to one another.` },
+
+{ q: `Each of the rectangles AB and AC is medial. Do you agree? (yes/no):`,
+hint: `This is given.` },
+{ q: `AB equals FH, and AC equals FG. Is that correct? (yes/no):`,
+hint: `FH and FG were constructed equal to AB and AC respectively.` },
+{ q: `Therefore, are the rectangles FH and FG also medial? (yes/no):`,
+hint: `Equal areas share the same character.` },
+
+{ q: `The rectangles FH and FG are applied to the rational straight line EF. Do you agree? (yes/no):`,
+hint: `Both rectangles have EF as a side.` },
+{ q: `Therefore, are the straight lines HE and EG rational and incommensurable in length with EF? (yes/no):`,
+hint: `By Proposition X.22.` },
+
+{ q: `KH is rational and is applied to the rational straight line EF. Do you agree? (yes/no):`,
+hint: `KH was shown rational earlier.` },
+{ q: `Therefore, is GH rational and commensurable in length with EF? (yes/no):`,
+hint: `By Proposition X.20.` },
+{ q: `But EG is rational and incommensurable in length with EF. Is that correct? (yes/no):`,
+hint: `This follows from Proposition X.22.` },
+{ q: `Therefore, is EG incommensurable in length with GH? (yes/no):`,
+hint: `By Proposition X.13.` },
+
+{ q: `As EG is to GH, so is the square on EG to the rectangle EG, GH. Do you agree? (yes/no):`,
+hint: `This follows from proportionality of magnitudes.` },
+{ q: `Therefore, is the square on EG incommensurable with the rectangle EG, GH? (yes/no):`,
+hint: `Incommensurable ratios imply incommensurable areas.` },
+
+{ q: `The squares on EG and GH are both rational. Do you agree? (yes/no):`,
+hint: `Squares on rational straight lines are rational.` },
+{ q: `Is twice the rectangle EG, GH commensurable with the rectangle EG, GH? (yes/no):`,
+hint: `A double is commensurable with its original (Proposition X.6).` },
+{ q: `Therefore, are the squares on EG and GH incommensurable with twice the rectangle EG, GH? (yes/no):`,
+hint: `By Proposition X.13.` },
+
+{ q: `The sum of the squares on EG and GH and twice the rectangle EG, GH equals the square on EH. Do you agree? (yes/no):`,
+hint: `This is Proposition II.4.` },
+{ q: `Therefore, is the square on EH incommensurable with the squares on EG and GH? (yes/no):`,
+hint: `By Proposition X.16.` },
+
+{ q: `The squares on EG and GH are rational. Do you agree? (yes/no):`,
+hint: `Both EG and GH are rational straight lines.` },
+{ q: `Therefore, is the square on EH irrational? (yes/no):`,
+hint: `By Definition X.4.` },
+{ q: `Hence, is EH irrational? (yes/no):`,
+hint: `A straight line whose square is irrational is itself irrational.` },
+
+{ q: `But EH was shown to be rational earlier. Is that correct? (yes/no):`,
+hint: `HE arose from a medial rectangle applied to a rational base.` },
+{ q: `Is this a contradiction? (yes/no):`,
+hint: `A magnitude cannot be both rational and irrational.` },
+{ q: `Therefore, is it impossible for a medial area to exceed a medial area by a rational area? (yes/no):`,
+hint: `The assumption has led to an impossibility.` }
+
+
+]
+
+
+
+
+
+const conclusion = `Congratulations! You just proved that a medial area cannot exceed a medial area by a rational area.
+Q.E.F. (Quod Erat Faciendum — which was to be done)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

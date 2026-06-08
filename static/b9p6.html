@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements IX.6</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>IX.6 — Prove that if a number multiplies itself to make a cube, then the number itself is cube</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements IX.6 chatbot!
+
+We are given a number A, and by multiplying itself A has produced the cube number B. Do you agree? (yes/no):`,
+    hint: `“By multiplying itself” means A × A × A = B.` },
+
+  { q: `Next, let A multiply B to produce C. Acceptable? (yes/no):`,
+    hint: `We simply form the product A · B.` },
+
+  { q: `Our goal is to show that since A makes the cube B, A itself must also be cube. Does that make sense? (yes/no):`,
+    hint: `A number is cube if there exist two mean proportionals between it and some number.` },
+
+  { q: `Since A multiplied itself makes B, does A measure B according to the units in A? (yes/no):`,
+    hint: `When a number makes another by multiplication, it measures the product (VII. Def. 20).` },
+
+  { q: `And does the unit measure A according to the units in the unit? (yes/no):`,
+    hint: `Every number is measured by the unit.` },
+
+  { q: `Therefore, is the ratio of an unit to A equal to A to B? (yes/no):`,
+    hint: `This follows directly from the definition of numerical measurement (VII. Def. 20).` },
+
+  { q: `Since A multiplied B makes C, does B measure C according to the units in A? (yes/no):`,
+    hint: `Again, measurement follows multiplication (VII. Def. 20).` },
+
+  { q: `And does the unit measure A according to its own units? (yes/no):`,
+    hint: `Same reason as before.` },
+
+  { q: `Therefore, is the ratio of an unit to A equal to B to C? (yes/no):`,
+    hint: `Both equal the ratio defined by A's units.` },
+
+  { q: `If  an unit to A equals A to B and also an unit to A equals B to C, may we conclude A is to B as B is to C? (yes/no):`,
+    hint: `If two ratios equal the same ratio, they equal one another.` },
+
+  { q: `Since B and C are both cube numbers, are they similar solid numbers? (yes/no):`,
+    hint: `Cube numbers are similar solids (same ratio pattern in three dimensions).` },
+
+  { q: `If B and C are similar solids, are there exactly two mean proportionals between them? (yes/no):`,
+    hint: `Proposition VIII.19: similar solid numbers have two mean proportionals between them.` },
+
+  { q: `And if A is to B as B is to C, does that imply two mean proportionals also lie between A and B? (yes/no):`,
+    hint: `Proposition VIII.8: when three numbers are in continued proportion, two means exist.` },
+
+  { q: `Since B is cube, and A stands to B in the same proportional way with two means between, must A also be cube? (yes/no):`,
+    hint: `A cube number arises when two mean proportionals exist between it and another number (cf. VIII.23).` }
+]
+
+
+
+
+
+
+
+
+const conclusion = `Congratulations! You just proved that if a number multiplies itself to make a cube, then the number itself is cube.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

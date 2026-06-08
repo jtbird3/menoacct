@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements IX.34</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>IX.34 — Prove that if a number has neither half odd nor half even, it is even-times even and even-times odd</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements IX.34 chatbot!
+
+We are given a number A which is neither one of those continually doubled from a dyad, nor has its half odd. Do you agree? (yes/no):`,
+    hint: `This restates exactly the hypothesis of the proposition. It means A is not an odd number times two or a power of two.` },
+
+  { q: `Our goal is to show that A is both even-times even and even-times odd. Does that make sense? (yes/no):`,
+    hint: `We must show that A has both forms.` },
+
+  { q: `Since A does not have its half odd, is it immediately even-times even? (yes/no):`,
+    hint: `By Book VII, Definition 8, a number whose half is not odd is even-times even.` },
+
+  { q: `So is it clear that A is even-times even? (yes/no):`,
+    hint: `This part is said to be manifest from the definition.` },
+
+  { q: `Next, do we also need to show that A is even-times odd? (yes/no):`,
+    hint: `The proposition requires both properties.` },
+
+  { q: `Let us bisect A, then bisect its half, and continue this process, do you agree that this procedure is possible? (yes/no):`,
+    hint: `Any even number can be successively bisected.` },
+
+  { q: `Must this continued bisection eventually reach an odd number? (yes/no):`,
+    hint: `Repeated halving cannot proceed forever without reaching an odd number.` },
+
+  { q: `If an odd number is reached that measures A according to an even number, does that make A even-times odd? (yes/no):`,
+    hint: `Even-times odd means an odd number measuring A an even number of times (VII. Def. 9).` },
+
+  { q: `Suppose instead that no such odd number were reached. Would we then come upon a dyad? (yes/no):`,
+    hint: `Endless bisection without an odd leads to a dyad.` },
+
+  { q: `Would this imply that A is one of the numbers continually doubled from a dyad? (yes/no):`,
+    hint: `This is exactly how such numbers are generated.` },
+
+  { q: `But is this contrary to the hypothesis about A? (yes/no):`,
+    hint: `A was assumed not to be doubled from a dyad.` },
+
+  { q: `Therefore, must we reach an odd number measuring A according to an even number? (yes/no):`,
+    hint: `The contradiction forces this conclusion.` },
+
+  { q: `Does this show that A is even-times odd? (yes/no):`,
+    hint: `An odd measure taken an even number of times satisfies the definition.` },
+
+  { q: `Since A was shown to be both even-times even and even-times odd, does the proposition follow? (yes/no):`,
+    hint: `This completes the demonstration.` }
+]
+
+
+
+
+
+
+const conclusion = `Congratulations! You just proved that if a number has neither half odd nor half even, it is even-times even and even-times odd.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

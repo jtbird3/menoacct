@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>V.8 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>V.8 - Prove that a greater magnitude has a greater ratio to the same than a lesser has, and the same has a greater ratio to the lesser than to the greater</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements V.8 chatbot!
+
+We are given two unequal magnitudes, AB and C, with AB greater than C. Agreed? (yes/no):`,
+    hint: `A greater magnitude means it contains the lesser plus something more.` },
+  { q: `Let D be another, arbitrary magnitude less than C, which we will use for comparison. Do you agree? (yes/no):`,
+    hint: `“Another, chance, magnitude” means any third quantity used for ratio comparison.` },
+  { q: `Our goal is to prove that AB has to D a greater ratio than C has to D; and that D has to C a greater ratio than it has to AB. Does that make sense? (yes/no):`,
+    hint: `We must compare how each relates to D — first as antecedent, then as consequent.` },
+  { q: `Case 1 — AE < EB
+Since AB is greater than C, let us make BE equal to C. Do you agree? (yes/no):`,
+    hint: `This divides AB into AE and EB, with EB equal in magnitude to C.` },
+  { q: `Now, is AE the lesser part of AB? (yes/no):`,
+    hint: `Yes, AB = AE + EB, and EB = C, so AE is smaller.` },
+  { q: `By Definition 4, can we multiply the lesser, AE, until some multiple of it becomes greater than D? (yes/no):`,
+    hint: `Definition V.4 states that any lesser magnitude can be multiplied to exceed a given one.` },
+  { q: `Let FG be a multiple of AE greater than D. Can we take that? (yes/no):`,
+    hint: `“FG is a multiple of AE” means FG = n·AE for some number n.` },
+  { q: `Now, whatever multiple FG is of AE, shall we make GH the same multiple of EB, and K the same multiple of C? (yes/no):`,
+    hint: `This ensures FG : AE = GH : EB = K : C.` },
+  { q: `Next, let us take multiples of D: L double, M triple, and continue until we reach the first multiple greater than K. May we do so? (yes/no):`,
+    hint: `This follows the method of exhaustion, creating successive multiples of D (2D, 3D, 4D, etc.).` },
+  { q: `Let N be that multiple, quadruple of D and the first greater than K. Is that acceptable? (yes/no):`,
+    hint: `We may select N = 4D to satisfy the condition.` },
+  { q: `Since K < N, can we say K is not less than M? (yes/no):`,
+    hint: `Because M is the next lower multiple before N, K lies between them.` },
+  { q: `Since FG and GH are the same multiples of AE and EB, respectively, is FH the same multiple of AB as FG is of AE? (yes/no):`,
+    hint: `The sum of equal multiples of parts equals the same multiple of the whole (Prop. V.1).` },
+  { q: `And since FG is the same multiple of AE that K is of C, are FH and K equimultiples of AB and C? (yes/no):`,
+    hint: `Equal ratios of corresponding multiples define equimultiples.` },
+  { q: `Because GH equals K (EB = C), and GH ≥ M, is FH greater than D and M together? (yes/no):`,
+    hint: `FH = FG + GH > D + M by the given construction.` },
+  { q: `But D and M together equal N, so is FH greater than N? (yes/no):`,
+    hint: `Since M = 3D and D + M = 4D = N.` },
+  { q: `And since FH > N while K is not > N, can we conclude AB has to D a greater ratio than C has to D? (yes/no):`,
+    hint: `By Definition V.7, the antecedent with the greater excess has the greater ratio.` },
+  { q: `Now, we also need to prove:
+D has to C a greater ratio than D has to AB.
+Shall we repeat the same construction, taking multiples as before? (yes/no):`,
+    hint: `The logic is symmetrical; the comparison is now reversed.` },
+  { q: `Then do we find that N is in excess of K, but not in excess of FH? (yes/no):`,
+    hint: `This reverses the previous inequality.` },
+  { q: `Hence, by Definition V.7, does it follow that D has to C a greater ratio than D has to AB? (yes/no):`,
+    hint: `Because D : C exceeds D : AB when the multiple of D exceeds that of C but not that of AB.` },
+  { q: `Case 2 — AE > EB
+If AE is the greater part, shall we now multiply the lesser, EB, until it becomes greater than D? (yes/no):`,
+    hint: `Again by Definition V.4, the lesser can be made to exceed D when multiplied.` },
+  { q: `Let GH be that multiple of EB greater than D, and FG, K these same multiples of C. Possible? (yes/no):`,
+    hint: `We can always take GH = n·EB > D.` },
+  { q: `Now, FH and K are equimultiples of AB and C as before. Do you see that? (yes/no):`,
+    hint: `Because AB = AE + EB, and both parts are multiplied equally.` },
+  { q: `Let N be again the first multiple of D greater than FG. Is that clear? (yes/no):`,
+    hint: `N = smallest multiple of D such that N > FG.` },
+  { q: `Since GH > D, is FH in excess of D and M, that is, of N? (yes/no):`,
+    hint: `The same reasoning applies: total FH exceeds the chosen multiple of D.` },
+  { q: `And since FG (greater than GH, i.e. than K) is not less than N, is K not greater than N? (yes/no):`,
+    hint: `FG bounds K below N, preserving the comparison.` },
+  { q: `Therefore, by repeating the argument, do we reach the same conclusion? (yes/no):`,
+    hint: `Both inequalities confirm the greater and lesser ratio relations.` }
+];
+
+const conclusion = `Congratulations! A greater magnitude has a greater ratio to the same than a lesser has, and the same has a greater ratio to the lesser than to the greater. 
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

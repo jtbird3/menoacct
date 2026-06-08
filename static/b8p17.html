@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements VIII.17</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>VIII.17 — Prove that if one cube number does not measure another, then their sides do not measure one another; and if the sides do not measure one another, the cubes do not measure one another</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements VIII.17 chatbot!
+
+We are given two cube numbers, A and B, such that A does not measure B. Do you agree? (yes/no):`,
+    hint:`“Does not measure” means A is not an exact divisor of B.` },
+
+  { q:`Let C be the side (the cube root) of A, and D the side of B. Do you agree? (yes/no):`,
+    hint:`A = C³ and B = D³.` },
+
+  { q:`Our goal is to show: If A does not measure B, then C does not measure D; and conversely, if C does not measure D, then A does not measure B. Does that make sense? (yes/no):`,
+    hint:`We want to show that measurement (divisibility) of cubes and their sides always happens together.` },
+
+  { q:`Forward direction (if A does not measure B, then C does not measure D): Suppose, for contradiction, that C does measure D. Is that a clear assumption? (yes/no):`,
+    hint:`This means D = k·C for some whole number k.` },
+
+  { q:`If C measures D, then by Proposition VIII.15, does A measure B? (yes/no):`,
+    hint:`VIII.15 says: if the sides of cube numbers measure one another, the cube numbers also measure one another.` },
+
+  { q:`But we were originally told that A does not measure B. Do you recall this? (yes/no):`,
+    hint:`The starting premise is that A fails to divide B.` },
+
+  { q:`If assuming “C measures D” leads to “A measures B,” which contradicts our premise, must we conclude that C does not measure D? (yes/no):`,
+    hint:`When a supposition creates a contradiction, the supposition must be false.` },
+
+  { q:`Reverse direction (if C does not measure D, then A does not measure B): Now assume C does not measure D. Do you follow? (yes/no):`,
+    hint:`So D is not an exact multiple of C.` },
+
+  { q:`Suppose, for contradiction, that A does measure B. Is that a clear assumption? (yes/no):`,
+    hint:`This means B = m·A for some whole number m.` },
+
+  { q:`If A measures B, then by Proposition VIII.15 again, must C also measure D? (yes/no):`,
+    hint:`VIII.15 says divisibility of cubes forces divisibility of their sides.` },
+
+  { q:`But we were told that C does not measure D. Do you recall this? (yes/no):`,
+    hint:`This is our premise for the reverse direction.` },
+
+  { q:`If assuming “A measures B” leads to “C measures D,” which contradicts our premise, must we conclude that A does not measure B? (yes/no):`,
+    hint:`Again, contradiction invalidates the assumption.` }
+]
+
+
+
+
+
+
+
+
+
+
+
+
+
+const conclusion = `Congratulations! You just proved that if one cube number does not measure another, then their sides do not measure one another; and if the sides do not measure one another, the cubes do not measure one another.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

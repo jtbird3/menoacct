@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements IX.10</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>IX.10 — Prove that in a continued proportion from a unit, a non-square first term yields only every second term square, and a non-cube first term yields only every third term cube</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements IX.10 chatbot!
+
+We are given as many numbers as we please, beginning from the unit, namely the unit, A, B, C, D, E, F, and they are in continued proportion. We suppose that A, the number after the unit, is not square. Do you agree? (yes/no):`,
+    hint: `The numbers start with 1, each has the same ratio to the next, and A is explicitly assumed not square.`
+  },
+
+  {
+    q: `Our goal is to show that no other number in the sequence is square except the third from the unit (B) and all numbers that “leave out one” (i.e. the unit, B, D, etc.) Does that make sense? (yes/no):`,
+    hint: `“Leave out one” means selecting numbers spaced by skipping exactly one number each time: 1, B, D, F, …`
+  },
+
+  // --- Square-case reasoning ---
+
+  {
+    q: `Suppose, for the sake of argument, that C is square. May we assume this for contradiction? (yes/no):`,
+    hint: `We are trying to reach a contradiction.`
+  },
+  {
+    q: `But B is also square. Do you accept this? (yes/no):`,
+    hint: `Proposition IX.8 already established that the third from the unit is square.`
+  },
+  {
+    q: `If B and C are square, do they have to one another the ratio of square to square? (yes/no):`,
+    hint: `Ratios of square numbers are “square” ratios.`
+  },
+  {
+    q: `And since A is to B as B is to C (continued proportion), does this imply A and B also have the ratio of square to square? (yes/no):`,
+    hint: `If B:C is a square ratio and A:B equals B:C, then A:B is also a square ratio.`
+  },
+  {
+    q: `If A to B is a square ratio and B is square, must A also be square? (yes/no):`,
+    hint: `By the converse of VIII.26, numbers standing in a square ratio with a square are themselves square.`
+  },
+  {
+    q: `But we assumed A is not square. Is this a contradiction? (yes/no):`,
+    hint: `Our assumption that C is square forces A to be square, contradicting the hypothesis.`
+  },
+  {
+    q: `Therefore, must C not be square? (yes/no):`,
+    hint: `A contradiction shows C is not square.`
+  },
+  {
+    q: `By the same reasoning, must B and those leaving out one be the only square numbers? (yes/no):`,
+    hint: `The same contradiction arises for each such term.`
+  },
+  {
+    q: `Thus, if A is not square, no number except B and the ones that leave out one are square. Agreed? (yes/no):`,
+    hint: `Only the special spaced-out subsequence can be square.`
+  },
+
+  // --- Cube-case reasoning ---
+
+  {
+    q: `Now suppose A is not cube. Do you agree this is our new hypothesis? (yes/no):`,
+    hint: `We restart the reasoning for cube numbers.`
+  },
+  {
+    q: `Our goal is to show that no other number is cube except the fourth from the unit (C) and those that “leave out two.” Does that make sense? (yes/no):`,
+    hint: `“Leave out two” means selecting numbers spaced by skipping exactly two numbers each time: 1, C, F, …`
+  },
+  {
+    q: `Assume, for contradiction, that D is cube. Is this our temporary assumption? (yes/no):`,
+    hint: `As before, we proceed by contradiction.`
+  },
+  {
+    q: `But C is cube, since C is the fourth from the unit. Do you accept this? (yes/no):`,
+    hint: `Proposition IX.8 establishes that the fourth term is cube.`
+  },
+  {
+    q: `If C is to D as B is to C (continued proportion), and C to D is a cube ratio, must B to C also be a cube ratio? (yes/no):`,
+    hint: `Equal ratios share the same numerical form.`
+  },
+  {
+    q: `Thus if C is cube, must B also be cube? (yes/no):`,
+    hint: `Proposition VIII.25: in a cube ratio, the corresponding term is cube.`
+  },
+  {
+    q: `Now recall: as the unit is to A, so A is to B; and since the unit measures A by its units, does A measure B by the units in itself? (yes/no):`,
+    hint: `Same-number-of-times measuring follows from equal ratios.`
+  },
+  {
+    q: `Does this mean A multiplies itself to make B? (yes/no):`,
+    hint: `“Measures by its own units” = self-multiplication.`
+  },
+  {
+    q: `If A multiplies itself to produce a cube number B, must A also be cube? (yes/no):`,
+    hint: `Proposition IX.6: if a number creates a cube by multiplying itself, that number is cube.`
+  },
+  {
+    q: `But we assumed A is not cube. Is this a contradiction? (yes/no):`,
+    hint: `The assumption that D is cube forces A to be cube.`
+  },
+  {
+    q: `Therefore, must D not be a cube? (yes/no):`,
+    hint: `Contradiction shows D cannot be cube.`
+  },
+  {
+    q: `By repeating the reasoning, must no other number (except C and those leaving out two) be cube? (yes/no):`,
+    hint: `Each such assumption yields the same contradiction.`
+  },
+  {
+    q: `Thus, if A is not cube, no number except the fourth from the unit and those leaving out two is cube. Does that follow? (yes/no):`,
+    hint: `Only the special spaced subsequence can be cube.`
+  }
+]
+
+
+
+
+
+
+
+
+const conclusion = `Congratulations! You just proved that in a continued proportion from a unit, a non-square first term yields only every second term square, and a non-cube first term yields only every third term cube.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

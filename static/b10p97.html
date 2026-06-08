@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.97</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.97 – Prove that if the square on an apotome is applied to a rational straight line, the breadth produced is a first apotome.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+{ q: `Welcome to Elements X.97 chatbot!
+
+We are given a straight line AB which is an apotome, and a straight line CD which is rational. Do you agree? (yes/no):`,
+  hint: `AB is assumed an apotome, and CD a rational straight line.` },
+{ q: `To the straight line CD, let there be applied CE equal to the square on AB, producing CF as breadth. Do you accept this setup? (yes/no):`,
+  hint: `This follows the standard Euclidean application of areas.` },
+{ q: `Our goal is to prove that CF is a first apotome. Does that make sense? (yes/no):`,
+  hint: `We must show CF satisfies the definition of a first apotome.` },
+
+{ q: `Let BG be the annex to AB. Do you agree this can be taken? (yes/no):`,
+  hint: `By definition of an apotome, an annex exists.` },
+{ q: `Are AG and GB rational straight lines commensurable in square only? (yes/no):`,
+  hint: `This follows directly from Proposition X.73.` },
+
+{ q: `To CD let there be applied CH equal to the square on AG, and KL equal to the square on BG. Is this construction allowed? (yes/no):`,
+  hint: `Squares can be applied to straight lines by Euclidean construction.` },
+{ q: `Is the whole CL equal to the squares on AG and GB together? (yes/no):`,
+  hint: `CL consists of CH and KL.` },
+{ q: `And is CE equal to the square on AB? (yes/no):`,
+  hint: `This is given in the construction.` },
+{ q: `Therefore, is the remainder FL equal to twice the rectangle AG, GB? (yes/no):`,
+  hint: `By Proposition II.7.` },
+
+{ q: `Let FM be bisected at N, and let NO be drawn through N parallel to CD. Is this possible? (yes/no):`,
+  hint: `A straight line can be bisected and a parallel drawn through a point.` },
+{ q: `Are the rectangles FO and LN each equal to the rectangle AG, GB? (yes/no):`,
+  hint: `Halving twice a rectangle gives equality.` },
+
+{ q: `Since the squares on AG and GB are rational, is DM rational? (yes/no):`,
+  hint: `DM equals the sum of two rational squares.` },
+{ q: `And since DM is applied to the rational straight line CD producing CM as breadth, is CM rational and commensurable in length with CD? (yes/no):`,
+  hint: `By Proposition X.20.` },
+
+{ q: `Now, since twice the rectangle AG, GB is medial, and FL equals twice that rectangle, is FL medial? (yes/no):`,
+  hint: `Medial magnitudes remain medial when equal.` },
+{ q: `And since FL is applied to the rational straight line CD producing FM as breadth, is FM rational and incommensurable in length with CD? (yes/no):`,
+  hint: `By Proposition X.22.` },
+
+{ q: `Since the squares on AG and GB are rational, but twice the rectangle AG, GB is medial, are these incommensurable? (yes/no):`,
+  hint: `Rational and medial areas are incommensurable.` },
+{ q: `Since CL equals the squares on AG and GB, and FL equals twice the rectangle AG, GB, is DM incommensurable with FL? (yes/no):`,
+  hint: `They are equal to incommensurable magnitudes.` },
+{ q: `But as DM is to FL, so is CM to FM. Do you agree? (yes/no):`,
+  hint: `By Proposition VI.1.` },
+{ q: `Therefore, is CM incommensurable in length with FM? (yes/no):`,
+  hint: `By Proposition X.11.` },
+{ q: `And since both CM and FM are rational, are they rational straight lines commensurable in square only? (yes/no):`,
+  hint: `This is exactly Proposition X.73.` },
+{ q: `Therefore, is CF an apotome? (yes/no):`,
+  hint: `CF is composed of CM and MF with these properties.` },
+
+{ q: `I say next that CF is also a first apotome. Do you follow the new goal? (yes/no):`,
+  hint: `We now classify the type of apotome.` },
+{ q: `Since the rectangle AG, GB is a mean proportional between the squares on AG and GB, do you agree? (yes/no):`,
+  hint: `This follows from the definition of mean proportional.` },
+{ q: `And since CH equals the square on AG, KL equals the square on BG, and NL equals the rectangle AG, GB, is NL a mean proportional between CH and KL? (yes/no):`,
+  hint: `Equal magnitudes preserve proportionality.` },
+{ q: `Therefore, is it true that as CH is to NL, so is NL to KL? (yes/no):`,
+  hint: `Definition of mean proportional.` },
+
+{ q: `But as CH is to NL, so is CK to NM; and as NL is to KL, so is NM to KM. Do you accept this? (yes/no):`,
+  hint: `By Proposition VI.1.` },
+{ q: `Therefore, is the rectangle CK, KM equal to the square on NM? (yes/no):`,
+  hint: `By Proposition VI.17.` },
+{ q: `And is this equal to the fourth part of the square on FM? (yes/no):`,
+  hint: `NM is half of FM.` },
+
+{ q: `Since the square on AG is commensurable with the square on GB, is CH commensurable with KL? (yes/no):`,
+  hint: `Equal ratios preserve commensurability.` },
+{ q: `And since as CH is to KL, so is CK to KM, is CK commensurable with KM? (yes/no):`,
+  hint: `By Proposition X.11.` },
+
+{ q: `Now, since CM and MF are unequal straight lines, and to CM there has been applied the rectangle CK, KM equal to the fourth part of the square on FM and deficient by a square figure, while CK is commensurable with KM, do you agree the conditions of Proposition X.17 are met? (yes/no):`,
+  hint: `All required conditions are satisfied.` },
+{ q: `Therefore, is the square on CM greater than the square on MF by the square on a straight line commensurable in length with CM? (yes/no):`,
+  hint: `This is exactly the conclusion of X.17.` },
+{ q: `And since CM is commensurable in length with the rational straight line CD, does CF meet the definition of a first apotome? (yes/no):`,
+  hint: `By Definition III.1 of Book X.` },
+]
+
+const conclusion = `Congratulations! You just proved that if the square on an apotome is applied to a rational straight line, the breadth produced is a first apotome.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

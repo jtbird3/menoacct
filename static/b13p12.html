@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements XIII.12</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>XIII.12 – Prove that if an equilateral triangle is inscribed in a circle, then the square on the side of the triangle is three times the square on the radius of the circle.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements XIII.12 chatbot!
+
+We are given a circle ABC, and an equilateral triangle ABC inscribed in it. Do you agree? (yes/no):`,
+    hint: `The points A, B, and C lie on the circumference, and the triangle formed has all sides equal.` },
+
+  { q: `Our goal is to show that the square on one side of triangle ABC is triple of the square on the radius of the circle. Does that make sense? (yes/no):`,
+    hint: `We are comparing areas of squares constructed on a side of the triangle and on the radius.` },
+
+  { q: `Let D be taken as the center of the circle ABC. Is this allowed? (yes/no):`,
+    hint: `Every circle has a unique center.` },
+
+  { q: `Join AD, and produce it further to a point E. Can we do this? (yes/no):`,
+    hint: `A straight line can be drawn from any point to any point, and produced further (Postulates 1 and 2).` },
+
+  { q: `Join BE. Is this construction possible? (yes/no):`,
+    hint: `A straight line may be drawn between points B and E.` },
+
+  { q: `Since triangle ABC is equilateral, is the arc BEC a third part of the circumference of the circle? (yes/no):`,
+    hint: `Equal sides subtend equal arcs at the center of the circle.` },
+
+  { q: `Is the arc BE therefore one sixth of the circumference of the circle? (yes/no):`,
+    hint: `Arc BEC consists of two equal arcs, BE and EC.` },
+
+  { q: `Does a straight line which subtends one sixth of the circumference belong to a regular hexagon inscribed in the circle? (yes/no):`,
+    hint: `In a regular hexagon, each side subtends one sixth of the circumference.` },
+
+  { q: `Is the side of such a hexagon equal to the radius of the circle? (yes/no):`,
+    hint: `By Proposition IV.15, each side of a regular hexagon inscribed in a circle equals the radius.` },
+
+  { q: `Therefore, is BE equal to DE? (yes/no):`,
+    hint: `BE is a side of the hexagon, and DE is the radius.` },
+
+  { q: `Is AE double of DE? (yes/no):`,
+    hint: `D is the midpoint of AE, since AD equals DE (both radii).` },
+
+  { q: `Is the square on AE therefore quadruple of the square on DE? (yes/no):`,
+    hint: `The square on a double line is four times the square on the half.` },
+
+  { q: `Since DE equals BE, is the square on AE quadruple of the square on BE? (yes/no):`,
+    hint: `Equal lines have equal squares.` },
+
+  { q: `Is the square on AE equal to the squares on AB and BE together? (yes/no):`,
+    hint: `By Euclid III.31 and I.47, AE is a diameter, so the angle ABE is right-angled.` },
+
+  { q: `Therefore, are the squares on AB and BE together quadruple of the square on BE? (yes/no):`,
+    hint: `They are equal to the square on AE, already shown to be quadruple of BE.` },
+
+  { q: `By separating equals from equals, is the square on AB triple of the square on BE? (yes/no):`,
+    hint: `Subtract the square on BE from both sides (Common Notion 3).` },
+
+  { q: `Since BE equals DE, is the square on AB triple of the square on DE? (yes/no):`,
+    hint: `Equal magnitudes have equal squares.` },
+
+  { q: `Therefore, is the square on the side of the equilateral triangle triple of the square on the radius of the circle? (yes/no):`,
+    hint: `AB is a side of the triangle, and DE is the radius.` }
+]
+
+const conclusion = `Congratulations! You just proved that if an equilateral triangle is inscribed in a circle, then the square on the side of the triangle is three times the square on the radius of the circle.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

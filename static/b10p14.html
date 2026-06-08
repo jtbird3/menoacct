@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.14</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.14 – Prove that if four straight lines are proportional, and the square on the first exceeds the square on the second by the square on a straight line commensurable with the first, then the square on the third exceeds the square on the fourth by the square on a straight line commensurable with the third.</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements X.14 chatbot!
+
+We are given four straight lines A, B, C, D, such that as A is to B, so is C to D. Do you agree? (yes/no):`,
+hint: `This is the meaning of four straight lines being proportional.` },
+{ q: `We are also given that the square on A is greater than the square on B by the square on a straight line E. Is that clear? (yes/no):`,
+hint: `“Greater by the square on E” means (square on A) = (square on B) + (square on E).` },
+{ q: `Likewise, the square on C is greater than the square on D by the square on a straight line F. Do you agree? (yes/no):`,
+hint: `This is the corresponding excess for C and D.` },
+{ q: `Our goal is to show: if A is commensurable with E, then C is commensurable with F, and if A is incommensurable with E, then C is incommensurable with F. Does that make sense? (yes/no):`,
+hint: `We want to transfer commensurability through proportionality.` },
+{ q: `Since as A is to B, so is C to D, does it follow that as the square on A is to the square on B, so is the square on C to the square on D? (yes/no):`,
+hint: `This follows from Book VI, Proposition 22.` },
+{ q: `Are the squares on E and B together equal to the square on A? (yes/no):`,
+hint: `By the given construction, square A exceeds square B by square E.` },
+{ q: `Are the squares on D and F together equal to the square on C? (yes/no):`,
+hint: `This matches the given excess for C over D.` },
+{ q: `Therefore, can we say that as the squares on E and B are to the square on B, so are the squares on D and F to the square on D? (yes/no):`,
+hint: `Substitute equal magnitudes into the proportion.` },
+{ q: `Applying separando, does it follow that as the square on E is to the square on B, so is the square on F to the square on D? (yes/no):`,
+hint: `Book V, Proposition 17 (separating equals from equals).` },
+{ q: `From this, does it follow that as E is to B, so is F to D? (yes/no):`,
+hint: `From the ratio of squares to the ratio of their sides (VI.22).` },
+{ q: `Therefore, inversely, is it true that as B is to E, so is D to F? (yes/no):`,
+hint: `Inversion of a proportion.` },
+{ q: `But we already have that as A is to B, so is C to D. Do you agree? (yes/no):`,
+hint: `This was the original proportionality.` },
+{ q: `Combining these proportions ex aequali, does it follow that as A is to E, so is C to F? (yes/no):`,
+hint: `Book V, Proposition 22 (ex aequali).` },
+{ q: `If A is commensurable with E, does this imply that C is commensurable with F? (yes/no):`,
+hint: `Equal ratios preserve commensurability (Book X, Proposition 11).` },
+{ q: `If A is incommensurable with E, does this imply that C is also incommensurable with F? (yes/no):`,
+hint: `The same proposition applies to incommensurables.` }
+]
+
+
+
+
+
+const conclusion = `Congratulations! You just proved that if four straight lines are proportional, and the square on the first exceeds the square on the second by the square on a straight line commensurable with the first, then the square on the third exceeds the square on the fourth by the square on a straight line commensurable with the third.
+Q.E.F. (Quod Erat Faciendum — which was to be done)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Conics I.26</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+<h1>I.26 – Prove that in a parabola or a hyperbola, a straight line drawn parallel to the diameter meets the section at one point only</h1>
+
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [{ q: `Welcome to Apollonius' Conics I.26 chatbot!
+
+We are given a parabola with diameter ABC, and latus rectum AD. Do you agree? (yes/no):`, hint: `The diameter and latus rectum are given parts of the parabola.` },
+{ q: `Let us draw line EF parallel to AB. Is that clear? (yes/no):`, hint: `EF is assumed parallel to the diameter AB.` },
+{ q: `Our goal is to show that EF, when continued, meets the parabola at one point only. Does that make sense? (yes/no):`, hint: `We must show both existence and uniqueness of the intersection.` },
+{ q: `Let a point E be taken on the line EF. Is this allowed? (yes/no):`, hint: `Any point may be chosen on a straight line.` },
+{ q: `From E, let EG be drawn parallel to an ordinate of the parabola. Can we do this? (yes/no):`, hint: `A line can be drawn parallel to a given direction.` },
+{ q: `Now, we are given that the rectangle DA, AC is greater than the square on GE. Do you agree? (yes/no):`, hint: `This follows from the properties of the parabola used by Apollonius.` },
+{ q: `From point C, let CH be erected as an ordinate, according to Proposition I.19. Is this construction possible? (yes/no):`, hint: `An ordinate can be erected perpendicular to the diameter.` },
+{ q: `According to Proposition I.11, is the square on HC equal to the rectangle DA, AC? (yes/no):`, hint: `This is a defining property of the parabola.` },
+{ q: `Since rectangle DA, AC is greater than square GE, is square HC also greater than square GE? (yes/no):`, hint: `Things equal to the same thing compare equally.` },
+{ q: `If square HC is greater than square GE, is HC greater than GE? (yes/no):`, hint: `A greater square implies a greater side.` },
+{ q: `Are HC and GE parallel to one another? (yes/no):`, hint: `Both are ordinates drawn parallel by construction.` },
+{ q: `If one parallel segment is greater than another, does EF, when continued, cut HC? (yes/no):`, hint: `A longer parallel segment must be intersected by the continued line.` },
+{ q: `If EF meets ordinate HC, must EF continued meet the parabola at some point K? (yes/no):`, hint: `HC is an ordinate of the parabola.` },
+{ q: `Now, suppose EF meets the parabola again at another point L. May we assume this for contradiction? (yes/no):`, hint: `This is an assumption made for contradiction.` },
+{ q: `If a straight line cuts a parabola at two points, will it, when continued, meet the diameter (according to Proposition I.22)? (yes/no):`, hint: `This is a known result used by Apollonius.` },
+{ q: `But is EF parallel to the diameter AB? (yes/no):`, hint: `This was given at the start.` },
+{ q: `Is it impossible for a line parallel to the diameter to meet it? (yes/no):`, hint: `Parallel lines do not meet.` },
+{ q: `Therefore, is the assumption that EF meets the parabola at two points false? (yes/no):`, hint: `It leads to a contradiction.` },
+{ q: `Hence, does EF continued meet the parabola at one point only? (yes/no):`, hint: `Both existence and uniqueness have been shown.` },
+
+
+]
+
+const conclusion = `Congratulations! You just proved that in a parabola or a hyperbola, a straight line drawn parallel to the diameter meets the section at one point only.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

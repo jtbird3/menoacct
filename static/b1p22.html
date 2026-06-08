@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>I.22 — MenoChat (Toggle: Pure ↔ Graph)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>I.22 - Construct a triangle from three given lines</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements I.22 chatbot!
+
+We are given three straight lines A, B, and C, where any two are greater than the third. Do you agree? (yes/no):`,
+    hint: `These are just three separate line segments of fixed lengths.` },
+  { q: `So A + B > C, A + C > B, and B + C > A. Is that correct? (yes/no):`,
+    hint: `This is the triangle inequality condition.` },
+  { q: `Now, let us draw a straight line DE, starting at point D and extending toward E. Can we do this? (yes/no):`,
+    hint: `Postulate 2 allows us to produce a straight line from any point continuously.` },
+  { q: `On this line DE, let us mark off DF equal to A, FG equal to B, and GH equal to C. Can we do that? (yes/no):`,
+    hint: `By Proposition I.3, we can set off a segment equal to any given straight line.` },
+  { q: `Next, draw a circle with center F and radius FD. Possible? (yes/no):`,
+    hint: `Postulate 3 allows a circle with any center and radius.` },
+  { q: `Now, draw another circle with center G and radius GH. Possible? (yes/no):`,
+    hint: `Again, Postulate 3 allows this.` },
+  { q: `Do these two circles intersect at some point, say K? (yes/no):`,
+    hint: `Since F and G are marked on the same line and their circles overlap by construction, they must meet.` },
+  { q: `Join KF and KG with straight lines. Can we do that? (yes/no):`,
+    hint: `Postulate 1 allows a straight line to be drawn from any point to any point.` },
+  { q: `Is KF equal to A? (yes/no):`,
+    hint: `KF is a radius of the circle centered at F, with radius FD = A.` },
+  { q: `Is KG equal to C? (yes/no):`,
+    hint: `KG is a radius of the circle centered at G, with radius GH = C.` },
+  { q: `And is FG equal to B? (yes/no):`,
+    hint: `FG was marked equal to B at the beginning.` },
+  { q: `Therefore, are the three sides KF, FG, and GK equal to A, B, and C respectively? (yes/no):`,
+    hint: `Yes — each matches one of the given lines.` },
+  { q: `So, have we constructed a triangle KFG from three straight lines equal to A, B, and C? (yes/no):`,
+    hint: `This matches exactly what was required.` }
+];
+
+const conclusion = `Congratulations! You have constructed the required triangle.
+Q.E.F. (Quod Erat Faciendum — which was to be done)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

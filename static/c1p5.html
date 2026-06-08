@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Conics I.5 — Menochat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>I.5 - Prove that an antiparallel plane cutting an oblique cone produces a circular section</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Conics I.5 chatbot!
+
+We are given an oblique cone with vertex A and base circle BC, with a plane cutting through the axis perpendicular to BC making the axial triangle ABC. Do you agree? (yes/no):`,
+hint: `The first plane passes through A and the axis and is perpendicular to the base circle.` },
+{ q: `We are also given another plane perpendicular to triangle ABC and cutting off triangle AKG on the side of A, similar and antiparallel (∠AKG = ∠ABC) to ABC. Do you accept this? (yes/no):`,
+hint: `“Antiparallel” means ∠AKG = ∠ABC.` },
+{ q: `Our goal is to show that the section made on the cone by this second plane is a circle, namely the curve GHK. Does that make sense? (yes/no):`,
+hint: `We must prove all perpendiculars from points on GHK to GK have equal square.` },
+{ q: `Take any point H on circe GK and any point L on BC. Is that allowed? (yes/no):`,
+hint: `We may choose arbitrary points on those lines.` },
+{ q: `From H and L, can we drop perpendiculars to the plane of triangle ABC? (yes/no):`,
+hint: `From any point, a perpendicular to a plane can be drawn.` },
+{ q: `Do these perpendiculars fall onto the common section of the planes (lines BC and GK)? (yes/no):`,
+hint: `By Euclid XI.4, perpendiculars from points in different planes fall to their line of intersection.` },
+{ q: `Shall we call these intersections FH from H, and LM from L? (yes/no):`,
+hint: `We are just naming the perpendicular segments.` },
+{ q: `By Euclid XI.6 (perpendiculars to the same plane are parallel), are FH and LM parallel? (yes/no):`,
+hint: `Perpendiculars to the same plane from the other plane are parallel.` },
+{ q: `Through F, can we draw DE parallel to BC? (yes/no):`,
+hint: `A parallel to a given line can always be drawn through a point.` },
+{ q: `If FH is parallel to LM and DE is parllel to BC, does the plane through FH and DE become parallel to the base of the cone? (yes/no):`,
+hint: `By Euclid XI.15, if a plane contains a line parallel to the base's line, the whole plane is parallel to the base plane.` },
+{ q: `If the plane is parallel to the base, does its section of the cone form a circle of diameter DE? (yes/no):`,
+hint: `A plane parallel to the base cuts an oblique cone in a circle.` },
+{ q: `By Euclid II.14, is the rectangle (DF, FE) equal to the square on FH? (yes/no):`,
+hint: `This matches the standard relation between diameter and perpendicular in a circle.` },
+{ q: `Because ED is parallel to BC, is ∠ADE equal to ∠ABC? (yes/no):`,
+hint: `Parallel lines give equal corresponding angles.` },
+{ q: `Given ∠AKG = ∠ABC, do we have ∠AKG = ∠ADE? (yes/no):`,
+hint: `Substitute equals for equals.` },
+{ q: `Since the vertical angles at F are equal, are triangles DFG and KFE similar? (yes/no):`,
+hint: `Two equal angles yield similar triangles (Euclid VI.4).` },
+{ q: `From similarity, is EF : FK = GF : FD? (yes/no):`,
+hint: `Corresponding sides of similar triangles are proportional.` },
+{ q: `By Euclid VI.16, does this mean rectangle (EF, FD) = rectangle (KF, FG)? (yes/no):`,
+hint: `Proportionality of sides gives equality of the corresponding rectangles.` },
+{ q: `Since square FH equals EF,FD, do we also have square FH equals KF,FG? (yes/no):`,
+hint: `Replace equals by equals.` },
+{ q: `Because H was arbitrary on GHK, do all perpendiculars to GK from GHK have equal squares? (yes/no):`,
+hint: `The argument works for any chosen point.` },
+{ q: `If all such perpendiculars have equal square under segments of GK, is GHK therefore a circle with diameter GK? (yes/no):`,
+hint: `A locus whose perpendiculars to a fixed diameter have equal square is a circle.` },
+{ q: `So, have we shown the antiparallel section GHK is a circle of diameter GK? (yes/no):`,
+hint: `All the required relations have been demonstrated.` },
+
+
+
+];
+
+const conclusion = `Congratulations! You just proved that an antiparallel plane cutting an oblique cone produces a circular section.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

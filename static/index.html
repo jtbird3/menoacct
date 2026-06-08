@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Menochat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="The Meno Master Challenge. 48 Propositions. 49 Days.">
+  <meta property="og:title" content="Menochat">
+  <meta property="og:description" content="The Meno Master Challenge. 48 Propositions. 49 Days.">
+  <meta property="og:type" content="website">
+  <style>
+    html, body { background: #ffffff; color: #000; margin: 0; }
+
+    body {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+                   "Liberation Mono", "Courier New", monospace;
+      padding: 48px;
+      padding-bottom: 80px;
+      text-align: left;
+      display: flex;
+      justify-content: center;
+    }
+
+    #wrap {
+      width: 100%;
+      max-width: 560px;
+    }
+
+    h1 {
+      font-size: 42px;
+      font-weight: 700;
+      margin: 0 0 32px;
+      text-align: center;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .sub { font-size: 20px; }
+
+    /* ── Challenge copy ─────────────── */
+
+    .challenge-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 28px;
+      text-align: center;
+    }
+
+    .body-block {
+      font-size: 16px;
+      line-height: 2;
+      margin-bottom: 24px;
+      color: #000;
+    }
+
+    .rule {
+      margin: 32px 0;
+      border: none;
+      border-top: 1px solid #000;
+    }
+
+    /* ── Form ───────────────────────── */
+
+    .field {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .field label {
+      font-size: 16px;
+      color: #000;
+      width: 52px;
+      flex-shrink: 0;
+    }
+
+    .field input {
+      font-family: inherit;
+      font-size: 16px;
+      border: none;
+      border-bottom: 1px solid #000;
+      outline: none;
+      width: 260px;
+      background: transparent;
+      color: #000;
+      padding: 3px 0;
+    }
+
+    .field input:focus { border-bottom-color: #000; }
+
+    #submit {
+      margin-top: 28px;
+      font-family: inherit;
+      font-size: 20px;
+      font-weight: 700;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0;
+      color: #000;
+      display: block;
+    }
+
+    #submit:hover { text-decoration: underline; }
+    #submit:disabled { color: #000; opacity: 0.3; cursor: default; text-decoration: none; }
+
+    /* ── Post-submit ────────────────── */
+
+    #accepted {
+      display: none;
+      font-size: 16px;
+      line-height: 2.2;
+      color: #000;
+    }
+
+    /* ── Footer ─────────────────────── */
+
+    .footer {
+      margin-top: 48px;
+      font-size: 13px;
+      color: #000;
+    }
+
+    .footer a { color: #000; }
+    .footer a:hover { text-decoration: underline; }
+
+    /* ── Mobile ─────────────────────── */
+
+    @media (max-width: 640px) {
+      body { padding: 24px; padding-bottom: 60px; }
+      h1 { font-size: 32px; }
+      .field input { width: 100%; }
+      .field { gap: 10px; }
+    }
+  </style>
+</head>
+<body>
+<div id="wrap">
+
+<h1>Menochat</h1>
+
+<div class="sub">
+
+  <div class="body-block">
+    Menochat is a Socratic learning system based on Euclid's Elements.<br>
+    This is an invitation to the first official challenge.
+  </div>
+
+  <div class="challenge-title">The Meno Master Challenge</div>
+
+  <div class="body-block">
+    48 Propositions. 49 Days.
+  </div>
+
+  <div class="body-block">
+    One proposition per day.<br>
+    Every day, the lesson comes to you.<br>
+    Complete it and it counts.<br>
+    Miss one and you're out.<br>
+    One vacation day.
+  </div>
+
+  <div class="body-block">
+    The reward: secret merch. Menochat Black Belt.<br>
+    Lifetime benefits. A place among the first Meno Masters.
+  </div>
+
+  <div class="body-block">
+    The challenge is difficult.<br>
+    Most people will not finish.
+  </div>
+
+
+  <form id="form" action="https://formspree.io/f/mjgdgawb" method="POST">
+    <div class="field">
+      <label>name</label>
+      <input type="text" name="name" required autocomplete="name" spellcheck="false">
+    </div>
+    <div class="field">
+      <label>phone</label>
+      <input type="tel" name="phone" required autocomplete="tel" spellcheck="false">
+    </div>
+    <div class="field">
+      <label>email</label>
+      <input type="email" name="email" autocomplete="email" spellcheck="false" placeholder="optional">
+    </div>
+    <button type="submit" id="submit">&gt; I accept</button>
+  </form>
+
+  <div id="accepted">
+    Accepted.<br>
+    The challenge begins soon.<br>
+    Stand by.
+  </div>
+
+
+  <div class="footer">
+    <a href="/classic">menochat classic</a>
+  </div>
+
+</div>
+
+<script>
+  document.getElementById('form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('submit');
+    btn.disabled = true;
+    btn.textContent = '...';
+
+    try {
+      await fetch('https://formspree.io/f/mjgdgawb', {
+        method: 'POST',
+        headers: { 'Accept': 'application/json', 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: new URLSearchParams(new FormData(e.target)).toString(),
+      });
+      e.target.style.display = 'none';
+      document.getElementById('accepted').style.display = 'block';
+    } catch {
+      btn.disabled = false;
+      btn.textContent = '> I accept';
+    }
+  });
+</script>
+
+</div>
+</body>
+</html>

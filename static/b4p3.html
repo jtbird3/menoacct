@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>IV.3 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>IV.3 - Circumscribe a triangle equiangular to a given triangle about a given circle</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements IV.3 chatbot!
+
+We are given a circle ABC and a triangle DEF. Do you agree? (yes/no):`,
+    hint: `Circle ABC is the given circle; DEF is the given triangle.` },
+  { q: `Our goal is to circumscribe a triangle around circle ABC equiangular with triangle DEF. Does that make sense? (yes/no):`,
+    hint: `“Circumscribe” means the circle will touch each side of the new triangle, and “equiangular” means all corresponding angles are equal.` },
+  { q: `Let us extend the side EF of triangle DEF both ways to points G and H? (yes/no):`,
+    hint: `Extending a line is allowed by Postulate 2 (a straight line can be produced).` },
+  { q: `Next, can we find the center K of the circle ABC? (yes/no):`,
+    hint: `By Proposition III.1, the center of a circle can be found.` },
+  { q: `Now, from the center K, let us draw radius KB. is this possible? (yes/no):`,
+    hint: `Postulate 1 allows us to connect any two points with a straight line.` },
+  { q: `At point K on line KB, can we construct ∠BKA equal to ∠DEG? (yes/no):`,
+    hint: `Proposition I.23 lets us construct an angle equal to a given angle on a given line.` },
+  { q: `Also at point K, can we construct ∠BKC equal to ∠DFH? (yes/no):`,
+    hint: `Again, by Proposition I.23, equal angles can be set up on a line.` },
+  { q: `Now, through the points A, B, C, can we draw tangents LAM, MBN, NCL to circle ABC? (yes/no):`,
+    hint: `Proposition III.16 (Porism) allows drawing tangents from points on a circle.` },
+  { q: `Since LM, MN, NL touch the circle at A, B, C, are ∠KAM, ∠KBM, ∠KCN right angles? (yes/no):`,
+    hint: `Proposition III.18: a radius to the point of tangency is perpendicular to the tangent.` },
+  { q: `Considering quadrilateral AMBK, do its four angles equal four right angles? (yes/no):`,
+    hint: `Any quadrilateral equals two triangles; hence sum of angles = four right angles.` },
+  { q: `Since ∠KAM and ∠KBM are right, are ∠AKB and ∠AMB together equal to two right angles? (yes/no):`,
+    hint: `The remaining angles must sum to four right angles minus the two rights.` },
+  { q: `But are ∠DEG and ∠DEF also equal to two right angles? (yes/no):`,
+    hint: `By Proposition I.13, a straight line with adjacent angles sums to two rights.` },
+  { q: `Therefore, is ∠AMB equal to ∠DEF (since ∠AKB = ∠DEG)? (yes/no):`,
+    hint: `Equal totals with equal parts imply remaining parts are equal.` },
+  { q: `In the same way, can we show ∠LNM = ∠DFE, and so ∠MLN = ∠EDF? (yes/no):`,
+    hint: `By repeating the same reasoning on the other side.` },
+  { q: `Therefore, is triangle LMN equiangular with triangle DEF? (yes/no):`,
+    hint: `Each angle of LMN equals the corresponding angle of DEF.` }
+];
+
+const conclusion = `Congratulations! You just circumscribed a triangle equiangular to a given triangle about a given circle.
+Q.E.F. (Quod Erat Faciendum — which was to be done)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

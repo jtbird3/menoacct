@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.9</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.9 – Prove that straight lines are commensurable in length if and only if the squares on them have to one another the ratio of a square number to a square number.</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements X.9 chatbot!
+
+We are given two straight lines A and B, which are commensurable in length. Do you agree? (yes/no):`,
+hint: `Commensurable in length means their ratio is the ratio of a number to a number.` },
+{ q: `Our goal is to show that the square on A has to the square on B the ratio which a square number has to a square number. Does that make sense? (yes/no):`,
+hint: `We are comparing areas of squares constructed on A and B.` },
+{ q: `Since A is commensurable in length with B, does A have to B the ratio which a number has to a number? (yes/no):`,
+hint: `This follows from Book X, Definition 5.` },
+{ q: `Let A have to B the ratio which the number C has to the number D. Is this acceptable? (yes/no):`,
+hint: `Any numerical ratio can be represented by two numbers C and D.` },
+{ q: `Is the ratio of the square on A to the square on B the duplicate ratio of A to B? (yes/no):`,
+hint: `Similar figures are in the duplicate ratio of their corresponding sides (VI.20, Porism).` },
+{ q: `Is the ratio of the square on C to the square on D the duplicate ratio of C to D? (yes/no):`,
+hint: `Between two square numbers there is one mean proportional, and square numbers have duplicate ratios of their sides (VIII.11).` },
+{ q: `Since A is to B as C is to D, do their duplicate ratios also agree? (yes/no):`,
+hint: `Equal ratios remain equal when duplicated.` },
+{ q: `Therefore, is the square on A to the square on B as the square on C is to the square on D? (yes/no):`,
+hint: `Both ratios are duplicate of equal ratios.` },
+{ q: `Can we conclude that the square on A has to the square on B the ratio which a square number has to a square number? (yes/no):`,
+hint: `Squares on C and D are squares of numbers.` },
+
+{ q: `Next, suppose that the square on A has to the square on B the same ratio as the square on C has to the square on D. Do you agree? (yes/no):`,
+hint: `This is the converse assumption.` },
+{ q: `Our goal is to show that A is commensurable in length with B. Does that make sense? (yes/no):`,
+hint: `We want to recover commensurability of sides from their squares.` },
+{ q: `Is the ratio of the square on A to the square on B the duplicate ratio of A to B? (yes/no):`,
+hint: `Again by VI.20, Porism.` },
+{ q: `Is the ratio of the square on C to the square on D the duplicate ratio of C to D? (yes/no):`,
+hint: `Again by VIII.11.` },
+{ q: `Since the duplicate ratios are equal, is A to B as C to D? (yes/no):`,
+hint: `If duplicate ratios are equal, the original ratios are equal.` },
+{ q: `Does A therefore have to B the ratio which the number C has to the number D? (yes/no):`,
+hint: `C and D are numbers.` },
+{ q: `Can we conclude that A is commensurable in length with B? (yes/no):`,
+hint: `This follows from Book X, Definition 6.` },
+
+{ q: `Next, let A be incommensurable in length with B. Do you agree? (yes/no):`,
+hint: `Their ratio is not the ratio of a number to a number.` },
+{ q: `Our goal is to show that the square on A has not to the square on B the ratio which a square number has to a square number. Does that make sense? (yes/no):`,
+hint: `This is the negative case.` },
+{ q: `If the square on A did have to the square on B the ratio which a square number has to a square number, would A be commensurable with B? (yes/no):`,
+hint: `This was proved in Part 2.` },
+{ q: `But A is not commensurable with B. Is that correct? (yes/no):`,
+hint: `This is our assumption.` },
+{ q: `Therefore, does the square on A fail to have to the square on B the ratio which a square number has to a square number? (yes/no):`,
+hint: `This follows by contradiction.` },
+
+{ q: `Finally, suppose that the square on A does not have to the square on B the ratio which a square number has to a square number. Do you agree? (yes/no):`,
+hint: `This is the final converse.` },
+{ q: `Our goal is to show that A is incommensurable in length with B. Does that make sense? (yes/no):`,
+hint: `We reverse the implication again.` },
+{ q: `If A were commensurable in length with B, would the square on A have to the square on B the ratio which a square number has to a square number? (yes/no):`,
+hint: `This was shown in Part 1.` },
+{ q: `But it does not. Is that correct? (yes/no):`,
+hint: `This is our assumption.` },
+{ q: `Therefore, is A incommensurable in length with B? (yes/no):`,
+hint: `This follows by contradiction.` },
+
+{ q: `Have we now shown both directions for commensurable and incommensurable straight lines and their squares? (yes/no):`,
+hint: `Each case and its converse has been proved.` },
+{ q: `Therefore, does the proposition stand proven as stated? (yes/no):`,
+hint: `Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated).` },
+
+{ q: `Is it manifest from what has been proved that straight lines commensurable in length are always commensurable in square? (yes/no):`,
+hint: `Their squares have square-number ratios.` },
+{ q: `But are straight lines commensurable in square always commensurable in length? (yes/no):`,
+hint: `The converse does not generally hold.` }
+]
+
+
+
+
+
+
+const conclusion = `Congratulations! You just proved that straight lines are commensurable in length if and only if the squares on them have to one another the ratio of a square number to a square number.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

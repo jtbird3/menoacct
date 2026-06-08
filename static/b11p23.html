@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements XI.23</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>XI.23 – Prove that to construct a solid angle out of three plane angles, two of them, taken together in any manner, must be greater than the remaining one, and the three must be less than four right angles.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements XI.23 chatbot!
+
+We are given three plane angles: ∠ABC, ∠DEF, and ∠GHK. Do you agree? (yes/no):`,
+    hint: `These are the three angles named in the proposition.` },
+
+  { q: `We are told that any two of these angles, taken together in any manner, are greater than the remaining one. Do you accept this condition? (yes/no):`,
+    hint: `This is the “two together are greater than the third” requirement.` },
+
+  { q: `We are also told that the three angles together are less than four right angles. Do you agree? (yes/no):`,
+    hint: `The proposition says the three must be less than four right angles.` },
+
+  { q: `Our goal is to construct a solid angle contained by three plane angles equal to ∠ABC, ∠DEF, and ∠GHK. Does that make sense? (yes/no):`,
+    hint: `A solid angle is formed by three plane angles meeting at one point.` },
+
+  { q: `First, can we cut off straight lines AB, BC, DE, EF, GH, HK all equal to one another? (yes/no):`,
+    hint: `We can mark equal lengths on lines by standard Euclidean constructions.` },
+
+  { q: `Next, can we join AC, DF, and GK? (yes/no):`,
+    hint: `Postulate 1 lets us join two points by a straight line.` },
+
+  { q: `Since we have three straight lines AC, DF, GK, can we construct a triangle with sides equal to AC, DF, and GK? (yes/no):`,
+    hint: `This is asserted using XI.22 in the text.` },
+
+  { q: `Let that triangle be LMN, with LM = AC, MN = DF, and NL = GK. Do you follow this setup? (yes/no):`,
+    hint: `We are transferring the three lengths into one triangle.` },
+
+  { q: `Can we describe a circle about triangle LMN and take its centre to be O? (yes/no):`,
+    hint: `The circumcircle exists for a triangle, and its centre is the intersection of perpendicular bisectors.` },
+
+  { q: `Can we join LO, MO, and NO? (yes/no):`,
+    hint: `Postulate 1 again: join the centre to the vertices.` },
+
+  { q: `The text claims: AB is greater than LO. Do you understand that this is what we must prove next? (yes/no):`,
+    hint: `The proof proceeds by ruling out AB = LO and AB < LO.` },
+
+  { q: `Suppose AB were equal to LO. Since AB = BC and LO = OM, would AB and BC be equal to LO and OM respectively? (yes/no):`,
+    hint: `AB = BC by construction, and LO = OM as radii of the same circle.` },
+
+  { q: `Also, since AC = LM by construction, would the bases be equal? (yes/no):`,
+    hint: `LM was set equal to AC.` },
+
+  { q: `From these equalities, can we conclude ∠ABC = ∠LOM? (yes/no):`,
+    hint: `Proposition I.8 lets us infer equality of the included angle from side-side-side equality.` },
+
+  { q: `By the same reasoning, can we conclude ∠DEF = ∠MON and ∠GHK = ∠NOL? (yes/no):`,
+    hint: `Repeat the same argument for the other pairs.` },
+
+  { q: `Then would ∠ABC, ∠DEF, ∠GHK together equal ∠LOM, ∠MON, ∠NOL together? (yes/no):`,
+    hint: `Each pair of angles is equal.` },
+
+  { q: `But do the three angles ∠LOM, ∠MON, ∠NOL make four right angles around O? (yes/no):`,
+    hint: `They are successive angles around a point in the plane.` },
+
+  { q: `If so, would that force ∠ABC + ∠DEF + ∠GHK to equal four right angles? (yes/no):`,
+    hint: `Equal sums follow from equal parts.` },
+
+  { q: `But this contradicts the hypothesis that the three given angles are less than four right angles. Do you see the contradiction? (yes/no):`,
+    hint: `“Equal to four right angles” cannot also be “less than four right angles.”` },
+
+  { q: `Therefore AB is not equal to LO. Do you agree? (yes/no):`,
+    hint: `This is the conclusion of the first case.` },
+
+  { q: `Next, suppose AB were less than LO. Is it allowed to take a point P on LO so that OP = AB? (yes/no):`,
+    hint: `We can cut off a segment equal to a given segment on a given line.` },
+
+  { q: `And can we take a point Q on OM so that OQ = BC? (yes/no):`,
+    hint: `Same idea; and BC = AB by construction.` },
+
+  { q: `Since AB = BC, would OP = OQ? (yes/no):`,
+    hint: `OP = AB and OQ = BC.` },
+
+  { q: `If OP = OQ, do we get LP = QM (equal remainders from LO and OM)? (yes/no):`,
+    hint: `Subtract equals from equals (Common Notion 3).` },
+
+  { q: `From LP = QM, can we conclude LM is parallel to PQ? (yes/no):`,
+    hint: `This step is cited in the text using VI.2.` },
+
+  { q: `If LM ∥ PQ, do triangles show that LMO is equiangular with PQO? (yes/no):`,
+    hint: `Parallel lines give equal corresponding or alternate angles (I.29).` },
+
+  { q: `From this equiangularity, can we set up a proportionality relating OL:LM to OP:PQ? (yes/no):`,
+    hint: `The text cites VI.4 for proportional sides in equiangular triangles.` },
+
+  { q: `And can we use alternation to get LO:OP = LM:PQ? (yes/no):`,
+    hint: `The text cites V.16 for alternation.` },
+
+  { q: `Since LO is greater than OP, does that imply LM is greater than PQ? (yes/no):`,
+    hint: `If LO:OP = LM:PQ and LO > OP, then LM > PQ.` },
+
+  { q: `But LM = AC, so does that give AC > PQ? (yes/no):`,
+    hint: `LM was constructed equal to AC.` },
+
+  { q: `Now, if AB = BC and OP = OQ, but AC > PQ, can we conclude ∠ABC > ∠POQ? (yes/no):`,
+    hint: `Proposition I.25 compares angles when two sides are equal but the base differs.` },
+
+  { q: `Similarly, can we conclude ∠DEF > ∠MON and ∠GHK > ∠NOL? (yes/no):`,
+    hint: `The same comparison applies in the other two cases.` },
+
+  { q: `Then would the three angles ∠ABC, ∠DEF, ∠GHK be greater than ∠LOM, ∠MON, ∠NOL? (yes/no):`,
+    hint: `Each of the three is greater than its counterpart.` },
+
+  { q: `But ∠LOM + ∠MON + ∠NOL equals four right angles, while the hypothesis says ∠ABC + ∠DEF + ∠GHK is less than four right angles. Do you see that this creates an absurdity? (yes/no):`,
+    hint: `A quantity cannot be both greater than and less than four right angles.` },
+
+  { q: `Therefore AB is not less than LO. Do you agree? (yes/no):`,
+    hint: `This rules out the second case.` },
+
+  { q: `Since AB is neither equal to LO nor less than LO, must AB be greater than LO? (yes/no):`,
+    hint: `Only the “greater than” option remains.` },
+
+  { q: `Next, can we set up OR from point O at right angles to the plane of the circle LMN? (yes/no):`,
+    hint: `The text cites XI.12 for erecting a perpendicular to a plane at a point.` },
+
+  { q: `Can we choose OR so that the square on OR equals the area by which the square on AB is greater than the square on LO? (yes/no):`,
+    hint: `The lemma guarantees this construction.` },
+
+  { q: `Can we join RL, RM, and RN? (yes/no):`,
+    hint: `Postulate 1 again.` },
+
+  { q: `Since OR is perpendicular to the plane, is OR perpendicular to LO, MO, and NO? (yes/no):`,
+    hint: `A line perpendicular to a plane is perpendicular to every line in that plane through the foot.` },
+
+  { q: `Since LO = OM and OR is common and at right angles, can we conclude RL = RM? (yes/no):`,
+    hint: `By I.4 applied to right triangles.` },
+
+  { q: `For the same reason, do we also get RN equal to RL and RM? (yes/no):`,
+    hint: `Apply the same reasoning with NO = LO = OM.` },
+
+  { q: `Therefore are RL, RM, RN all equal to one another? (yes/no):`,
+    hint: `Each was shown equal to the others.` },
+
+  { q: `Since the square on OR equals the excess of the square on AB over the square on LO, does that mean AB² = LO² + OR²? (yes/no):`,
+    hint: `This follows from the construction.` },
+
+  { q: `And since ∠LOR is right, does LR² = LO² + OR²? (yes/no):`,
+    hint: `By I.47 (Pythagoras).` },
+
+  { q: `If AB² = LO² + OR² and LR² = LO² + OR², do we conclude AB² = LR²? (yes/no):`,
+    hint: `Things equal to the same thing are equal.` },
+
+  { q: `From AB² = LR², can we conclude AB = RL? (yes/no):`,
+    hint: `Equal squares imply equal straight lines.` },
+
+  { q: `Since BC, DE, EF, GH, HK were each made equal to AB, are they each equal to RL as well? (yes/no):`,
+    hint: `If all equal AB and AB = RL, then all equal RL.` },
+
+  { q: `And since RM = RN = RL, are AB, BC, DE, EF, GH, HK each equal to each of RL, RM, RN? (yes/no):`,
+    hint: `RL, RM, RN are all equal.` },
+
+  { q: `Now, since LR = AB and RM = BC, and LM = AC, can we conclude ∠LRM = ∠ABC? (yes/no):`,
+    hint: `By I.8 again.` },
+
+  { q: `For the same reason, do we get ∠MRN = ∠DEF and ∠LRN = ∠GHK? (yes/no):`,
+    hint: `Repeat the same argument for the other two angles.` },
+
+  { q: `Therefore, do the three plane angles ∠LRM, ∠MRN, ∠LRN equal the three given angles ∠ABC, ∠DEF, ∠GHK? (yes/no):`,
+    hint: `Each corresponding pair was shown equal.` },
+
+  { q: `Finally, is the solid angle at R contained by the three plane angles ∠LRM, ∠MRN, ∠LRN now constructed? (yes/no):`,
+    hint: `Three plane angles meeting at R form the solid angle.` },
+
+  { q: `Therefore we have constructed a solid angle out of three plane angles equal to the given ones. Q.E.F. (yes/no):`,
+    hint: `“Which was to be done.”` },
+
+  { q: `In the lemma, we are given straight lines AB and LO, with AB the greater. Do you agree? (yes/no):`,
+    hint: `This sets up the difference of squares.` },
+
+  { q: `Can we describe a semicircle on AB as diameter? (yes/no):`,
+    hint: `A semicircle can be drawn on a given diameter.` },
+
+  { q: `Can we fit AC in the semicircle equal to LO, with AC not greater than AB? (yes/no):`,
+    hint: `IV.1 allows fitting a straight line equal to a given one in a circle.` },
+
+  { q: `Can we join C to B? (yes/no):`,
+    hint: `Postulate 1.` },
+
+  { q: `Since ∠ACB is an angle in a semicircle, is ∠ACB a right angle? (yes/no):`,
+    hint: `By III.31.` },
+
+  { q: `Then does AB² = AC² + CB²? (yes/no):`,
+    hint: `By I.47 in right triangle ACB.` },
+
+  { q: `So is AB² greater than AC² by CB²? (yes/no):`,
+    hint: `Rearranging gives AB² − AC² = CB².` },
+
+  { q: `But AC = LO, so is AB² greater than LO² by CB²? (yes/no):`,
+    hint: `Substitute LO for AC.` },
+
+  { q: `If we now cut off OR equal to BC, does AB² exceed LO² by OR²? (yes/no):`,
+    hint: `OR = BC gives OR² = BC².` },
+
+  { q: `Therefore can we take OR so that the square on OR equals the excess of the square on AB over the square on LO? Q.E.F. (yes/no):`,
+    hint: `This is exactly what the lemma provides.` }
+]
+
+const conclusion = `Congratulations! You just to construct a solid angle out of three plane angles, two of them, taken together in any manner, must be greater than the remaining one, and the three must be less than four right angles.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

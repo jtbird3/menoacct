@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Conics I.16</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>I.16 — Prove that if a straight line is drawn parallel to an ordinate through the midpoint of the latus transversum of opposite hyperbolas, it is a diameter conjugate to the given diameter.</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  {
+    q: `Welcome to Conics I.16 chatbot!
+
+We are given two opposite hyperbolas with diameter AB. Do you agree? (yes/no):`,
+    hint: `AB is stated to be the diameter of the opposite hyperbolas. The diameter is the straight line through the center of the hyperbola that is parallel to the latus transversum.`
+  },
+  {
+    q: `Let us bisect the line AB at point C. Is that clear? (yes/no):`,
+    hint: `"Bisected" means C divides AB into two equal parts.`
+  },
+  {
+    q: `Through point C, a straight line CD is drawn parallel to an ordinate. Can we do this? (yes/no):`,
+    hint: `A line can be drawn through a point parallel to a given direction.`
+  },
+  {
+    q: `Our goal is to show that CD is a diameter conjugate to AB. Does that make sense? (yes/no):`,
+    hint: `We want to prove CD has the defining property of a conjugate diameter.`
+  },
+  {
+    q: `Let AE and BF be the latera recta corresponding to ordinates drawn to AB. Do you accept this setup? (yes/no):`,
+    hint: `These are standard constructions associated with the diameter AB.`
+  },
+  {
+    q: `Join AF and BE, and extend them. Is this allowed? (yes/no):`,
+    hint: `Straight lines may be joined and produced further.`
+  },
+  {
+    q: `Take an arbitrary point G on either branch of the hyperbola. Is that possible? (yes/no):`,
+    hint: `The point is chosen freely for generality.`
+  },
+  {
+    q: `Through G draw GH parallel to AB. Can we do this? (yes/no):`,
+    hint: `A parallel line can be drawn through a given point.`
+  },
+  {
+    q: `From points G and H, draw ordinates GK and HL. Is this construction valid? (yes/no):`,
+    hint: `Ordinates are drawn parallel to the latus rectum direction.`
+  },
+  {
+    q: `Through K draw KM parallel to AE so M falls on extension of BE, and through L draw LN parallel to BF so N falls on extension of AF. Can we do this? (yes/no):`,
+    hint: `Parallels may be drawn through given points.`
+  },
+  {
+    q: `Since GK equals HL, do their squares also equal one another? (yes/no):`,
+    hint: `Equal magnitudes have equal squares.`
+  },
+  {
+    q: `Is the square on GK equal to the rectangle AK by KM? (yes/no):`,
+    hint: `By Apollonius I.12, the square on an ordinate equals a rectangle under the corresponding segments.`
+  },
+  {
+    q: `Is the square on HL equal to the rectangle BL by LN? (yes/no):`,
+    hint: `The same proposition applies symmetrically.`
+  },
+  {
+    q: `From this, do we get that rectangle AK·KM equals rectangle BL·LN? (yes/no):`,
+    hint: `Equal squares imply equal rectangles.`
+  },
+  {
+    q: `AE equals BF. Do you agree? (yes/no):`,
+    hint: `These are equal latera recta of the opposite hyperbolas.`
+  },
+  {
+    q: `From this, is the ratio AE : AB equal to BF : BA? (yes/no):`,
+    hint: `This follows from Euclid V.7.`
+  },
+  {
+    q: `As AE is to AB, is MK to KB in the same ratio? (yes/no):`,
+    hint: `This follows from Euclid VI.4.`
+  },
+  {
+    q: `As BF is to BA, is NL to LA in the same ratio? (yes/no):`,
+    hint: `The correspondence is symmetric.`
+  },
+  {
+    q: `Therefore, is MK to KB as NL is to LA? (yes/no):`,
+    hint: `Equal ratios may be equated.`
+  },
+  {
+    q: `With KA as a common height, does MK : KB imply rectangle MK·KA : rectangle BK·KA? (yes/no):`,
+    hint: `Rectangles follow the ratios of their bases when heights are equal.`
+  },
+  {
+    q: `With BL as a common height, does NL : LA imply rectangle NL·LB : rectangle AL·LB? (yes/no):`,
+    hint: `The same principle applies.`
+  },
+  {
+    q: `Therefore, are rectangle MK·KA and rectangle NL·LB in the same ratio as rectangle BK·KA and rectangle AL·LB? (yes/no):`,
+    hint: `This follows from proportionality.`
+  },
+  {
+    q: `By alternation, do we get rectangle MK·KA : rectangle NL·LB equals rectangle BK·KA : rectangle AL·LB? (yes/no):`,
+    hint: `Euclid V.16 allows alternation of ratios.`
+  },
+  {
+    q: `But earlier we proved rectangle AK·KM equals rectangle BL·LN. Is that correct? (yes/no):`,
+    hint: `This came from equality of the squares on GK and HL.`
+  },
+  {
+    q: `Therefore, is rectangle BK·KA equal to rectangle AL·LB? (yes/no):`,
+    hint: `Equal ratios with equal antecedents give equal consequents.`
+  },
+  {
+    q: `From this, does it follow that AK equals LB? (yes/no):`,
+    hint: `Equal rectangles with equal heights imply equal bases.`
+  },
+  {
+    q: `AC equals CB. Do you agree? (yes/no):`,
+    hint: `C is the midpoint of AB.`
+  },
+  {
+    q: `If AK equals LB and AC equals CB, does KC equal CL? (yes/no):`,
+    hint: `Subtract equals from equals.`
+  },
+  {
+    q: `Let us extend CD beyond Cto meet the line GH at X. Is that possible? (yes/no):`,
+    hint: `A straight line can be extended indefinitely.`
+  },
+  {
+    q: `From KC = CL, does it follow that GX equals XH? (yes/no):`,
+    hint: `Equal segments correspond on parallel constructions.`
+  },
+  {
+    q: `Therefore, is GH bisected by the line through C parallel to AB? (yes/no):`,
+    hint: `Equal halves imply bisection.`
+  },
+  {
+    q: `Since this bisecting line is parallel to AB, is XCD a diameter? (yes/no):`,
+    hint: `A line that bisects all parallel chords is a diameter.`
+  },
+  {
+    q: `Finally, is CD therefore a diameter conjugate to AB? (yes/no):`,
+    hint: `This matches the definition of conjugate diameters.`
+  },
+
+
+
+
+
+
+
+
+
+];
+
+const conclusion = `Congratulations! You just proved that if a straight line is drawn parallel to an ordinate through the midpoint of the latus transversum of opposite hyperbolas, it is a diameter conjugate to the given diameter.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

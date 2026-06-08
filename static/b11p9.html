@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements XI.9</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>XI.9 – Prove that straight lines which are parallel to the same straight line, but not coplanar with it, are also parallel to one another.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements XI.9 chatbot!
+
+We are given three straight lines AB, CD, and EF, with AB ‖ EF and CD ‖ EF, and AB, CD not in the same plane as EF. Do you agree? (yes/no):`,
+    hint: `“Parallel to EF” means the lines do not meet EF, and AB and CD lie in planes different from EF.` },
+
+  { q: `Our goal is to prove that AB ‖ CD. Does that make sense? (yes/no):`,
+    hint: `If two lines are parallel to the same line under suitable conditions, they should be parallel to each other.` },
+
+  { q: `Let’s take a point G on EF. Can we choose such a point? (yes/no):`,
+    hint: `Any point on a straight line can be chosen arbitrarily.` },
+
+  { q: `From G, draw GH in the plane containing EF and AB, perpendicular to EF. Is this possible? (yes/no):`,
+    hint: `From a point on a line, a perpendicular can be drawn in a given plane.` },
+
+  { q: `Similarly, from G, draw GK in the plane containing EF and CD, perpendicular to EF. Can we do this? (yes/no):`,
+    hint: `The same perpendicular construction applies in the second plane.` },
+
+  { q: `Is EF perpendicular to both GH and GK? (yes/no):`,
+    hint: `EF ⟂ GH and EF ⟂ GK by construction.` },
+
+  { q: `Therefore, is EF also perpendicular to the plane determined by GH and GK? (yes/no):`,
+    hint: `By Proposition XI.4, a line perpendicular to two intersecting lines in a plane is perpendicular to the plane.` },
+
+  { q: `Since EF is parallel to AB, is AB perpendicular to the plane through GH and GK? (yes/no):`,
+    hint: `By Proposition XI.8, a line parallel to a line perpendicular to a plane is also perpendicular to that plane.` },
+
+  { q: `For the same reason, is CD also perpendicular to the plane through GH and GK? (yes/no):`,
+    hint: `The same reasoning applies to CD.` },
+
+  { q: `So are both AB and CD perpendicular to the same plane? (yes/no):`,
+    hint: `This follows directly from the previous two steps.` },
+
+  { q: `If two lines are perpendicular to the same plane, are the lines parallel to each other? (yes/no):`,
+    hint: `By Proposition XI.6, two lines perpendicular to the same plane cannot meet and are therefore parallel.` }
+]
+
+const conclusion = `Congratulations! You just straight lines which are parallel to the same straight line, but not coplanar with it, are also parallel to one another.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

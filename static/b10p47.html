@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.47</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.47 – Prove that the side of the sum of two medial areas is divided at one point only.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+{ q: `Welcome to Elements X.47 chatbot!
+
+We are given a straight line AB divided at point C. Do you agree? (yes/no):`,
+    hint: `AB is a straight line, and C is a point on it dividing it into AC and CB.` },
+    { q: `AC and CB are incommensurable in square. Do you agree? (yes/no):`,
+    hint: `This means the squares on AC and CB are not commensurable with one another.` },
+    { q: `The sum of the squares on AC and CB is medial. Does that make sense? (yes/no):`,
+    hint: `A medial area arises from incommensurable magnitudes in square.` },
+    { q: `The rectangle contained by AC and CB is also medial and incommensurable with the sum of the squares on them. Do you agree? (yes/no):`,
+    hint: `This is part of the given condition for the division at C.` },
+    { q: `Our goal is to show that AB cannot be divided at another point with the same properties. Does that make sense? (yes/no):`,
+    hint: `We want to prove uniqueness of the point of division.` },
+    
+    { q: `Suppose, if possible, that AB is also divided at another point D. Is this assumption clear? (yes/no):`,
+    hint: `This is a proof by contradiction.` },
+    { q: `AC is not equal to BD, and AC is greater. Do you agree? (yes/no):`,
+    hint: `If the points C and D are distinct, one of the unequal segments may be assumed greater.` },
+    
+    { q: `Let a rational straight line EF be set out. Is this allowed? (yes/no):`,
+    hint: `Euclid often introduces a rational line as a reference.` },
+    { q: `Apply to EF a rectangle EG equal to the sum of the squares on AC and CB. Can we do this? (yes/no):`,
+    hint: `Rectangles equal to given areas can be applied to straight lines.` },
+    { q: `Apply also to EF a rectangle HK equal to twice the rectangle contained by AC and CB. Is this possible? (yes/no):`,
+    hint: `Doubling a rectangle gives another determinate area.` },
+    { q: `Is the whole EK equal to the square on AB? (yes/no):`,
+    hint: `By II.4, the square on AB equals (AC² + CB²) + 2·(AC·CB).` },
+    
+    { q: `Next, apply to EF a rectangle EL equal to the sum of the squares on AD and DB. Can we do this? (yes/no):`,
+    hint: `The same construction is repeated using the second division point.` },
+    { q: `Is the remainder MK equal to twice the rectangle contained by AD and DB? (yes/no):`,
+    hint: `By II.4 again: subtracting the sum of squares from the square on AB leaves twice the corresponding rectangle.` },
+    
+    { q: `Since the sum of the squares on AC and CB is medial, is EG medial? (yes/no):`,
+    hint: `Equal areas share the same classification.` },
+    { q: `Since EG is applied to a rational straight line EF, is HE rational and incommensurable in length with EF? (yes/no):`,
+    hint: `This follows from Elements X.22.` },
+    { q: `For the same reason, is HN also rational and incommensurable in length with EF? (yes/no):`,
+    hint: `The same argument applies symmetrically.` },
+    
+    { q: `Since the sum of the squares on AC and CB is incommensurable with twice the rectangle AC, CB, is EG incommensurable with GN? (yes/no):`,
+    hint: `EG represents the sum of squares and GN represents twice the rectangle in the applied construction; the given incommensurability transfers by equality.` },
+    { q: `Does this imply that EH is incommensurable with HN? (yes/no):`,
+    hint: `By VI.1 the rectangles on the same base have the ratio of their breadths, and by X.11 incommensurability passes to the corresponding sides.` },
+    { q: `Are EH and HN both rational straight lines? (yes/no):`,
+    hint: `This was already established via X.22.` },
+    { q: `If two rational straight lines are commensurable in square only, is the whole EN a binomial straight line divided at H? (yes/no):`,
+    hint: `This follows from Elements X.36.` },
+    
+    { q: `Similarly, can we prove that EN is also divided at M? (yes/no):`,
+    hint: `Repeating the same applied-rectangle argument with AD and DB produces a second “term-division” point M on the same line EN.` },
+    { q: `Are the points H and M different? (yes/no):`,
+    hint: `They correspond to different assumed division points C and D on AB, so the resulting divisions on EN are distinct.` },
+    { q: `Does this mean a binomial straight line has been divided at two different points? (yes/no):`,
+    hint: `Yes—EN would be divided into its terms at both H and M.` },
+    { q: `This contradicts Elements X.42. Do you agree? (yes/no):`,
+    hint: `X.42 shows a binomial straight line is divided into its terms at one point only.` },
+    
+    { q: `Since this leads to an absurdity, must our original assumption be false? (yes/no):`,
+    hint: `The line cannot be divided in two different ways with the same defining properties.` },
+    { q: `Therefore, is the side of the sum of two medial areas divided at one point only? (yes/no):`,
+    hint: `This is exactly what was to be proved.` }
+]
+
+const conclusion = `Congratulations! You just proved that the side of the sum of two medial areas is divided at one point only.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

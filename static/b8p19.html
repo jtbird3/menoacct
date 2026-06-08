@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements VIII.19</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>VIII.19 — Prove that between two similar solid numbers there are two mean proportionals, and that solid numbers have the triplicate ratio of their corresponding sides</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements VIII.19 chatbot!
+
+We are given two similar solid numbers A and B. Do you agree? (yes/no):`,
+    hint:`“Similar solid numbers” means their three sides are proportional.` },
+
+  { q:`We are also given that C, D, E are the sides of A, and F, G, H are the sides of B. Clear? (yes/no):`,
+    hint:`A is made from sides C, D, E; B is made from F, G, H.` },
+
+  { q:`Since the solids are similar, do we have C is to D as F is to G and D is to E as G is to H? (yes/no):`,
+    hint:`This is Euclid's definition of similar solid numbers.` },
+
+  { q:`Our goal is to show that two mean proportionals fall between A and B, and that A:B is the triplicate ratio of C:F (and likewise D:G and E:H). Does that make sense? (yes/no):`,
+    hint:`“Triplicate ratio” means the ratio applied three times in continued proportion.` },
+
+  { q:`Let C multiplied by D make the number K. Acceptable? (yes/no):`,
+    hint:`A plane number is formed by multiplying two numbers.` },
+
+  { q:`Let F multiplied by G make the number L. Possible? (yes/no):`,
+    hint:`Likewise for the sides of B.` },
+
+  { q:`If C is to D as F is to G, and K is C multiplying D, and L gives F multiplying G, do K and L become similar plane numbers? (yes/no):`,
+    hint:`Equal ratios of sides generate similar plane numbers.` },
+
+  { q:`Between similar plane numbers K and L, is there one mean proportional number M? (yes/no):`,
+    hint:`Proposition VIII.18 shows this.` },
+
+  { q:`Is M equal to the product DF? (yes/no):`,
+    hint:`VIII.18 states the mean proportional of C·D and F·G is D·F.` },
+
+  { q:`Since D multiplied C to produce K, and D multiplied F to produce M, do we have C to F as K to M? (yes/no):`,
+    hint:`Euclid VII.17: equal multipliers preserve ratios.` },
+
+  { q:`And since K is to M as M is to L, are K, M, L continuously proportional? (yes/no):`,
+    hint:`Equal ratios in sequence give continued proportion.` },
+
+  { q:`From C is to D as F is to G, do we also get C is to F as D is to G? (yes/no):`,
+    hint:`Alternation (VII.13) allows switching terms.` },
+
+  { q:`Similarly, from D is to E as G is to H, do we get D is to G as E is to H? (yes/no):`,
+    hint:`Same alternation principle.` },
+
+  { q:`Therefore, are K, M, L continuously proportional in the ratios C to F, D to G, and E to H? (yes/no):`,
+    hint:`Each pair of sides gives the same underlying ratio.` },
+
+  { q:`Next, let E multiply M to give N, and H multiply M to give O. Acceptable? (yes/no):`,
+    hint:`Multiplying by M constructs new numbers linked to A and B.` },
+
+  { q:`Since A is a solid made from C, D, E, and C multiplying D produces K, does E multiplying K give A? (yes/no):`,
+    hint:`A = C·D·E by definition.` },
+
+  { q:`Likewise, since B is made from F, G, H and F multiplying G gives L, does H multiplying L give B? (yes/no):`,
+    hint:`B = F·G·H.` },
+
+  { q:`Since E multiplies K to make A and multiplies M to make N, is K to M as A is to N? (yes/no):`,
+    hint:`From VII.17.` },
+
+  { q:`But K is to M as C is to F as D is to G as E is to H. So is the ratio A to N equal to these side ratios? (yes/no):`,
+    hint:`Replace K:M by the earlier equal ratios.` },
+
+  { q:`Since E multiplying M gives N and H multiplying M gives O, do we have E is to H as N is toO? (yes/no):`,
+    hint:`From VII.18: products under a common multiplier preserve ratios.` },
+
+  { q:`But E is to H as C is to F as D is to G. So is N to O equal to all ofthese ratios? (yes/no):`,
+    hint:`Same substitution.` },
+
+  { q:`Since H multiplying M gives O and H multiplying L gives B, is M to L as O is to B? (yes/no):`,
+    hint:`Again by VII.17.` },
+
+  { q:`But M is to L as C is to F as D is to G as E is to H. So is O to B likewise equal to these ratios? (yes/no):`,
+    hint:`Replacement of equal ratios.` },
+
+  { q:`Therefore, are A, N, O, B in continued proportion? (yes/no):`,
+    hint:`A:N = N:O = O:B.` },
+
+  { q:`Since four numbers A, N, O, B are in continued proportion, is A to B the triplicate ratio of A to N? (yes/no):`,
+    hint:`V.Def.10: in a four-term continued proportion, the first has to the fourth the triplicate ratio of the first to second.` },
+
+  { q:`But A is to N as C is to F as D is to G as E is to H. Therefore, does A to B have the ratio triplicate of C to F (or D to G or E to H)? (yes/no):`,
+    hint:`Substitute A:N with the equal side ratios.` },
+
+  { q:`Thus, between A and B do two mean proportionals (N and O) fall? (yes/no):`,
+    hint:`A, N, O, B form a chain of four in continued proportion.` },
+
+  { q:`And does A to B equal the triplicate ratio of the ratio of corresponding sides? (yes/no):`,
+    hint:`This is Euclid’s required conclusion.` }
+]
+
+
+
+
+
+
+
+
+
+
+
+
+
+const conclusion = `Congratulations! You just proved that between two similar solid numbers there are two mean proportionals, and that solid numbers have the triplicate ratio of their corresponding sides.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

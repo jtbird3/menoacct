@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements VII.9</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>VII.9 — Prove that if one number is a part of another, and a second is the same part of a third, then alternately the first is the same part or parts of the third that the second is of the fourth</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements VII.9 chatbot!
+
+We are given that number A is a part of number BC, and number D is the same part of number EF that A is of BC. Do you agree? (yes/no):`,
+hint: `A “part” means that A measures BC an exact number of times — BC contains A an integer number of times.` },
+{ q: `Our goal is to prove that, alternately, whatever part or parts A is of D, the same part or parts is BC of EF. Does that make sense? (yes/no):`,
+hint: `“Alternately” means we are comparing across the pairs (A, D) and (BC, EF).` },
+{ q: `Since A is a part of BC, can we say BC is made up of some equal parts each equal to A? (yes/no):`,
+hint: `Yes, BC can be divided into equal numbers each the same as A.` },
+{ q: `Likewise, since D is the same part of EF that A is of BC, can EF be divided into equal parts each equal to D? (yes/no):`,
+hint: `The same ratio holds, so EF can be divided into an equal number of D’s.` },
+{ q: `Shall we divide BC into the numbers BG, GC, each equal to A, and EF into the numbers EH, HF, each equal to D? (yes/no):`,
+hint: `This follows the construction — we partition BC and EF into their equal parts.` },
+{ q: `Do BG and GC each equal A? (yes/no):`,
+hint: `Yes — by construction, both are equal to A.` },
+{ q: `And do EH and HF each equal D? (yes/no):`,
+hint: `Yes — by the same reasoning, both are equal to D.` },
+{ q: `Now, since BC is composed of BG and GC, and EF of EH and HF, is the number of parts in BC equal to the number of parts in EF? (yes/no):`,
+hint: `Both BC and EF are made up of the same number of equal parts (two, in this example).` },
+{ q: `If the numbers BG, GC are equal to one another, and EH, HF are equal to one another, can we say that whatever part BG is of EH, the same part is GC of HF? (yes/no):`,
+hint: `Equal numbers have equal ratios — if the multiples correspond, their parts correspond too.` },
+{ q: `From this, does it follow that whatever part or parts BG is of EH, the same part or parts is the whole BC of the whole EF? (yes/no):`,
+hint: `By Euclid VII.5–6, equal numbers in equal multitude preserve the same ratio when summed.` },
+{ q: `Since BG = A and EH = D, can we now say that whatever part or parts A is of D, the same part or parts is BC of EF? (yes/no):`,
+hint: `Substitute back the equals (BG for A, EH for D).` },
+{ q: `Therefore, we have shown that if A is the same part of BC that D is of EF, then alternately, A is of D what BC is of EF? (yes/no):`,
+hint: `This completes the alternation of equal ratios between numbers.` },
+
+
+
+
+
+
+
+
+
+
+
+
+
+];
+
+const conclusion = `Congratulations! You just proved that if one number is a part of another, and a second is the same part of a third, then alternately the first is the same part or parts of the third that the second is of the fourth.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements VII.3</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>VII.3 - Find the greatest common measure of three given non-prime numbers</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements VII.3 chatbot!
+
+We are given three numbers A, B, and C that are not prime to one another. Do you agree? (yes/no):`,
+hint: `“Not prime to one another” means that the three numbers share a common measure (a number that divides each without remainder).` },
+{ q: `Our goal is to find the greatest common measure of A, B, and C. Does that make sense? (yes/no):`,
+hint: `The “greatest common measure” is the largest number that exactly measures all three given numbers.` },
+{ q: `First, let D be the greatest common measure of A and B. Can we find such a D? (yes/no):`,
+hint: `By Proposition VII.2, any two numbers not prime to one another have a greatest common measure.` },
+{ q: `Now, does D measure C as well? (yes/no):`,
+hint: `We must check whether D divides C without remainder.` },
+{ q: `Suppose D does measure C. Then does D measure A, B, and C together? (yes/no):`,
+hint: `Since D measures both A and B, and now also C, it measures all three.` },
+{ q: `If D measures all three numbers, is D a common measure of A, B, and C? (yes/no):`,
+hint: `A number that divides each of A, B, and C is by definition a common measure.` },
+{ q: `Suppose there exists a greater number than D that also measures A, B, and C, such as E. May we assume this? (yes/no):`,
+hint: `Assume there is such a greater number E and see if that leads to a contradiction.` },
+{ q: `If E measures A, B, and C, does it also measure the greatest common measure of A and B, which is D? (yes/no):`,
+hint: `Any number measuring A and B will also measure their greatest common measure (VII.2, Corollary).` },
+{ q: `Would that mean E measures D, the greater common measure measuring the less? (yes/no):`,
+hint: `A greater number cannot measure a smaller one; this would be impossible.` },
+{ q: `Contradiction? (yes/no):`,
+hint: `A greater number cannot measure a smaller one; this would be impossible.` },
+{ q: `Is D the greatest common measure of A, B, and C? (yes/no):`,
+hint: `No — the assumption leads to contradiction.` },
+{ q: `Now suppose D does not measure C. Then are D and C prime to one another? (yes/no):`,
+hint: `Not necessarily; we will see they have a common measure.` },
+{ q: `Since A, B, C are not prime to one another, must there exist some number that measures all three? (yes/no):`,
+hint: `By the hypothesis, there is a common measure of A, B, and C.` },
+{ q: `Will that same number measure A and B, and thus also D, the greatest common measure of A and B? (yes/no):`,
+hint: `Any number measuring A and B must measure D (VII.2, Corollary).` },
+{ q: `Since that number also measures C, does it follow that D and C share a common measure? (yes/no):`,
+hint: `Yes, therefore D and C are not prime to one another.` },
+{ q: `Let E be the greatest common measure of D and C. Possible? (yes/no):`,
+hint: `Again by Proposition VII.2, we can find a greatest common measure of two numbers.` },
+{ q: `Since E measures D, and D measures A and B, does E measure A and B as well? (yes/no):`,
+hint: `If one number divides another, it divides everything the other divides.` },
+{ q: `And since E also measures C, does E measure A, B, and C all together? (yes/no):`,
+hint: `Yes, E divides all three numbers.` },
+{ q: `Is E then a common measure of A, B, and C? (yes/no):`,
+hint: `A number dividing all three is by definition a common measure.` },
+{ q: `Now, let us suppose there exists a greater number F that measures A, B, and C. May we assume this? (yes/no):`,
+hint: `Suppose such a greater number F exists to test for contradiction.` },
+{ q: `If F measures A, B, and C, will it also measure D, the greatest common measure of A and B? (yes/no):`,
+hint: `Any number measuring A and B measures D (VII.2, Corollary).` },
+{ q: `And since F measures both D and C, will it also measure the greatest common measure of D and C, which is E? (yes/no):`,
+hint: `A number measuring two numbers measures their common measure.` },
+{ q: `Would that mean F measures E, the greater measuring the less? (yes/no):`,
+hint: `This is impossible, since the greater cannot measure the lesser.` },
+{ q: `Therefore, can any number greater than E measure A, B, and C? (yes/no):`,
+hint: `No, that would contradict the definition of the greatest common measure.` },
+{ q: `Hence, is E the greatest common measure of A, B, and C? (yes/no):`,
+hint: `Yes, because it measures all three, and no greater number can do so.` },
+
+];
+
+const conclusion = `Congratulations! You just found the greatest common measure of three given non-prime numbers.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

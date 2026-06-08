@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements VII.15</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>VII.15 — Prove that if a unit measures one number and another number measures another the same number of times, then alternately the unit measures the third as the second measures the fourth</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements VII.15 chatbot!
+  
+We are given that the unit A measures the number BC, and that another number D measures the number EF the same number of times. Do you agree? (yes/no):`,
+hint: `“Measures” means the smaller fits into the larger an exact whole number of times.` },
+{ q: `Our goal is to show that, alternately, the unit A measures the number D the same number of times that BC measures EF. Does that make sense? (yes/no):`,
+hint: `We want to reverse the comparison: unit to D, and BC to EF.` },
+{ q: `Since the unit A measures BC, is BC composed of repeated units equal to A? (yes/no):`,
+hint: `A number measured by a unit is built up from that many units.` },
+{ q: `Since D measures EF the same number of times, is EF composed of repeated parts each equal to D? (yes/no):`,
+hint: `If a number measures another, the larger is made of that many copies of the smaller.` },
+{ q: `Let BC be divided into its units BG, GH, HC. Possible? (yes/no):`,
+hint: `Each of these segments is one unit in length.` },
+{ q: `Let EF be divided into the numbers EK, KL, LF each equal to D. Possible? (yes/no):`,
+hint: `EF is measured by D the same number of times as BC is measured by A.` },
+{ q: `Do the multitudes (counts) of BG, GH, HC and EK, KL, LF match? (yes/no):`,
+hint: `Both BC and EF are divided into the same number of parts.` },
+{ q: `Are BG, GH, HC all equal units? (yes/no):`,
+hint: `Each is one unit from BC.` },
+{ q: `Are EK, KL, LF all equal numbers? (yes/no):`,
+hint: `Each equals D.` },
+{ q: `Since the corresponding parts are equal in equal multitudes, is the ratio BG : EK equal to GH : KL and also HC : LF? (yes/no):`,
+hint: `Equal magnitudes repeated in equal numbers give equal ratios.` },
+{ q: `From these equal ratios, can we conclude that BG : EK = BC : EF? (yes/no):`,
+hint: `Proposition VII.12: if ratios hold for each pair of parts, they hold for the totals.` },
+{ q: `Is BG equal to the unit A? (yes/no):`,
+hint: `BG is one unit contained in BC.` },
+{ q: `Is EK equal to the number D? (yes/no):`,
+hint: `EK is one copy of D in EF.` },
+{ q: `Therefore, from BG : EK = BC : EF, do we obtain that A : D = BC : EF? (yes/no):`,
+hint: `Substitute equals for equals.` },
+{ q: `If A : D = BC : EF, can we conclude that A measures D the same number of times that BC measures EF? (yes/no):`,
+hint: `Equal ratios of unit-to-number correspond to equal numbers of measurements.` },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+];
+
+const conclusion = `Congratulations! You just proved that if a unit measures one number and another number measures another the same number of times, then alternately the unit measures the third as the second measures the fourth.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements XII.15</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>XII.15 – Prove that in equal cones and cylinders the bases are reciprocally proportional to the heights; and that cones and cylinders whose bases are reciprocally proportional to their heights are equal.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements XII.15 chatbot!
+
+We are given two equal cones or cylinders, whose bases are the circles ABCD and EFGH. Do you agree? (yes/no):`,
+    hint: `These are stated to be equal solids with circular bases.` },
+
+  { q: `Let AC and EG be the diameters of the bases, and let KL and MN be the axes, which are also the heights. Is this given? (yes/no):`,
+    hint: `In cones and cylinders, the axis equals the height.` },
+
+  { q: `Let the cylinders AO and EP be completed on these bases. Is this construction allowed? (yes/no):`,
+    hint: `We may conceive the complete cylinders described in the text.` },
+
+  { q: `Our goal is to show that the bases are reciprocally proportional to the heights, that is, as base ABCD is to base EFGH, so height MN is to height KL. Does that make sense? (yes/no):`,
+    hint: `This is the first part of the proposition.` },
+
+  { q: `If the heights are equal, are the cylinders AO and EP equal as well? (yes/no):`,
+    hint: `They are given as equal cylinders.` },
+
+  { q: `For cylinders of the same height, are they to one another as their bases? (yes/no):`,
+    hint: `This follows from Proposition XII.11.` },
+
+  { q: `If the cylinders AO and EP are equal and of the same height, must their bases ABCD and EFGH be equal? (yes/no):`,
+    hint: `Equal magnitudes in the same ratio are equal.` },
+
+  { q: `If the bases are equal and the heights are equal, is it true reciprocally that as base ABCD is to base EFGH, so height MN is to height KL? (yes/no):`,
+    hint: `Equal magnitudes are in the ratio 1:1.` },
+
+  { q: `From MN, can a segment QN be cut off equal to KL? (yes/no):`,
+    hint: `A straight line equal to a given straight line can be cut off.` },
+
+  { q: `Through the point Q, can the cylinder EP be cut by a plane parallel to the planes of its bases? (yes/no):`,
+    hint: `Planes parallel to the bases may cut a cylinder.` },
+
+  { q: `Let the cylinder ES be conceived with base EFGH and height NQ. Is this construction clear? (yes/no):`,
+    hint: `ES has the same base as EP but a smaller height.` },
+
+  { q: `Since the cylinder AO is equal to EP, is it true that as AO is to ES, so EP is to ES? (yes/no):`,
+    hint: `This follows from Book V, Proposition 7.` },
+
+  { q: `Are the cylinders AO and ES of the same height? (yes/no):`,
+    hint: `Both have height KL = NQ.` },
+
+  { q: `If cylinders have the same height, are they to one another as their bases? (yes/no):`,
+    hint: `This is Proposition XII.11.` },
+
+  { q: `Therefore, is it true that as cylinder AO is to cylinder ES, so base ABCD is to base EFGH? (yes/no):`,
+    hint: `Replace cylinders by their bases when heights are equal.` },
+
+  { q: `Since EP has been cut by a plane parallel to its bases, is it true that as EP is to ES, so height MN is to height QN? (yes/no):`,
+    hint: `This follows from Proposition XII.13.` },
+
+  { q: `If as AO is to ES so EP is to ES, and AO:ES equals base ABCD:base EFGH, while EP:ES equals MN:QN, can we conclude that as base ABCD is to base EFGH, so MN is to QN? (yes/no):`,
+    hint: `Book V, Proposition 11.` },
+
+  { q: `Is QN equal to KL by construction? (yes/no):`,
+    hint: `QN was cut off equal to KL.` },
+
+  { q: `Therefore, can we conclude that as base ABCD is to base EFGH, so height MN is to height KL? (yes/no):`,
+    hint: `Substitute equals for equals.` },
+
+  { q: `Thus, in equal cylinders, are the bases reciprocally proportional to the heights? (yes/no):`,
+    hint: `This completes the first direction.` },
+
+  { q: `With the same construction as before, is KL equal to QN? (yes/no):`,
+    hint: `QN was cut equal to KL.` },
+
+  { q: `If as base ABCD is to base EFGH, so MN is to QN, does this follow from the hypothesis? (yes/no):`,
+    hint: `Replace KL by its equal QN.` },
+
+  { q: `For cylinders of the same height, is it true that as base ABCD is to base EFGH, so cylinder AO is to cylinder ES? (yes/no):`,
+    hint: `Proposition XII.11 again.` },
+
+  { q: `If as MN is to QN, so EP is to ES, does this follow from EP being cut by a plane parallel to its bases? (yes/no):`,
+    hint: `Proposition XII.13.` },
+
+  { q: `If AO:ES equals EP:ES, can we conclude that AO equals EP? (yes/no):`,
+    hint: `Book V, Proposition 9: equal ratios imply equality.` },
+
+  { q: `Therefore, are the cylinders AO and EP equal? (yes/no):`,
+    hint: `This completes the converse.` },
+
+  { q: `Is the same reasoning true for cones as well? (yes/no):`,
+    hint: `The same proportional principles apply to cones.` }
+]
+
+const conclusion = `Congratulations! You just proved that in equal cones and cylinders the bases are reciprocally proportional to the heights; and that cones and cylinders whose bases are reciprocally proportional to their heights are equal.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>VI.17 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>VI.17 - Prove that if three straight lines are proportional, the rectangle contained by the extremes equals the square on the mean; and conversely, if the rectangle contained by the extremes equals the square on the mean, the three lines are proportional</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements VI.17 chatbot!
+
+We are given three straight lines, A, B, and C, such that as A is to B, so is B to C. Do you agree? (yes/no):`,
+    hint: `This means A : B = B : C — the three lines are proportional.` },
+  { q: `Our goal is to show that the rectangle contained by the extremes (A and C) is equal to the square on the mean (B). Does that make sense? (yes/no):`,
+    hint: `In A : B = B : C, A and C are extremes; B is the mean.` },
+  { q: `Let D be made equal to B. Can we construct such a line D equal in length to B? (yes/no):`,
+    hint: `By I.3, a line equal to any given line can be laid off.` },
+  { q: `Since A : B = B : C and B = D, can we say A : B = D : C? (yes/no):`,
+    hint: `Substituting equals for equals preserves ratios.` },
+  { q: `From VI.16, if four straight lines are proportional, is the rectangle contained by the extremes equal to the rectangle contained by the means? (yes/no):`,
+    hint: `VI.16: rectangle of extremes = rectangle of means.` },
+  { q: `Then is the rectangle contained by A and C equal to the rectangle contained by B and D? (yes/no):`,
+    hint: `Apply VI.16 to A, B, D, C.` },
+  { q: `But is the rectangle on B and D the same as the square on B? (yes/no):`,
+    hint: `Yes—since D = B, the rectangle B×D is a square on B.` },
+  { q: `Therefore, is the rectangle contained by A and C equal to the square on B? (yes/no):`,
+    hint: `By substitution from the previous step.` },
+  { q: `Now, let the rectangle contained by A and C be equal to the square on B. Do you agree to start from this assumption? (yes/no):`,
+    hint: `This begins the converse direction.` },
+  { q: `We again make D equal to B. Do you agree? (yes/no):`,
+    hint: `By I.3, take D = B.` },
+  { q: `Since the rectangle A, C equals the square on B, and the square on B equals the rectangle B, D (because B = D), is the rectangle A, C equal to the rectangle B, D? (yes/no):`,
+    hint: `Transitivity of equality of areas.` },
+  { q: `If the rectangle contained by the extremes is equal to that contained by the means, are the four straight lines proportional? (yes/no):`,
+    hint: `By VI.16 (converse), equality of rectangles implies proportional sides.` },
+  { q: `So, is A : B = D : C? (yes/no):`,
+    hint: `Directly from the proportionality of four lines.` },
+  { q: `And since D = B, can we conclude that A : B = B : C? (yes/no):`,
+    hint: `Replace D by B to recover the original proportion.` }
+];
+
+const conclusion = `Congratulations! You just proved that if three straight lines are proportional, the rectangle contained by the extremes equals the square on the mean; and conversely, if the rectangle contained by the extremes equals the square on the mean, the three lines are proportional.
+ Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

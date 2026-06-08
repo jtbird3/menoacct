@@ -1,0 +1,275 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements XIII.9</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>XIII.9 – Prove that if the side of the hexagon and the side of the decagon inscribed in the same circle are added together, then the resulting straight line is cut in extreme and mean ratio, and the greater segment is equal to the side of the hexagon.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements XIII.9 chatbot!
+
+We are given a circle ABC. Do you agree? (yes/no):`,
+    hint: `The proposition begins by letting ABC be a circle.` },
+
+  { q: `In this circle, BC is the side of a decagon, and CD is the side of a hexagon, and they lie in a straight line. Do you agree? (yes/no):`,
+    hint: `BC and CD are consecutive straight segments on the same line.` },
+
+  { q: `First, let the center of the circle be taken and called E. Is this allowed? (yes/no):`,
+    hint: `Every circle has a center.` },
+
+  { q: `Join EB, EC, and ED. Can we draw these straight lines? (yes/no):`,
+    hint: `Postulate 1 allows a straight line to be drawn from any point to any point.` },
+
+  { q: `Produce the straight line BE through E to the point A. Is this permitted? (yes/no):`,
+    hint: `Postulate 2 allows a straight line to be produced continuously.` },
+
+  { q: `Our goal is to show that the straight line BD has been cut in extreme and mean ratio, and that CD is the greater segment. Does that make sense? (yes/no):`,
+    hint: `This is exactly the claim of the proposition.` },
+
+  { q: `Since BC is the side of an equilateral decagon inscribed in the circle, is the circumference ACB five times BC? (yes/no):`,
+    hint: `A regular decagon divides the circumference into ten equal parts.` },
+
+  { q: `Therefore, is the circumference AC four times CB? (yes/no):`,
+    hint: `ACB consists of five parts, so AC consists of four of them.` },
+
+  { q: `As the circumference AC is to CB, so is the angle AEC to the angle CEB. Do you accept this? (yes/no):`,
+    hint: `Angles at the center are proportional to the arcs they subtend (VI.33).` },
+
+  { q: `Therefore, is the angle AEC quadruple of the angle CEB? (yes/no):`,
+    hint: `AC is four times CB.` },
+
+  { q: `Since EB = EC, is the angle EBC equal to the angle ECB? (yes/no):`,
+    hint: `Angles at the base of an isosceles triangle are equal (I.5).` },
+
+  { q: `From this, is angle AEC double of angle ECB? (yes/no):`,
+    hint: `The exterior angle equals the sum of the interior opposite angles (I.32).` },
+
+  { q: `Since EC is equal to CD, because each is the side of a hexagon inscribed in the same circle, do you agree? (yes/no):`,
+    hint: `All sides of an inscribed regular hexagon equal the radius (IV.15, Por.).` },
+
+  { q: `Is the angle CED equal to the angle CDE? (yes/no):`,
+    hint: `EC = CD, so triangle ECD is isosceles (I.5).` },
+
+  { q: `Therefore, is the angle ECB double of the angle EDC? (yes/no):`,
+    hint: `An exterior angle equals the sum of the two interior opposite angles (I.32).` },
+
+  { q: `Was the angle AEC already shown to be double of angle ECB? (yes/no):`,
+    hint: `This was established earlier.` },
+
+  { q: `Therefore, is angle AEC quadruple of angle EDC? (yes/no):`,
+    hint: `Double of a double gives four times.` },
+
+  { q: `But was angle AEC also shown to be quadruple of angle BEC? (yes/no):`,
+    hint: `This followed from the arc proportions.` },
+
+  { q: `Hence, is angle EDC equal to angle BEC? (yes/no):`,
+    hint: `Things equal to the same thing are equal to one another.` },
+
+  { q: `Is the angle EBD common to triangles BEC and BED? (yes/no):`,
+    hint: `They share this angle at point B.` },
+
+  { q: `Therefore, is the remaining angle BED equal to the remaining angle ECB? (yes/no):`,
+    hint: `Subtracting equal angles from equal angles leaves equal remainders (I.32).` },
+
+  { q: `Do the triangles EBD and EBC have all their angles equal? (yes/no):`,
+    hint: `Each angle in one corresponds to an equal angle in the other.` },
+
+  { q: `Therefore, are the triangles EBD and EBC equiangular? (yes/no):`,
+    hint: `Equal angles in pairs imply equiangular triangles.` },
+
+  { q: `From equiangular triangles, is it true that as DB is to BE, so is BE to BC? (yes/no):`,
+    hint: `Corresponding sides of equiangular triangles are proportional (VI.4).` },
+
+  { q: `But is BE equal to CD? (yes/no):`,
+    hint: `BE is a radius, and CD is the side of the hexagon, which equals the radius.` },
+
+  { q: `Therefore, is it true that as BD is to DC, so is DC to CB? (yes/no):`,
+    hint: `Substitute equals for equals in the proportion.` },
+
+  { q: `Is BD greater than DC? (yes/no):`,
+    hint: `BD contains both BC and CD.` },
+
+  { q: `Therefore, is DC greater than CB? (yes/no):`,
+    hint: `The greater term in the proportion is greater than the lesser.` },
+
+  { q: `Therefore, has the straight line BD been cut in extreme and mean ratio, and is DC its greater segment? (yes/no):`,
+    hint: `This matches the definition of extreme and mean ratio.` }
+]
+
+const conclusion = `Congratulations! You just proved that if the side of the hexagon and the side of the decagon inscribed in the same circle are added together, then the resulting straight line is cut in extreme and mean ratio, and the greater segment is equal to the side of the hexagon.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

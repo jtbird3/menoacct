@@ -1,0 +1,662 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Percentages 1 - What is a percentage? - MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root { --border:#ccc; }
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+      padding-bottom: 120px; /* Space for fixed mobile buttons */
+    }
+    header {
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      margin-bottom:10px;
+    }
+    h1 { font-size: 24px; margin: 0; }
+    #sub { margin: 6px 0 14px; font-size:14px; }
+    #chat {
+      border: 1px solid var(--border);
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background:#fff;
+    }
+    #diagramBox {
+      border: 2px solid var(--border);
+      height: 400px;
+      background: #fff;
+      position: relative;
+      cursor: default;
+      user-select: none;
+      touch-action: manipulation;
+      margin-top: 10px;
+      display: none; /* hidden in Pure mode */
+    }
+    #inputArea {
+      margin-top: 10px;
+      position: sticky;
+      bottom: 0;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      border: 1px solid var(--border);
+    }
+    .ghost-visible { stroke: black; stroke-width: 2; stroke-dasharray: 6 6; }
+    .ghost-hover { stroke-width: 3.5; stroke-dasharray: 2 4; }
+    .solid { stroke: black; stroke-width: 2; }
+    .label { font-family: inherit; font-size: 16px; }
+    .muted { color:#000; font-size:14px; }
+    .point-dot { fill:#000; }
+    .bar { display: flex; align-items: center; }
+    .toggle-btn {
+      padding: 4px 10px;
+      border: 1px solid #000;
+      background: #fff;
+      color: #000;
+      cursor: pointer;
+      font: inherit;
+      font-size: 12px;
+      line-height: 1.2;
+      border-radius: 0;
+      user-select: none;
+    }
+    .toggle-btn[aria-pressed="true"] {
+      background: #000;
+      color: #fff;
+    }
+    .toggle-btn:focus { outline: none; }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid var(--border);
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+        transition: all 0.2s ease;
+        min-height: 50px;
+      }
+
+      .mobile-btn:hover {
+        background: #f0f0f0;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .mobile-btn:disabled:hover {
+        background: #fff;
+        color: #000;
+      }
+
+      /* Disable graph mode toggle on mobile */
+      #modeBtn {
+        display: none;
+      }
+
+      /* Ensure diagram box is visible but non-interactive on mobile */
+      #diagramBox {
+        display: block !important;
+        pointer-events: none;
+        touch-action: none;
+      }
+    }
+
+    /* Desktop styles */
+    @media (min-width: 769px) {
+      .mobile-buttons {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Percentages 1 — What is a percentage?</h1>
+  <div class="bar">
+    <button id="modeBtn" class="toggle-btn" title="Toggle between Pure chat and Graph mode">Graph mode</button>
+  </div>
+</header>
+<div id="sub" class="muted">Type your answer and press Enter.</div>
+
+<div id="chat"></div>
+<div id="diagramBox"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Percentages 1 chatbot!
+
+We are given a whole pizza and $100. Do you agree? (yes/no):`,
+hint: `A "whole" means nothing is missing.` },
+
+{ q: `Our goal is to understand what a percent is by using the pizza and the $100. Does that make sense? (yes/no):`,
+hint: `We want to explain percent without formulas.` },
+
+{ q: `Suppose we cut the whole pizza into 4 equal slices. Is this possible? (yes/no):`,
+hint: `Equal slices mean same size.` },
+
+{ q: `If your brother eats 2 of the 4 slices, did he eat half the pizza? (yes/no):`,
+hint: `2 out of 4 equals one-half.` },
+
+{ q: `Can half of something be thought of as a part of the whole? (yes/no):`,
+hint: `A part is less than or equal to the whole.` },
+
+{ q: `Now imagine the whole pizza is called "100 parts." Is that reasonable? (yes/no):`,
+hint: `We are just choosing to name the whole as 100.` },
+
+{ q: `If the whole pizza is 100 parts, does half the pizza equal 50 parts? (yes/no):`,
+hint: `Half of 100 is 50.` },
+
+{ q: `So if your brother ate half the pizza, did he eat 50 out of 100 parts? (yes/no):`,
+hint: `50 out of 100 can be written as 50%.` },
+
+{ q: `Is "50% of the pizza" another way of saying "half the pizza"? (yes/no):`,
+hint: `Both describe the same amount.` },
+
+{ q: `Now consider the $100. Is $100 the whole amount of money? (yes/no):`,
+hint: `There is no more money than this.` },
+
+{ q: `If you spend $50, is that half of $100? (yes/no):`,
+hint: `50 is half of 100.` },
+
+{ q: `If the whole $100 is called 100 parts, does $50 equal 50 parts? (yes/no):`,
+hint: `Each dollar can count as one part.` },
+
+{ q: `So did you spend 50 out of 100 parts of your money? (yes/no):`,
+hint: `This matches what you did with the pizza.` },
+
+{ q: `Is spending 50 out of 100 the same as spending 50%? (yes/no):`,
+hint: `"Percent" means "out of 100."` },
+
+{ q: `From the pizza and the $100, can we say that a percent means "how many parts out of 100"? (yes/no):`,
+hint: `Both examples use the same idea.` },
+
+{ q: `So is a percentage just a way to say how much of a whole you have or use? (yes/no):`,
+hint: `It works for pizza, money, and many other things.` },
+
+{ q: `Therefore, have we shown that a percent is simply a part of a whole measured out of 100? (yes/no):`,
+hint: `This summarizes everything we discovered.` },
+]
+
+const conclusion = `Congratulations! You now understand what a percentage is.
+Click here to continue to the next lesson: <a href="percent2.html">Percentages 2 - Calculating percentages</a>`;
+
+// --- App state ---
+let mode = 'pure'; // 'pure' | 'graph'
+let currentStep = 0;
+let chatEl, inputEl, diagramEl;
+let isMobile = false;
+
+// --- SVG + geometry state (graph mode) ---
+const svgNS = "http://www.w3.org/2000/svg";
+let svg = null;
+
+// Pizza cross placement state
+let pizzaCrossPlaced = false;
+let pizzaCenterX = null, pizzaCenterY = null, pizzaRadius = null;
+let pizzaCrossSegments = []; // Store ghost segments for the cross
+let mobilePizzaCrossSegments = []; // For mobile auto-placement
+
+// --- Utilities ---
+function $(id){ return document.getElementById(id); }
+
+// Mobile detection
+function detectMobile() {
+  isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  return isMobile;
+}
+
+function refocusInput(){
+  if (!isMobile) {
+    try { inputEl.focus(); } catch(e){}
+  }
+}
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  if (role === 'bot' && text.includes('<a href')) {
+    div.innerHTML = text; // Allow HTML for links
+  } else {
+    div.textContent = text;
+  }
+  chatEl.appendChild(div);
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+function resetGraphState(){
+  svg = null;
+  pizzaCrossPlaced = false;
+  pizzaCenterX = null;
+  pizzaCenterY = null;
+  pizzaRadius = null;
+  pizzaCrossSegments = [];
+  mobilePizzaCrossSegments = [];
+}
+
+function resetState(){
+  currentStep = 0;
+  chatEl.textContent = '';
+  inputEl.disabled = false;
+  inputEl.value = '';
+  refocusInput();
+  diagramEl.innerHTML = '';
+  resetGraphState();
+
+  const isGraph = mode === 'graph';
+  const modeBtn = $('modeBtn');
+  modeBtn.textContent = isGraph ? 'Pure chat' : 'Graph mode';
+  modeBtn.setAttribute('aria-pressed', String(isGraph));
+
+  // Diagram visibility
+  if (isMobile) {
+    mode = 'graph'; // Force graph mode on mobile
+    diagramEl.style.display = 'block'; // Always show on mobile
+    initDiagram();
+  } else {
+    diagramEl.style.display = isGraph ? 'block' : 'none';
+    if(isGraph){ initDiagram(); }
+  }
+
+  showStep();
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+    
+    // Enable interactive elements based on current step
+    if(mode === 'graph' && !isMobile){
+      if(currentStep === 2){ // Step 2: "Suppose we cut the whole pizza into 4 equal slices"
+        enablePizzaCrossPlacement();
+      }
+    }
+
+    // On mobile, show elements automatically without interaction
+    if(isMobile){
+      if(currentStep === 2){
+        mobileAutoPlacePizzaCross();
+      }
+    }
+  } else {
+    addMessage(conclusion, 'bot');
+    inputEl.disabled = true;
+    if (isMobile) {
+      $('mobileYes').disabled = true;
+      $('mobileNo').disabled = true;
+    }
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  const a = answer.trim().toLowerCase();
+  
+  if(a==='yes' || a==='y'){
+    // Auto-solidify pizza cross if it hasn't been placed yet (step 2 -> step 3)
+    if(currentStep === 2 && mode === 'graph' && !pizzaCrossPlaced){
+      if (!isMobile) {
+        placePizzaCross();
+      } else {
+        solidifyMobilePizzaCross();
+      }
+    }
+    currentStep++;
+    showStep();
+  } else if(a==='no' || a==='n'){
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+// === Geometry helpers (for future use) ===
+function solidLine(x1,y1,x2,y2){
+  const ln=document.createElementNS(svgNS,'line');
+  ln.setAttribute('x1', x1); ln.setAttribute('y1', y1);
+  ln.setAttribute('x2', x2); ln.setAttribute('y2', y2);
+  ln.setAttribute('class','solid');
+  ln.setAttribute('stroke-linecap','round');
+  svg.appendChild(ln);
+  return ln;
+}
+
+function circle(cx,cy,r, klass='solid', fill='none'){
+  const el=document.createElementNS(svgNS,'circle');
+  el.setAttribute('cx',cx); el.setAttribute('cy',cy);
+  el.setAttribute('r',r);
+  el.setAttribute('fill',fill); el.setAttribute('class',klass);
+  svg.appendChild(el); return el;
+}
+
+function label(x,y,t,dx=8,dy=-8){
+  const el=document.createElementNS(svgNS,'text');
+  el.setAttribute('x',x+dx); el.setAttribute('y',y+dy);
+  el.setAttribute('class','label'); el.textContent=t;
+  svg.appendChild(el); return el;
+}
+
+function makeGhostSegment(from, to, onFinalize){
+  if (isMobile) {
+    // On mobile, draw dashed line that will be solidified later
+    const dashed = document.createElementNS(svgNS,'line');
+    dashed.setAttribute('x1', from.x); dashed.setAttribute('y1', from.y);
+    dashed.setAttribute('x2', to.x);   dashed.setAttribute('y2', to.y);
+    dashed.setAttribute('stroke','black'); dashed.setAttribute('stroke-width','2');
+    dashed.setAttribute('stroke-dasharray','6,6');
+    dashed.setAttribute('stroke-linecap','round');
+    dashed.setAttribute('class','ghost-visible');
+    svg.appendChild(dashed);
+    // Store reference for later solidification
+    if(typeof onFinalize==='function') onFinalize(dashed);
+    return null;
+  }
+
+  const g = document.createElementNS(svgNS, 'g');
+  g.setAttribute('role','button');
+  g.setAttribute('tabindex','0');
+  g.setAttribute('aria-label','Place segment');
+
+  const visible = document.createElementNS(svgNS,'line');
+  visible.setAttribute('x1', from.x); visible.setAttribute('y1', from.y);
+  visible.setAttribute('x2', to.x);   visible.setAttribute('y2', to.y);
+  visible.setAttribute('class','ghost-visible');
+  visible.setAttribute('stroke-linecap','round');
+
+  const hit = document.createElementNS(svgNS,'line');
+  hit.setAttribute('x1', from.x); hit.setAttribute('y1', from.y);
+  hit.setAttribute('x2', to.x);   hit.setAttribute('y2', to.y);
+  hit.setAttribute('stroke','transparent');
+  hit.setAttribute('stroke-width','16');
+  hit.setAttribute('stroke-linecap','round');
+  hit.style.cursor='pointer';
+
+  g.appendChild(visible);
+  g.appendChild(hit);
+  svg.appendChild(g);
+
+  function hover(on){
+    visible.classList.toggle('ghost-hover', on);
+  }
+  function finalize(){
+    const solid = document.createElementNS(svgNS,'line');
+    solid.setAttribute('x1', from.x); solid.setAttribute('y1', from.y);
+    solid.setAttribute('x2', to.x);   solid.setAttribute('y2', to.y);
+    solid.setAttribute('stroke','black'); solid.setAttribute('stroke-width','2');
+    solid.setAttribute('stroke-linecap','round');
+    svg.appendChild(solid);
+    if(g && g.parentNode) g.parentNode.removeChild(g);
+    if(typeof onFinalize==='function') onFinalize();
+    refocusInput();
+  }
+
+  hit.addEventListener('mouseenter', ()=>hover(true));
+  hit.addEventListener('mouseleave', ()=>hover(false));
+  hit.addEventListener('click', finalize);
+  g.addEventListener('keydown', (e)=>{
+    if(e.key==='Enter' || e.key===' ') { e.preventDefault(); finalize(); }
+  });
+
+  return { group:g, visible, hit };
+}
+
+// --- Diagram init ---
+function initDiagram(){
+  // create svg
+  svg = document.createElementNS(svgNS, "svg");
+  svg.setAttribute("width", "100%");
+  svg.setAttribute("height", "100%");
+  if(!isMobile){ svg.setAttribute('viewBox','0 0 800 400'); }
+  diagramEl.appendChild(svg);
+
+  // keep focus on input during interactions (desktop only)
+  if (!isMobile) {
+    ['mousedown','mouseup','click','mousemove'].forEach(evt => {
+      svg.addEventListener(evt, refocusInput);
+      diagramEl.addEventListener(evt, refocusInput);
+    });
+  }
+
+  const W = diagramEl.getBoundingClientRect().width || 800;
+  const H = diagramEl.getBoundingClientRect().height || 400;
+  
+  // Pizza visualization (left side)
+  pizzaCenterX = W * 0.25;
+  pizzaCenterY = H / 2;
+  pizzaRadius = Math.min(W, H) * 0.15;
+  
+  // Draw pizza circle (cross lines will be added interactively on step 2)
+  circle(pizzaCenterX, pizzaCenterY, pizzaRadius, 'solid', 'none');
+  
+  // Label the pizza
+  label(pizzaCenterX, pizzaCenterY + pizzaRadius + 20, 'Pizza');
+  
+  // Money visualization (right side) - 100 "$" signs in 10x10 grid
+  const moneyStartX = W * 0.55;
+  const moneyStartY = H * 0.15;
+  const gridSpacing = Math.min(W, H) * 0.035;
+  const dollarSize = Math.min(W, H) * 0.025;
+  
+  // Create 10x10 grid of "$" signs
+  for (let row = 0; row < 10; row++) {
+    for (let col = 0; col < 10; col++) {
+      const x = moneyStartX + col * gridSpacing;
+      const y = moneyStartY + row * gridSpacing;
+      
+      const dollarSign = document.createElementNS(svgNS, 'text');
+      dollarSign.setAttribute('x', x);
+      dollarSign.setAttribute('y', y);
+      dollarSign.setAttribute('font-family', 'inherit');
+      dollarSign.setAttribute('font-size', dollarSize);
+      dollarSign.setAttribute('text-anchor', 'middle');
+      dollarSign.setAttribute('dominant-baseline', 'middle');
+      dollarSign.textContent = '$';
+      svg.appendChild(dollarSign);
+    }
+  }
+  
+  // Label the money
+  label(moneyStartX + 5 * gridSpacing, moneyStartY + 10 * gridSpacing + 15, '$100');
+}
+
+// === Pizza Cross Placement Functions ===
+function enablePizzaCrossPlacement(){
+  if(pizzaCrossPlaced || !pizzaCenterX || !pizzaCenterY || !pizzaRadius) return;
+
+  // Create ghost segments for vertical and horizontal cross lines
+  // Both call placePizzaCross so clicking either places both lines
+  const verticalTop = { x: pizzaCenterX, y: pizzaCenterY - pizzaRadius };
+  const verticalBottom = { x: pizzaCenterX, y: pizzaCenterY + pizzaRadius };
+  const horizontalLeft = { x: pizzaCenterX - pizzaRadius, y: pizzaCenterY };
+  const horizontalRight = { x: pizzaCenterX + pizzaRadius, y: pizzaCenterY };
+
+  const seg1 = makeGhostSegment(verticalTop, verticalBottom, placePizzaCross);
+  const seg2 = makeGhostSegment(horizontalLeft, horizontalRight, placePizzaCross);
+
+  pizzaCrossSegments = [seg1, seg2].filter(seg => seg !== null);
+
+  // Add group hover effects - hovering one highlights both
+  pizzaCrossSegments.forEach(seg => {
+    if(seg && seg.hit) {
+      seg.hit.addEventListener('mouseenter', () => {
+        if(!pizzaCrossPlaced){
+          pizzaCrossSegments.forEach(s => {
+            if(s && s.visible) s.visible.classList.add('ghost-hover');
+          });
+        }
+      });
+      seg.hit.addEventListener('mouseleave', () => {
+        if(!pizzaCrossPlaced){
+          pizzaCrossSegments.forEach(s => {
+            if(s && s.visible) s.visible.classList.remove('ghost-hover');
+          });
+        }
+      });
+    }
+  });
+}
+
+function placePizzaCross(){
+  if(pizzaCrossPlaced || !pizzaCenterX || !pizzaCenterY || !pizzaRadius) return;
+  pizzaCrossPlaced = true;
+
+  // Remove ghost segments
+  pizzaCrossSegments.forEach(seg => {
+    if(seg && seg.group && seg.group.parentNode) {
+      seg.group.parentNode.removeChild(seg.group);
+    }
+  });
+  pizzaCrossSegments = [];
+
+  // Add solid cross lines
+  solidLine(pizzaCenterX, pizzaCenterY - pizzaRadius, pizzaCenterX, pizzaCenterY + pizzaRadius); // vertical
+  solidLine(pizzaCenterX - pizzaRadius, pizzaCenterY, pizzaCenterX + pizzaRadius, pizzaCenterY); // horizontal
+
+  refocusInput();
+}
+
+// === Mobile Auto-Placement Functions ===
+function mobileAutoPlacePizzaCross(){
+  if(!pizzaCenterX || !pizzaCenterY || !pizzaRadius || pizzaCrossPlaced) return;
+
+  // Draw dashed cross lines
+  const vertical = document.createElementNS(svgNS,'line');
+  vertical.setAttribute('x1', pizzaCenterX); vertical.setAttribute('y1', pizzaCenterY - pizzaRadius);
+  vertical.setAttribute('x2', pizzaCenterX); vertical.setAttribute('y2', pizzaCenterY + pizzaRadius);
+  vertical.setAttribute('stroke','black'); vertical.setAttribute('stroke-width','2');
+  vertical.setAttribute('stroke-dasharray','6 6'); vertical.setAttribute('stroke-linecap','round');
+  svg.appendChild(vertical);
+  mobilePizzaCrossSegments.push(vertical);
+
+  const horizontal = document.createElementNS(svgNS,'line');
+  horizontal.setAttribute('x1', pizzaCenterX - pizzaRadius); horizontal.setAttribute('y1', pizzaCenterY);
+  horizontal.setAttribute('x2', pizzaCenterX + pizzaRadius); horizontal.setAttribute('y2', pizzaCenterY);
+  horizontal.setAttribute('stroke','black'); horizontal.setAttribute('stroke-width','2');
+  horizontal.setAttribute('stroke-dasharray','6 6'); horizontal.setAttribute('stroke-linecap','round');
+  svg.appendChild(horizontal);
+  mobilePizzaCrossSegments.push(horizontal);
+
+  pizzaCrossPlaced = true;
+}
+
+function solidifyMobilePizzaCross(){
+  if (!isMobile) return;
+
+  mobilePizzaCrossSegments.forEach(segment => {
+    if (segment && segment.parentNode) {
+      segment.removeAttribute('stroke-dasharray');
+    }
+  });
+}
+
+// --- Boot ---
+window.addEventListener('DOMContentLoaded', () => {
+  chatEl = $('chat');
+  diagramEl = $('diagramBox');
+  inputEl = $('userInput');
+
+  // Detect mobile on load and resize
+  detectMobile();
+  window.addEventListener('resize', detectMobile);
+
+  $('modeBtn').addEventListener('click', () => {
+    if (!isMobile) { // Only allow mode toggle on desktop
+      mode = (mode === 'graph') ? 'pure' : 'graph';
+      resetState();
+    }
+  });
+  
+  inputEl.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter'){
+      const ans = inputEl.value.trim();
+      if(ans){ processAnswer(ans); inputEl.value = ''; }
+    }
+  });
+
+  // Mobile button handlers
+  $('mobileYes').addEventListener('click', () => {
+    if (isMobile) {
+      processAnswer('yes');
+    }
+  });
+
+  $('mobileNo').addEventListener('click', () => {
+    if (isMobile) {
+      processAnswer('no');
+    }
+  });
+
+  // Initialize state (this will set up diagram on mobile and show first step)
+  resetState();
+});
+</script>
+
+</body>
+</html>
+

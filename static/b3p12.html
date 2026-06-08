@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>III.12 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>III.12 - Prove that if two circles touch one another externally, the straight line joining their centers will pass through the point of contact.</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements III.12 chatbot!
+
+We are given two circles that touch one another externally at point A. Do you agree? (yes/no):`,
+    hint: `“Touch externally” means they meet at one single point, lying outside one another, not overlapping.` },
+  { q: `Let us take the centers of the circles at points F (for circle ABC) and G (for circle ADE). Can we do this? (yes/no):`,
+    hint: `Each circle has exactly one center point.` },
+  { q: `Our goal is to show that the straight line FG passes through the point of contact A. Does that make sense? (yes/no):`,
+    hint: `We want to prove that A lies on the line segment FG joining the centers.` },
+  { q: `Suppose, for the sake of argument, that FG does not pass through A. Can we assume this for a proof by contradiction? (yes/no):`,
+    hint: `This is a proof by contradiction: assume the opposite of what we want to prove and see if it leads to a contradiction.` },
+  { q: `If FG misses A, then we can draw FG as FCDG where C and D are points on the circles. Agreed? (yes/no):`,
+    hint: `The line connecting F to G would cut across the circles at points C and D instead of A.` },
+  { q: `Now join the lines FA and AG. Possible? (yes/no):`,
+    hint: `Postulate 1 allows a straight line to be drawn from any point to any point.` },
+  { q: `Since F is the center of circle ABC, is FA equal to FC? (yes/no):`,
+    hint: `All radii of a circle are equal; FA and FC are radii of circle ABC.` },
+  { q: `Since G is the center of circle ADE, is GA equal to GD? (yes/no):`,
+    hint: `Similarly, GA and GD are radii of circle ADE.` },
+  { q: `So do we have FA = AG and FC = GD? (yes/no):`,
+    hint: `Each pair of radii was shown equal.` },
+  { q: `If FG is a straight line this means that FG is greater than FC + FD, but also less than FA + AG, when FC + FD = FA + AG? Do we have a contradiction?(yes/no):`,
+    hint: `By I.20 (triangle inequality), FG < FA + AG, but since FG crosses both circles we also get FG > FC + GD = FA + AG, a contradiction. Something cannot be both less and greater than the same thing.` },
+  { q: `Since this leads to a contradiction, we must conclude that FG passes through A. Do you agree? (yes/no):`,
+    hint: `No — the contradiction forces us to reject the assumption.` },
+  { q: `Therefore, does FG pass through the point of contact A? (yes/no):`,
+    hint: `This is the only remaining possibility.` }
+];
+
+const conclusion = `Congratulations! You have shown that if two circles touch one another externally, the line joining their centers passes through the point of contact.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

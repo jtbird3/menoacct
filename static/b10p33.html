@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.33</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.33 - Find two straight lines incommensurable in square such that the sum of the squares on them is rational, but the rectangle contained by them is medial.</h1><div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements X.33 chatbot!
+
+We are given two straight lines AB and BC, both rational, and commensurable in square only. Do you agree? (yes/no):`,
+hint: `“Commensurable in square only” means their squares are commensurable, though the lines themselves are not.` },
+{ q: `We are also given that the square on AB is greater than the square on BC by the square on a straight line incommensurable with AB. Do you agree? (yes/no):`,
+hint: `This is exactly the hypothesis taken from Proposition X.30.` },
+{ q: `Our goal is to find two straight lines incommensurable in square whose squares have a rational sum, but whose rectangle is medial. Does that make sense? (yes/no):`,
+hint: `This proposition is about existence, not merely comparison.` },
+{ q: `Let BC be bisected at point D. Is this construction possible? (yes/no):`,
+hint: `Any straight line can be bisected.` },
+{ q: `Let there be applied to AB a parallelogram equal to the square on either BD or DC, but deficient by a square figure, forming the rectangle AE, EB. Can this be done? (yes/no):`,
+hint: `This follows from Proposition VI.28.` },
+{ q: `Let a semicircle AFB be described on AB. Is this allowed? (yes/no):`,
+hint: `A semicircle can be constructed on any diameter.` },
+{ q: `Let EF be drawn at right angles to AB, meeting the semicircle at F. Can we draw this perpendicular? (yes/no):`,
+hint: `A perpendicular can be drawn from a point to a straight line.` },
+{ q: `Let AF and FB be joined. Is this construction possible? (yes/no):`,
+hint: `A straight line can be drawn from any point to any point.` },
+{ q: `Since AB and BC are unequal, and the square on AB exceeds the square on BC by the square on a line incommensurable with AB, while a parallelogram equal to the square on half of BC has been applied to AB and is deficient by a square, does it follow that AE is incommensurable with EB? (yes/no):`,
+hint: `This is exactly Proposition X.18.` },
+{ q: `As AE is to EB, is the rectangle BA, AE to the rectangle AB, BE in the same ratio? (yes/no):`,
+hint: `Ratios of sides correspond to ratios of rectangles on equal bases.` },
+{ q: `Is the rectangle BA, AE equal to the square on AF? (yes/no):`,
+hint: `This follows from the right angle and the semicircle construction.` },
+{ q: `Is the rectangle AB, BE equal to the square on BF? (yes/no):`,
+hint: `The same reasoning applies symmetrically.` },
+{ q: `Therefore, is the square on AF incommensurable with the square on FB? (yes/no):`,
+hint: `Incommensurable rectangles imply incommensurable squares.` },
+{ q: `Does it follow that AF and FB are incommensurable in square? (yes/no):`,
+hint: `This is the definition of incommensurability in square.` },
+{ q: `Since AB is rational, is the square on AB also rational? (yes/no):`,
+hint: `The square on a rational straight line is rational.` },
+{ q: `By Proposition I.47, is the sum of the squares on AF and FB equal to the square on AB? (yes/no):`,
+hint: `The right angle at F gives a Pythagorean relation.` },
+{ q: `Therefore, is the sum of the squares on AF and FB rational? (yes/no):`,
+hint: `It equals the rational square on AB.` },
+{ q: `Since the rectangle AE, EB is equal to the square on EF, do you agree? (yes/no):`,
+hint: `This comes from the construction of the deficient parallelogram.` },
+{ q: `And since the rectangle AE, EB is also equal to the square on BD by hypothesis, does it follow that EF equals BD? (yes/no):`,
+hint: `Equal squares imply equal sides.` },
+{ q: `If EF equals BD, and BC is double of BD, is BC double of EF? (yes/no):`,
+hint: `D is the midpoint of BC.` },
+{ q: `Therefore, is the rectangle AB, BC commensurable with the rectangle AB, EF? (yes/no):`,
+hint: `Doubling a side preserves commensurability.` },
+{ q: `But the rectangle AB, BC is medial. Do you agree? (yes/no):`,
+hint: `This is given by Proposition X.21.` },
+{ q: `Therefore, is the rectangle AB, EF also medial? (yes/no):`,
+hint: `By Proposition X.23, Corollary.` },
+{ q: `But the rectangle AB, EF is equal to the rectangle AF, FB. Do you agree? (yes/no):`,
+hint: `This follows from the lemma relating rectangles on a common base.` },
+{ q: `Therefore, is the rectangle AF, FB medial? (yes/no):`,
+hint: `Equals of medial rectangles are medial.` },
+{ q: `Have we now shown that AF and FB are incommensurable in square, that the sum of the squares on them is rational, and that the rectangle contained by them is medial? (yes/no):`,
+hint: `These are exactly the three conditions required.` }
+
+]
+
+
+
+
+
+const conclusion = `Congratulations! You just found two straight lines incommensurable in square such that the sum of the squares on them is rational, but the rectangle contained by them is medial.
+Q.E.F. (Quod Erat Faciendum — which was to be done)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Conics I.8 — Menochat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>I.8 - Prove that in a cone cut through the axis and by a plane perpendicular to a side of the axial triangle, the resulting section grows indefinitely and allows any given length to be cut off from its diameter</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Conics I.8 chatbot!
+
+We are given a cone with vertex at point A and base the circle BC. Do you agree? (yes/no):`,
+  hint: `The cone's axis passes through vertex A and the center of the base circle BC.` },
+{ q: `Let the cone be cut by a plane through its axis, axial triangle section ABC. Does that make sense? (yes/no):`,
+  hint: `A plane through the axis of a cone cuts it in an isosceles triangle.` },
+{ q: `Now let another plane cut the base circle BC in a straight line DE perpendicular to BC, making the conic section DFE such that the diameter FG is either parallel to AC or, if produced, meets AC beyond A. Is this possible? (yes/no):`,
+  hint: `We want to draw a conic section DFE with diameter FG either parallel to AC or meeting AC beyond A.` },
+{ q: `Our goal is to show that, if both the cone’s surface and the cutting plane are extended indefinitely, the section DFE will also increase indefinitely, and a line drawn parallel to DE will cut off on FG a segment equal to any given line. Does that make sense? (yes/no):`,
+  hint: `The proposition demonstrates the unbounded nature of the section and a property of proportional cutting along the diameter.` },
+{ q: `Let us continue both the surface of the cone and the cutting plane, extending AB, AC, FG and DFE. Can we do this? (yes/no):`,
+  hint: `These lie in the same generating surfaces and planes, so they lengthen together when extended.` },
+{ q: `Since FG is either parallel to AC or meets it beyond A, is it true that FG and AC never meet when continued in the direction of C and G? (yes/no):`,
+  hint: `If FG is parallel to AC, they never meet; if they meet beyond A, they diverge on the other side.` },
+{ q: `Let us take a point H at random on FG. Possible? (yes/no):`,
+  hint: `We may choose any point on an extended line.` },
+{ q: `Let us draw through H the line KHL parallel to BC, and also MHN parallel to DE. Can we do this? (yes/no):`,
+  hint: `Parallels may be drawn through any given point to any given line (Euclid I.31).` },
+{ q: `By Euclid XI.15, is the plane through KL and MN parallel to the plane through BC and DE? (yes/no):`,
+  hint: `Euclid XI.15: planes through parallel lines are parallel.` },
+{ q: `By Conics I.4, is the plane KLMN is parallel to the plane through BC and DE, is it a plane of a circle? (yes/no):`,
+  hint: `Conics I.4: a plane parallel to the base of a cone cuts it in a circle.` },
+{ q: `Since points D, E, M, N lie both in the cutting plane and on the cone’s surface, are they on the common section of both? (yes/no):`,
+  hint: `The intersection of two surfaces lies in both; thus the section extends through D, E, M, N.` },
+{ q: `Therefore, has the section DFE increased to M and N? (yes/no):`,
+  hint: `The continued intersection enlarges the conic section.` },
+{ q: `If both the surface of the cone and the cutting plane are continued indefinitely, does the section DFE continue to increase indefinitely? (yes/no):`,
+  hint: `Extending both surfaces extends their intersection without bound.` },
+{ q: `Now, can a straight line parallel to DE be drawn from any point X on diameter FG such that FX equals any given straight line? (yes/no):`,
+  hint: `A parallel line may always be drawn through a given point (Euclid I.31).` },
+{ q: `Will this line parallel to DE meet the section DFE just as KHL met it at M and N? (yes/no):`,
+  hint: `The same reasoning applies—each such parallel intersects the extended section.` },
+{ q: `Therefore, will the line cut off from FG, on the side of F, a segment equal to any given line? (yes/no):`,
+  hint: `The parallel through X intersects the section, limiting a segment on FG equal to the one set off as FX.` },
+
+
+
+
+
+];
+
+const conclusion = `Congratulations! You just proved that in a cone cut through the axis and by a plane perpendicular to a side of the axial triangle, the resulting section grows indefinitely and allows any given length to be cut off from its diameter.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

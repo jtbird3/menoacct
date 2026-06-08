@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements VII.20</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>VII.20 — Prove that least numbers with the same ratio measure equally: the greater measures the greater, and the less measures the less</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements VII.20 chatbot!
+  
+We are given two numbers CD and EF, which are the least among those having the same ratio as two other numbers, A and B. Do you agree? (yes/no):`,
+hint: `“Least” here means the smallest pair of numbers that preserve the ratio A:B.` },
+{ q: `Our goal is to show that CD measures A the same number of times that EF measures B. Does that make sense? (yes/no):`,
+hint: `To “measure” means to divide evenly a certain number of times.` },
+{ q: `First, suppose (for contradiction) that CD is parts of A. Is that assumption clear? (yes/no):`,
+hint: `“CD is parts of A” means A is composed of repeated copies of CD.` },
+{ q: `If CD is parts of A, must EF be the same parts of B that CD is of A? (yes/no):`,
+hint: `By VII.13 and Definition 20, equal ratios force equal part-relations.` },
+{ q: `Then are there as many parts of A contained in CD as parts of B contained in EF? (yes/no):`,
+hint: `Equal ratios imply corresponding numbers are composed of the same number of equal parts.` },
+{ q: `Let CD be divided into its parts of A (CG, GD), and EF into its parts of B (EH, HF). Can we do this? (yes/no):`,
+hint: `Each number is split into the smaller equal parts it is composed of.` },
+{ q: `Is the number of parts CG, GD equal to the number of parts EH, HF? (yes/no):`,
+hint: `CD and EF were assumed to contain the same number of parts.` },
+{ q: `Since CG = GD and EH = HF, and the multitudes match (equal number of parts), is CG:EH = GD:HF? (yes/no):`,
+hint: `Equal numbers composed in equal multitudes preserve ratio pairwise.` },
+{ q: `From this, do we have that as one antecedent is to one consequent, so all antecedents are to all consequents? (yes/no):`,
+hint: `Proposition VII.12 allows the ratio to extend from corresponding parts to the sums.` },
+{ q: `Thus, is CG:EH = CD:EF? (yes/no):`,
+hint: `CD = CG + GD, and EF = EH + HF.` },
+{ q: `But would this mean that CG and EH (smaller numbers) have the same ratio as the larger CD and EF? (yes/no):`,
+hint: `This contradicts the hypothesis that CD, EF are the least numbers in this ratio.` },
+{ q: `Is this impossible, since CD and EF were assumed to be the least numbers in their ratio? (yes/no):`,
+hint: `Smaller numbers cannot share that same ratio by the hypothesis of leastness.` },
+{ q: `Therefore, must our original assumption be false, meaning CD is not parts of A? (yes/no):`,
+hint: `The contradiction forces rejecting the assumption.` },
+{ q: `If CD is not parts of A, must CD instead be a single part of A? (yes/no):`,
+hint: `By VII.4, a number must either be a part or parts of a greater number.` },
+{ q: `And is EF the same part of B that CD is of A? (yes/no):`,
+hint: `VII.13 and Def. 20: equal ratios preserve the kind of “part” relationship.` },
+{ q: `If CD is a part of A and EF is the same part of B, does CD measure A as many times as EF measures B? (yes/no):`,
+hint: `Equal part-relations imply equal numbers of measures.` },
+{ q: `Therefore, have we shown that CD measures A the same number of times that EF measures B? (yes/no):`,
+hint: `This completes the argument.` },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+];
+
+const conclusion = `Congratulations! You just proved that if least numbers with the same ratio measure equally: the greater measures the greater, and the less measures the less.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

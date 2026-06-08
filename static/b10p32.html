@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.32</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.32 - Find two medial straight lines commensurable in square only, containing a medial rectangle, such that the square on the greater exceeds the square on the less by the square on a straight line commensurable in length with the greater.</h1><div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements X.32 chatbot!
+
+We are given three rational straight lines A, B, and C, commensurable in square only. Do you agree? (yes/no):`,
+hint: `“Commensurable in square only” means their squares are commensurable, though the lines themselves are not.` },
+{ q: `We are also given that the square on A is greater than the square on C by the square on a straight line commensurable with A. Agreed? (yes/no):`,
+hint: `This is exactly the given condition from Proposition X.29.` },
+{ q: `Next, let the square on D be equal to the rectangle A, B. Can this be set up? (yes/no):`,
+hint: `A square equal to a given rectangle can be constructed.` },
+{ q: `Since the square on D equals the rectangle A, B, is the square on D medial? (yes/no):`,
+hint: `A rectangle contained by rational straight lines commensurable in square only is medial.` },
+{ q: `If the square on D is medial, is the straight line D itself medial? (yes/no):`,
+hint: `A straight line whose square is medial is itself medial (X.21).` },
+{ q: `Now let the rectangle D, E be equal to the rectangle B, C. Can this be done? (yes/no):`,
+hint: `A rectangle equal to a given rectangle can be constructed.` },
+{ q: `Our goal is to show that D and E are medial straight lines, commensurable in square only, containing a medial rectangle, and satisfying the given square inequality. Does that make sense? (yes/no):`,
+hint: `This restates the proposition’s aim.` },
+
+{ q: `Since the rectangle A, B is to the rectangle B, C as A is to C, do you agree? (yes/no):`,
+hint: `Rectangles with a common side are in the ratio of their other sides.` },
+{ q: `The square on D equals rectangle A, B, and rectangle D, E equals rectangle B, C. Agreed? (yes/no):`,
+hint: `These were the defining constructions of D and E.` },
+{ q: `Therefore, as A is to C, so is the square on D to the rectangle D, E. Do you see this? (yes/no):`,
+hint: `Equal magnitudes preserve ratios.` },
+{ q: `But as the square on D is to the rectangle D, E, so is D to E. Is that correct? (yes/no):`,
+hint: `A square compares to a rectangle as its side compares to the other side.` },
+{ q: `Therefore, as A is to C, so is D to E. Do you agree? (yes/no):`,
+hint: `Ratios equal to the same ratio are equal.` },
+
+{ q: `Since A is commensurable with C in square only, does it follow that D is commensurable with E in square only? (yes/no):`,
+hint: `This follows from Proposition X.11.` },
+{ q: `But D is medial; therefore is E also medial? (yes/no):`,
+hint: `A straight line commensurable in square only with a medial straight line is itself medial (X.23).` },
+
+{ q: `Now, since as A is to C, so is D to E, and since the square on A exceeds the square on C by the square on a straight line commensurable with A, does the same relation hold for D and E? (yes/no):`,
+hint: `This follows by Proposition X.14.` },
+{ q: `That is, is the square on D greater than the square on E by the square on a straight line commensurable with D? (yes/no):`,
+hint: `Ratios preserve this excess property.` },
+
+{ q: `Next, since rectangle B, C is medial, do you agree? (yes/no):`,
+hint: `It is contained by rational straight lines commensurable in square only, so it is medial (X.21).` },
+{ q: `And since rectangle D, E equals rectangle B, C, is rectangle D, E also medial? (yes/no):`,
+hint: `Equals of medials are medial.` },
+
+{ q: `Therefore, have we found two medial straight lines D and E, commensurable in square only, containing a medial rectangle? (yes/no):`,
+hint: `All required properties have been established.` },
+{ q: `And do these lines satisfy that the square on the greater exceeds the square on the less by the square on a straight line commensurable with the greater? (yes/no):`,
+hint: `This was shown by comparing the proportional pair D : E with the given pair A : C.` }
+
+]
+
+
+
+
+
+const conclusion = `Congratulations! You just found two medial straight lines commensurable in square only, containing a medial rectangle, such that the square on the greater exceeds the square on the less by the square on a straight line commensurable in length with the greater.
+Q.E.F. (Quod Erat Faciendum — which was to be done)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

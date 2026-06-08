@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements VIII.20</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>VIII.20 — Prove that if one mean proportional lies between two numbers, those numbers are similar plane numbers</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements VIII.20 chatbot!
+
+We are given two numbers A and B, and a single mean proportional C falling between them. Do you agree? (yes/no):`,
+    hint:`A, C, B are in continued proportion, meaning A:C = C:B.` },
+
+  { q:`Our goal is to show that A and B are similar plane numbers. Does that make sense? (yes/no):`,
+    hint:`A and B must each be plane (products of two numbers) and their sides must be proportional.` },
+
+  { q:`Let D and E be the least numbers having the same ratio as A has to C. Can we take such numbers? (yes/no):`,
+    hint:`By VII.33, least proportional numbers exist; by VII.20, D measures A as many times as E measures C.` },
+
+  { q:`Since D measures A as many times as E measures C, can we let a number F contain that same number of units? (yes/no):`,
+    hint:`F is defined to have as many units as D measures A.` },
+
+  { q:`Then does F, by multiplying D, make A? (yes/no):`,
+    hint:`If F has as many units as the number of times D measures A, then F·D = A.` },
+
+  { q:`So is A a plane number with D and F as its sides? (yes/no):`,
+    hint:`A is the product of D and F, so it is plane.` },
+
+  { q:`Again, since D and E are also the least numbers having the same ratio as C has to B, does D measure C the same number of times that E measures B? (yes/no):`,
+    hint:`This follows from VII.20 again.` },
+
+  { q:`As many times, then, as E measures B, may we let there be that many units in G? (yes/no):`,
+    hint:`G is defined analogously to F.` },
+
+  { q:`Then does G, by multiplying E, make B? (yes/no):`,
+    hint:`If E measures B as many times as G has units, then G·E = B.` },
+
+  { q:`So is B a plane number with E and G as its sides? (yes/no):`,
+    hint:`B is the product of E and G.` },
+
+  { q:`Since A and B are products of two numbers, can we now say A and B are plane numbers? (yes/no):`,
+    hint:`Each is formed from two sides.` },
+
+  { q:`Next we show that A and B are similar. Since F multiplies D to make A, and also multiplies E to make C, do we have the ratio D:E = A:C? (yes/no):`,
+    hint:`If F·D = A and F·E = C, then D:E = A:C (VII.17).` },
+
+  { q:`And since A is to C as C is toB, can we conclude D is to E as C is toB? (yes/no):`,
+    hint:`A:C = C:B is exactly the condition of one mean proportional.` },
+
+  { q:`Again, since E by multiplying F and G has made C and B respectively, do we also have F to G as C to B? (yes/no):`,
+    hint:`If E·F = C and E·G = B, then F:G = C:B (VII.17).` },
+
+  { q:`If C is to B as D is to E and also C is to B as F is toG, can we conclude D is to E as F is toG? (yes/no):`,
+    hint:`Things equal to the same thing are equal to one another.` },
+
+  { q:`And alternately, does this give D to F as E toG? (yes/no):`,
+    hint:`Alternation of proportional numbers comes from VII.13.` },
+
+  { q:`Since A has sides D and F, and B has sides E and G, and the sides are proportional (D to F as E to G), can we conclude that A and B are similar plane numbers? (yes/no):`,
+    hint:`Plane numbers are similar when their sides are proportional.` }
+]
+
+
+
+
+
+
+
+
+
+
+
+
+
+const conclusion = `Congratulations! You just proved that if one mean proportional lies between two numbers, those numbers are similar plane numbers.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

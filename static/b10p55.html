@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.55</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.55 – Prove that if an area is contained by a rational straight line and the second binomial, the side of the area is the irrational straight line called a first bimedial.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+{ q: `Welcome to Elements X.55 chatbot!
+
+We are given an area ABCD contained by the rational straight line AB and the second binomial AD. Do you agree? (yes/no):`, hint: `AB is rational, and AD is given as a second binomial straight line.` },
+
+{ q: `Our goal is to show that the side AC of the area is a first bimedial straight line. Does that make sense? (yes/no):`, hint: `We want to classify the side AC by the definitions in Book X.` },
+
+{ q: `Since AD is a second binomial straight line, can it be divided into its terms at a point E, so that AE is the greater term? (yes/no):`, hint: `This is part of the definition of a second binomial (X, Def. II.2).` },
+{ q: `Are AE and ED rational straight lines commensurable in square only? (yes/no):`, hint: `This follows directly from the definition of a second binomial.` },
+{ q: `Is the square on AE greater than the square on ED by the square on a straight line commensurable with AE? (yes/no):`, hint: `This is a defining property of the second binomial.` },
+{ q: `Is the lesser term ED commensurable in length with AB? (yes/no):`, hint: `Again, this is given by the definition (X, Def. II.2).` },
+
+{ q: `Let ED be bisected at F. Is this construction possible? (yes/no):`, hint: `Any straight line can be bisected.` },
+{ q: `Can a rectangle AG, GE be applied to AE equal to the square on EF and deficient by a square figure? (yes/no):`, hint: `Proposition X.17 guarantees this construction.` },
+{ q: `From this construction, is AG commensurable in length with GE? (yes/no):`, hint: `This follows from X.17.` },
+
+{ q: `Through G, E, and F, can we draw lines GH, EK, and FL parallel respectively to AB and CD? (yes/no):`, hint: `Parallels through given points can be drawn.` },
+{ q: `Can the square SN be constructed equal to the parallelogram AH, and the square NQ equal to GK? (yes/no):`, hint: `Squares equal to given parallelograms can be constructed.` },
+{ q: `Can these squares be placed so that MN is in a straight line with NO? (yes/no):`, hint: `This is a positional arrangement assumed in the construction.` },
+{ q: `Is RN then also in a straight line with NP? (yes/no):`, hint: `Collinearity follows from the placement.` },
+{ q: `Let the square SQ be completed. Is this allowed? (yes/no):`, hint: `Completing a square is a standard construction.` },
+
+{ q: `From earlier results, is MR a mean proportional between SN and NQ and equal to EL? (yes/no):`, hint: `This follows from prior results concerning mean proportionals.` },
+{ q: `Is MO the side of the area AC? (yes/no):`, hint: `MO corresponds to the side constructed from the given area.` },
+
+{ q: `Now, is it our task to prove that MO is a first bimedial straight line? (yes/no):`, hint: `This is the stated conclusion of the proposition.` },
+
+{ q: `Since AE is incommensurable in length with ED, and ED is commensurable with AB, is AE incommensurable with AB? (yes/no):`, hint: `Proposition X.13.` },
+{ q: `Since AG is commensurable with GE, is AE commensurable with each of AG and GE? (yes/no):`, hint: `Proposition X.15.` },
+{ q: `But since AE is incommensurable with AB, are AG and GE also incommensurable with AB? (yes/no):`, hint: `Again by X.13.` },
+
+{ q: `Are BA and AG, and BA and GE, pairs of rational straight lines commensurable in square only? (yes/no):`, hint: `Rational lines incommensurable in length but commensurable in square satisfy this.` },
+{ q: `Does it follow that each of the rectangles AH and GK is medial? (yes/no):`, hint: `Proposition X.21.` },
+{ q: `Hence, are the squares SN and NQ medial? (yes/no):`, hint: `Squares equal to medial rectangles are medial.` },
+{ q: `Therefore, are MN and NO also medial straight lines? (yes/no):`, hint: `The sides of medial squares are medial.` },
+
+{ q: `Since AG is commensurable with GE, is AH commensurable with GK? (yes/no):`, hint: `Propositions VI.1 and X.11.` },
+{ q: `That is, is SN commensurable with NQ, and therefore the square on MN commensurable with the square on NO? (yes/no):`, hint: `Commensurability transfers through equal figures.` },
+
+{ q: `Since AE is incommensurable with ED, while AE is commensurable with AG and ED with EF, is AG incommensurable with EF? (yes/no):`, hint: `Proposition X.13.` },
+{ q: `Therefore, is AH incommensurable with EL, that is, SN incommensurable with MR? (yes/no):`, hint: `Propositions VI.1 and X.11.` },
+{ q: `That is, are MN and NO incommensurable in length? (yes/no):`, hint: `Incommensurable squares imply incommensurable sides.` },
+
+{ q: `But were MN and NO shown to be both medial and commensurable in square? (yes/no):`, hint: `This was proved earlier.` },
+{ q: `Therefore, are MN and NO medial straight lines commensurable in square only? (yes/no):`, hint: `This matches the definition.` },
+
+{ q: `Next, is it required to show that they contain a rational rectangle? (yes/no):`, hint: `This is needed for a first bimedial.` },
+{ q: `Since DE is commensurable with AB and EF, is EF commensurable with EK? (yes/no):`, hint: `Proposition X.12.` },
+{ q: `And since each is rational, is EL, that is MR, rational? (yes/no):`, hint: `Proposition X.19.` },
+{ q: `Is MR equal to the rectangle contained by MN and NO? (yes/no):`, hint: `This follows from the construction.` },
+
+{ q: `If two medial straight lines commensurable in square only contain a rational rectangle, is their sum a first bimedial straight line? (yes/no):`, hint: `Proposition X.37.` },
+{ q: `Therefore, is MO a first bimedial straight line? (yes/no):`, hint: `This completes the classification.` },
+]
+
+const conclusion = `Congratulations! You just proved that if an area is contained by a rational straight line and the second binomial, the side of the area is the irrational straight line called a first bimedial.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

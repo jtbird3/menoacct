@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements XI.31</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>XI.31 – Prove that parallelepipedal solids which are on equal bases and of the same height are equal to one another.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements XI.31 chatbot!
+
+We are given two parallelepipedal solids AE and CF, of the same height, on equal bases AB and CD. Do you agree? (yes/no):`,
+    hint: `This is exactly the hypothesis: equal bases AB and CD, and the solids AE and CF have the same height.` },
+
+  { q: `First, let the sides standing up (HK, BE, AG, LM, PQ, DF, CO, RS) be at right angles to the bases AB and CD. Can we assume this for the first part? (yes/no):`,
+    hint: `The proof first handles the right-angled case.` },
+
+  { q: `Let the straight line RT be produced in a straight line with CR. Is it allowed to produce a straight line continuously? (yes/no):`,
+    hint: `This uses the idea of producing a straight line (like Postulate 2).` },
+
+  { q: `On the straight line RT at the point R, can we construct the angle TRU equal to the angle ALB? (yes/no):`,
+    hint: `This is done by Proposition I.23 (construct an angle equal to a given angle).` },
+
+  { q: `Can we make RT equal to AL, and RU equal to LB? (yes/no):`,
+    hint: `We can set off equal straight lines from a given point (as in early constructions).` },
+
+  { q: `Can we complete the base RW and complete the solid XU from this base? (yes/no):`,
+    hint: `The text says “let the base RW and the solid XU be completed.”` },
+
+  { q: `Now, since TR = AL and RU = LB, and the contained angle TRU equals the contained angle ALB, can we conclude that parallelogram RW is equal and similar to parallelogram HL? (yes/no):`,
+    hint: `Two sides with the included angle equal give equal and similar parallelograms.` },
+
+  { q: `Since AL = RT, and LM = RS, and they contain right angles, can we conclude that parallelogram RX is equal and similar to parallelogram AM? (yes/no):`,
+    hint: `Equal sides with right angles give equal and similar parallelograms.` },
+
+  { q: `For the same reason, is parallelogram LE also equal and similar to parallelogram SU? (yes/no):`,
+    hint: `The text asserts this “for the same reason.”` },
+
+  { q: `So do we now have three parallelograms of solid AE equal and similar to three parallelograms of solid XU? (yes/no):`,
+    hint: `The three corresponding faces are matched by the equal-and-similar results just obtained.` },
+
+  { q: `Are the former three parallelograms (of AE) equal and similar to the three opposite faces of AE, and the latter three (of XU) equal and similar to the three opposite faces of XU? (yes/no):`,
+    hint: `Opposite faces in a parallelepiped are equal and similar (XI.24).` },
+
+  { q: `Therefore, can we conclude that the whole solid AE is equal to the whole solid XU? (yes/no):`,
+    hint: `With corresponding opposite faces equal and similar, the solids are equal as parallelepipeds.` },
+
+  { q: `Next, let DR and WU be drawn through and meet one another at Y. Can we draw these and name their intersection point Y? (yes/no):`,
+    hint: `The text introduces these lines and their intersection.` },
+
+  { q: `Let aTb be drawn through T parallel to DY. Is it possible to draw a line through a point parallel to a given line? (yes/no):`,
+    hint: `This uses the parallel construction.` },
+
+  { q: `Let PD be produced to a, and let the solids YX and RI be completed. Can we do these completions? (yes/no):`,
+    hint: `The text directs these additions to set up the ratio argument.` },
+
+  { q: `Now consider solid XY with base RX and opposite parallelogram Yc. Is XY equal to XU, which has the same base RX and opposite parallelogram UV? (yes/no):`,
+    hint: `They are on the same base and of the same height (XI.29).` },
+
+  { q: `But XU was proved equal to AE. So is XY also equal to AE? (yes/no):`,
+    hint: `Things equal to the same thing are equal to one another.` },
+
+  { q: `Now, is parallelogram RUWT equal to parallelogram YT because they are on the same base RT and in the same parallels RT and YW? (yes/no):`,
+    hint: `Parallelograms on the same base and between the same parallels are equal (I.35).` },
+
+  { q: `Is RUWT equal to CD, since RUWT is equal to AB and AB is equal to CD? (yes/no):`,
+    hint: `AB and CD are given equal, and RUWT is made to match AB.` },
+
+  { q: `Therefore, is parallelogram YT also equal to CD? (yes/no):`,
+    hint: `If RUWT = YT and RUWT = CD, then YT = CD.` },
+
+  { q: `Now, DT is another parallelogram. Can we state that as base CD is to DT, so is YT to DT? (yes/no):`,
+    hint: `If CD = YT, then their ratios to the same DT are equal.` },
+
+  { q: `Since the parallelepipedal solid CI is cut by a plane RF parallel to opposite planes, can we say: as base CD is to base DT, so is solid CF to solid RI? (yes/no):`,
+    hint: `This is XI.25: ratios of such solids match ratios of their bases.` },
+
+  { q: `For the same reason, since the parallelepipedal solid YI is cut by the plane RX parallel to opposite planes, can we say: as base YT is to base TD, so is solid YX to solid RI? (yes/no):`,
+    hint: `Again XI.25, applied to the other solid.` },
+
+  { q: `But we had: as CD is to DT, so is YT to DT. Therefore, can we conclude: as solid CF is to RI, so is solid YX to RI? (yes/no):`,
+    hint: `Substitute equal ratios (V.11).` },
+
+  { q: `If each of the solids CF and YX has to RI the same ratio, can we conclude that CF equals YX? (yes/no):`,
+    hint: `Same ratio to the same magnitude implies equality.` },
+
+  { q: `But YX was proved equal to AE. Therefore, is AE equal to CF? (yes/no):`,
+    hint: `If CF = YX and YX = AE, then CF = AE.` },
+
+  { q: `Now for the second case: let the sides standing up not be at right angles to the bases AB and CD. Are we now moving to the general case? (yes/no):`,
+    hint: `The proof now drops the right-angle assumption.` },
+
+  { q: `From points K, E, G, M, Q, F, N, S, can we draw KO, ET, GU, MV, QW, FX, NY, SI perpendicular to the plane of reference and meeting it at O, T, U, V, W, X, Y, I? (yes/no):`,
+    hint: `The text instructs these perpendiculars to the plane of reference.` },
+
+  { q: `Can we join OT, OU, UV, TV, WX, WY, YI, IX? (yes/no):`,
+    hint: `These joins form the needed right-angled solids on the reference plane.` },
+
+  { q: `Is solid KV equal to solid QI because they are on equal bases KM and QS, of the same height, and have sides standing up at right angles to their bases? (yes/no):`,
+    hint: `This uses the result from the first (right-angled) case.` },
+
+  { q: `Is solid KV equal to solid AE, and solid QI equal to solid CF, because each pair is on the same base and of the same height even though the standing sides are not on the same straight lines? (yes/no):`,
+    hint: `This is XI.30: same base and same height gives equality in that situation.` },
+
+  { q: `Therefore, can we conclude that solid AE is equal to solid CF in the general case as well? (yes/no):`,
+    hint: `If AE = KV and KV = QI and QI = CF, then AE = CF.` },
+
+  { q: `Our goal is to prove: “Parallelepipedal solids on equal bases and of the same height are equal to one another.” Does that make sense? (yes/no):`,
+    hint: `This is exactly the statement of Proposition XI.31.` },
+
+  { q: `Therefore, the solid AE is equal to the solid CF. Q.E.D. (yes/no):`,
+    hint: `This completes the demonstration.` }
+]
+
+const conclusion = `Congratulations! You just parallelepipedal solids which are on equal bases and of the same height are equal to one another.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

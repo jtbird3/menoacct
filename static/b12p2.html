@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements XII.2</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>XII.2 – Prove that circles are to one another as the squares on their diameters.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements XII.2 chatbot!
+
+We are given two circles, ABCD and EFGH, and BD and FH are their diameters. Do you agree? (yes/no):`,
+    hint: `A diameter is a straight line through the center of a circle, ending at the circumference.` },
+
+  { q: `Our goal is to prove that, as circle ABCD is to circle EFGH, so is the square on BD to the square on FH. Does that make sense? (yes/no):`,
+    hint: `“Square on BD” means the area of the square constructed with BD as its side.` },
+
+  { q: `Suppose the square on BD is not to the square on FH as circle ABCD is to circle EFGH. Are we allowed to reason this way? (yes/no):`,
+    hint: `This is a standard proof by contradiction: assume the opposite of what we want.` },
+
+  { q: `Then as the square on BD is to the square on FH, the circle ABCD would be either to some less area than circle EFGH, or to some greater area than circle EFGH. Do you see that? (yes/no):`,
+    hint: `If two ratios are not equal, one must be greater or less.` },
+
+  { q: `First, let circle ABCD be to some less area S as the square on BD is to the square on FH. Is that the case we examine first? (yes/no):`,
+    hint: `Heath begins with the “less area” case.` },
+
+  { q: `Let the square EFGH be inscribed in the circle EFGH. Can we do this? (yes/no):`,
+    hint: `An inscribed square has all its vertices on the circle.` },
+
+  { q: `Is this inscribed square EFGH greater than half of the circle EFGH? (yes/no):`,
+    hint: `Heath argues: the inscribed square is half of the circumscribed square, and the circle is less than the circumscribed square.` },
+
+  { q: `Now bisect the circumferences EF, FG, GH, HE at K, L, M, N. Can we take these midpoints on the arcs? (yes/no):`,
+    hint: `“Bisection of the circumference” means choosing points so each arc is split into two equal arcs.` },
+
+  { q: `Join EK, KF, FL, LG, GM, MH, HN, NE. Can we draw these straight lines? (yes/no):`,
+    hint: `A straight line can be drawn between any two points.` },
+
+  { q: `Do we now have triangles EKF, FLG, GMH, and HNE inside the circle? (yes/no):`,
+    hint: `Each triangle uses a side of the square and two chords to the arc-midpoint.` },
+
+  { q: `Is each triangle (like EKF) greater than half the segment of the circle about it? (yes/no):`,
+    hint: `Heath compares it to a parallelogram formed using tangents: the triangle is half that parallelogram, while the circular segment is less than the parallelogram.` },
+
+  { q: `If we keep bisecting the remaining circumferences and joining new straight lines, do we keep making an inscribed polygon with more sides? (yes/no):`,
+    hint: `This is the repeated “bisection and join” process.` },
+
+  { q: `Does Book X, Theorem 1 imply that by doing this continually we can make the leftover circular segments as small as we like? (yes/no):`,
+    hint: `It says repeated subtraction of “more than half” eventually leaves a remainder smaller than a given smaller magnitude.` },
+
+  { q: `So can we leave segments of circle EFGH that are less than the excess by which circle EFGH exceeds the area S? (yes/no):`,
+    hint: `“Excess” means (circle EFGH) − S, since S is less than the circle.` },
+
+  { q: `Let the segments on EK, KF, FL, LG, GM, MH, HN, NE be less than that excess. Is that our chosen stopping point? (yes/no):`,
+    hint: `We stop once the remaining segments are smaller than the excess amount.` },
+
+  { q: `Then is the remainder polygon EKFLGMHN greater than the area S? (yes/no):`,
+    hint: `Circle EFGH = polygon + (those leftover segments). If the leftover segments are less than (circle EFGH − S), then polygon must be greater than S.` },
+
+  { q: `Now inscribe in circle ABCD a polygon AOBPCQDR similar to polygon EKFLGMHN. Can we do that? (yes/no):`,
+    hint: `Heath takes a similar polygon in the other circle.` },
+
+  { q: `From XII.1, do we have: as the square on BD is to the square on FH, so is polygon AOBPCQDR to polygon EKFLGMHN? (yes/no):`,
+    hint: `XII.1 links similar polygons in circles to the squares on the diameters.` },
+
+  { q: `But by our assumption, as the square on BD is to the square on FH, so is circle ABCD to area S. Do you agree? (yes/no):`,
+    hint: `This is exactly the “circle ABCD to a less area S” assumption.` },
+
+  { q: `Then by V.11, can we say: as circle ABCD is to area S, so is polygon AOBPCQDR to polygon EKFLGMHN? (yes/no):`,
+    hint: `If two ratios are each equal to the same ratio, they are equal to one another.` },
+
+  { q: `Then by V.16 (alternando), do we get: as circle ABCD is to polygon AOBPCQDR, so is area S to polygon EKFLGMHN? (yes/no):`,
+    hint: `Alternation swaps the middle terms of a proportion.` },
+
+  { q: `Is circle ABCD greater than the polygon inscribed in it? (yes/no):`,
+    hint: `Any inscribed polygon lies inside the circle, so its area is less.` },
+
+  { q: `Then must area S also be greater than polygon EKFLGMHN? (yes/no):`,
+    hint: `From the proportion: if the first ratio is greater than 1, the second must be greater than 1 in the same way.` },
+
+  { q: `But earlier we concluded polygon EKFLGMHN is greater than area S. Is that a contradiction? (yes/no):`,
+    hint: `We get both S > polygon and polygon > S, which is impossible.` },
+
+  { q: `Therefore, is it impossible that circle ABCD is to some area less than circle EFGH as the square on BD is to the square on FH? (yes/no):`,
+    hint: `This completes the first half.` },
+
+  { q: `Similarly, can we prove that circle EFGH is not to any area less than circle ABCD as the square on FH is to the square on BD? (yes/no):`,
+    hint: `Heath states the same argument works by swapping the circles.` },
+
+  { q: `Next, suppose (for contradiction) that circle ABCD is to some greater area S as the square on BD is to the square on FH. Is that the second case? (yes/no):`,
+    hint: `Now S is greater than circle EFGH in Heath’s setup.` },
+
+  { q: `Then inversely, is it true that as the square on FH is to the square on BD, so is area S to circle ABCD? (yes/no):`,
+    hint: `Taking a ratio “inversely” swaps antecedent and consequent.` },
+
+  { q: `Do we use the Lemma to say: since S is greater than circle EFGH, as S is to circle ABCD, so is circle EFGH to some area T less than circle ABCD? (yes/no):`,
+    hint: `Heath inserts this lemma right here.` },
+
+  { q: `Then by V.11, can we conclude: as the square on FH is to the square on BD, so is circle EFGH to some area less than circle ABCD? (yes/no):`,
+    hint: `If square FH : square BD = S : circle ABCD, and S : circle ABCD = circle EFGH : T, then square FH : square BD = circle EFGH : T.` },
+
+  { q: `But was it already proved impossible that circle EFGH is to any area less than circle ABCD as the square on FH is to the square on BD? (yes/no):`,
+    hint: `That was the “similarly we can prove” result from Part 1.` },
+
+  { q: `So is the “greater area S” case also impossible? (yes/no):`,
+    hint: `Yes—this contradiction rules it out.` },
+
+  { q: `So have we shown that circle ABCD is not in that ratio to any area less than circle EFGH, and also not to any area greater than circle EFGH? (yes/no):`,
+    hint: `Both “less” and “greater” cases were eliminated.` },
+
+  { q: `Therefore, must it be true that, as the square on BD is to the square on FH, so is circle ABCD to circle EFGH? (yes/no):`,
+    hint: `If it is neither less nor greater, it must be equal.` },
+
+  { q: `So have we proved: as circle ABCD is to circle EFGH, so is the square on BD to the square on FH? (yes/no):`,
+    hint: `This is exactly the proposition statement.` },
+
+  { q: `Lemma: Let S be greater than circle EFGH. Can we set up a proportion so that as S is to circle ABCD, so is circle EFGH to an area T? (yes/no):`,
+    hint: `“Let it be contrived” means choose T so the proportion holds.` },
+
+  { q: `From this, by V.16 (alternando), do we get: as S is to circle EFGH, so is circle ABCD to T? (yes/no):`,
+    hint: `Alternation swaps the middle terms.` },
+
+  { q: `Since S is greater than circle EFGH, does it follow that circle ABCD is greater than T? (yes/no):`,
+    hint: `If S : circle EFGH > 1, then circle ABCD : T > 1, so circle ABCD > T.` },
+
+  { q: `Therefore is T less than circle ABCD, as claimed? (yes/no):`,
+    hint: `That is the lemma’s conclusion.` },
+
+  { q: `Lemma proven. Q. E. D. (yes/no):`,
+    hint: `This finishes the lemma used in the main proof.` }
+]
+
+const conclusion = `Congratulations! You just proved that circles are to one another as the squares on their diameters.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

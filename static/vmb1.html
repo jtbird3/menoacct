@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>von Mises–Bernstein CLT — Flow 1</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>von Mises–Bernstein CLT — first construction and goal</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  {
+    q: `We are given a sequence of independent, identically distributed (i.i.d.) real-valued random variables:
+
+X₁, X₂, … with E[X₁] = 0 and Var(X₁) = 1. 
+
+We also assume the moment generating function 
+
+M_X(t) = E(e^(t·X₁)) 
+
+exists (is finite) for all 
+
+|t| ≤ t₀ for some t₀ > 0. 
+
+Do you agree? (yes/no):`,
+    hint: `Hint: “i.i.d.” means all Xₙ share the same distribution and are independent. Having an mgf finite in a neighborhood of 0 is a regularity condition that lets us use Taylor expansions.`
+  },
+  {
+    q: `Our goal is to prove that the normalized sums
+
+Sₙ = X₁ + ⋯ + Xₙ and Yₙ = Sₙ / √n
+
+converge in distribution to a standard normal random variable 
+
+Z ∼ N(0, 1). 
+
+In symbols: Yₙ ⇒ Z as n → ∞. Does that make sense? (yes/no):`,
+    hint: `Hint: Convergence in distribution means the distribution functions of Yₙ approach the distribution function of N(0, 1) at all continuity points of the normal cdf (cumulative distribution function).`
+  },
+  {
+    q: `Is it clear that 
+
+Sₙ = X₁ + ⋯ + Xₙ 
+
+has variance 
+
+Var(Sₙ) = n·Var(X₁) = n, 
+
+so that 
+
+Var(Yₙ) = Var(Sₙ/√n) = 1? (yes/no):`,
+    hint: `Hint: For independent variables, variances add, so 
+
+Var(Sₙ) = Var(X₁) + ⋯ + Var(Xₙ) = n·1 = n, 
+
+and dividing by 
+
+√n 
+
+scales the variance by 
+
+1/n.`
+  },
+  {
+    q: `Is the notation 
+    
+M_X(t) = E(e^(t·X₁))
+
+for the mgf of X₁ clear? (yes/no):`,
+    hint: `Hint: The mgf is just a function M_X(t) defined by taking 
+
+E(e^(t·X₁)) 
+
+for each real t where this expectation is finite.`
+  },
+  {
+    q: `Because the Xₖ are i.i.d., does the sum 
+
+Sₙ = X₁ + ⋯ + Xₙ
+
+have moment generating function 
+
+M_{Sₙ}(t) = [M_X(t)]ⁿ? (yes/no):`,
+    hint: `Hint: For independent random variables, the mgf of a sum is the product of the individual mgfs. Since all Xₖ have the same mgf M_X, we get [M_X(t)]ⁿ.`
+  },
+  {
+    q: `For the normalized sum Yₙ = Sₙ/√n, do we have 
+    
+M_{Yₙ}(t) = E(e^(t·Yₙ)) = E(e^(t·Sₙ/√n)) = M_{Sₙ}(t/√n) = [M_X(t/√n)]ⁿ? (yes/no):`,
+    hint: `Hint: Scaling Sₙ by 1/√n replaces t by t/√n in the mgf. Then use 
+
+M_{Sₙ}(u) = [M_X(u)]ⁿ 
+
+with 
+
+u = t/√n.`
+  },
+  {
+    q: `Do you agree that to prove Yₙ ⇒ N(0, 1), it is enough to show that M_{Yₙ}(t) → e^(t²/2) for all t in some interval around 0? (yes/no):`,
+    hint: `Hint: When mgfs exist in a neighborhood of 0, convergence of mgfs implies convergence in distribution to the law with that limiting mgf.`
+  },
+  {
+    q: `Near t = 0, we can expand M_X(t) = 𝐄(e^(t·X₁)). Using 𝐄[X₁] = 0 and 𝐄[X₁²] = 1, do you agree that the Taylor expansion at 0 starts as M_X(t) = 1 + t²/2 + r(t), where r(t) is a remainder term with r(t) → 0 faster than t² as t → 0? (yes/no):`,
+    hint: `Hint: M_X(0) = 1, M_X′(0) = 𝐄[X₁] = 0, and M_X″(0) = 𝐄[X₁²] = 1. This gives the quadratic term t²/2, with r(t) = o(t²).`
+  },
+  {
+    q: `Is it reasonable to rewrite the expansion as M_X(t) = 1 + t²/2 + t²·ε(t), where ε(t) → 0 as t → 0? (yes/no):`,
+    hint: `Hint: Just factor the remainder as r(t) = t²·ε(t), so that all the “smallness” is in ε(t).`
+  },
+  {
+    q: `Now substitute t/√n for t. Do you agree that M_X(t/√n) = 1 + (t²/(2n)) + (t²/n)·ε(t/√n)? (yes/no):`,
+    hint: `Hint: (t/√n)² = t²/n, so the t² term becomes t²/(2n), and the remainder becomes (t²/n)·ε(t/√n).`
+  },
+  {
+    q: `Let us write δₙ(t) = ε(t/√n). Since ε(u) → 0 as u → 0, and t/√n → 0 for fixed t as n → ∞, do you agree that δₙ(t) → 0 for each fixed t? (yes/no):`,
+    hint: `Hint: For fixed t, the argument t/√n goes to 0, so ε(t/√n) must go to 0. We just rename this δₙ(t).`
+  },
+  {
+    q: `With this notation, can we write M_X(t/√n) = 1 + (t²/(2n)) + (t²/n)·δₙ(t)? (yes/no):`,
+    hint: `Hint: This is just rewriting ε(t/√n) as δₙ(t).`
+  },
+  {
+    q: `Using M_{Yₙ}(t) = [M_X(t/√n)]ⁿ, do you agree that M_{Yₙ}(t) = [1 + (t²/(2n)) + (t²/n)·δₙ(t)]ⁿ? (yes/no):`,
+    hint: `Hint: Directly substitute the expression for M_X(t/√n) into [M_X(t/√n)]ⁿ.`
+  },
+  {
+    q: `To handle this n-th power, is it natural to take logarithms and study log M_{Yₙ}(t) instead? (yes/no):`,
+    hint: `Hint: Logarithms turn powers into products: log(aⁿ) = n·log a, which is easier for limits.`
+  },
+  {
+    q: `Do you agree that log M_{Yₙ}(t) = n · log(1 + (t²/(2n)) + (t²/n)·δₙ(t))? (yes/no):`,
+    hint: `Hint: We apply log to M_{Yₙ}(t) and use the identity log(aⁿ) = n·log(a).`
+  },
+  {
+    q: `Define xₙ(t) = (t²/(2n)) + (t²/n)·δₙ(t). For large n, xₙ(t) is small. Can we apply the expansion log(1 + x) = x − x²/2 + o(x²) as x → 0 to log(1 + xₙ(t))? (yes/no):`,
+    hint: `Hint: xₙ(t) is of order 1/n, so it goes to 0 as n → ∞, which allows the Taylor expansion of log(1 + x).`
+  },
+  {
+    q: `Is it reasonable to write log(1 + xₙ(t)) = xₙ(t) + ρₙ(t), where ρₙ(t) is an error term with ρₙ(t) = o(xₙ(t)) as xₙ(t) → 0? (yes/no):`,
+    hint: `Hint: The higher-order terms in the expansion are much smaller than xₙ(t); we collect them into ρₙ(t).`
+  },
+  {
+    q: `Then we have log M_{Yₙ}(t) = n·xₙ(t) + n·ρₙ(t). Do you agree that n·xₙ(t) = n·[(t²/(2n)) + (t²/n)·δₙ(t)] = t²/2 + t²·δₙ(t)? (yes/no):`,
+    hint: `Hint: Multiply inside the brackets by n: n·(t²/(2n)) = t²/2 and n·(t²/n)·δₙ(t) = t²·δₙ(t).`
+  },
+  {
+    q: `Since xₙ(t) is of order 1/n and ρₙ(t) = o(xₙ(t)), do you agree that n·ρₙ(t) → 0 as n → ∞? (yes/no):`,
+    hint: `Hint: If ρₙ(t) is much smaller than xₙ(t), and xₙ(t) is ≈ 1/n, then n·ρₙ(t) must tend to 0.`
+  },
+  {
+    q: `Combining these, do we get log M_{Yₙ}(t) = t²/2 + t²·δₙ(t) + n·ρₙ(t), and hence log M_{Yₙ}(t) → t²/2 as n → ∞ for each fixed t? (yes/no):`,
+    hint: `Hint: δₙ(t) → 0 and n·ρₙ(t) → 0, so both extra terms vanish, leaving t²/2.`
+  },
+  {
+    q: `If log M_{Yₙ}(t) → t²/2, does it follow by continuity of the exponential function that M_{Yₙ}(t) = exp(log M_{Yₙ}(t)) → exp(t²/2) = e^(t²/2)? (yes/no):`,
+    hint: `Hint: The exponential function is continuous, so the limit of exp(uₙ) is exp(limit of uₙ).`
+  },
+  {
+    q: `The function e^(t²/2) is the mgf of a standard normal random variable Z ∼ N(0, 1). Since mgfs are finite near 0 and determine the distribution, do you agree that Yₙ ⇒ Z as n → ∞? (yes/no):`,
+    hint: `Hint: Uniqueness of mgfs says that if M_{Yₙ}(t) → M_Z(t) on a neighborhood of 0, then Yₙ converges in distribution to Z.`
+  }
+];
+
+const conclusion = `Therefore, under the von Mises–Bernstein assumptions:
+
+• X₁, X₂, … are i.i.d. real random variables,  
+• 𝐄[X₁] = 0 and Var(X₁) = 1,  
+• the mgf M_X(t) = 𝐄(e^(t·X₁)) exists for |t| ≤ t₀ > 0,
+
+the normalized sums Yₙ = (X₁ + ⋯ + Xₙ)/√n converge in distribution to a standard normal Z ∼ N(0, 1).  
+
+This is the von Mises–Bernstein form of the central limit theorem.  
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated).`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    const yesBtn = document.getElementById('mobileYes');
+    const noBtn = document.getElementById('mobileNo');
+    if (yesBtn) yesBtn.disabled = true;
+    if (noBtn) noBtn.disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  const a = answer.toLowerCase();
+  if (a === 'yes' || a === 'y') {
+    currentStep++;
+    showStep();
+  } else if (a === 'no' || a === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

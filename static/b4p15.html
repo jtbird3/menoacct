@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>IV.15 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>IV.15 - Inscribe an equilateral and equiangular hexagon in a given circle</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements IV.15 chatbot!
+
+We are given a circle, which we will call ABCDEF. Do you agree? (yes/no):`,
+    hint: `The goal is to work within a single given circle to construct a regular hexagon.` },
+  { q: `Our goal is to inscribe an equilateral and equiangular hexagon in this circle. Does that make sense? (yes/no):`,
+    hint: `“Inscribe” means to draw the polygon inside the circle so that each vertex lies on the circumference.` },
+  { q: `Let the diameter AD of the circle be drawn. Can we do that? (yes/no):`,
+    hint: `Postulate 1 allows a straight line to be drawn from any point to any point; a diameter passes through the circle’s center.` },
+  { q: `Let the center of the circle be called G. Okay? (yes/no):`,
+    hint: `Every circle has a single center, equidistant from all points on its circumference.` },
+  { q: `With center D and radius equal to DG, can we draw another circle cutting the first? (yes/no):`,
+    hint: `By Postulate 3, a circle may be drawn with any center and radius.` },
+  { q: `Let the new circle meet the original circle at points E and C. Do you see these points? (yes/no):`,
+    hint: `The circles intersect in two points equidistant from D and G.` },
+  { q: `Now, join EG and CG and extend them to meet the first circle again at points B and F. Can we do this? (yes/no):`,
+    hint: `Straight lines can be produced in either direction (Postulate 2).` },
+  { q: `Then, join AB, BC, CD, DE, EF, and FA to complete the hexagon ABCDEF. Does that make sense? (yes/no):`,
+    hint: `Joining successive points on the circumference completes the six sides of the polygon.` },
+  { q: `Since G is the center of the circle ABCDEF, is GE equal to GD? (yes/no):`,
+    hint: `All radii of the same circle are equal.` },
+  { q: `Since D is the center of the smaller circle, is DE equal to DG? (yes/no):`,
+    hint: `Again, all radii from the same center are equal.` },
+  { q: `If GE = GD and DE = DG, can we conclude GE = ED? (yes/no):`,
+    hint: `Things equal to the same thing are equal to one another (Common Notion 1).` },
+  { q: `Does that make triangle EGD equilateral? (yes/no):`,
+    hint: `All three sides GE, GD, and DE are equal.` },
+  { q: `In an equilateral triangle, are all its angles equal? (yes/no):`,
+    hint: `Proposition I.5 — base angles of an isosceles triangle are equal, and here all sides are equal.` },
+  { q: `Are the three angles of a triangle together equal to two right angles? (yes/no):`,
+    hint: `Proposition I.32 — the sum of angles in any triangle equals two right angles.` },
+  { q: `Then, is each angle of the equilateral triangle EGD one-third of two right angles? (yes/no):`,
+    hint: `Equal division of two right angles among three equal angles.` },
+  { q: `Similarly, can we prove the angle DGC is also one-third of two right angles? (yes/no):`,
+    hint: `The same reasoning applies by symmetry of the construction.` },
+  { q: `Since straight line CG stands on EB, do the adjacent angles EGC and CGB make two right angles? (yes/no):`,
+    hint: `A straight line standing on another makes adjacent angles equal to two right angles (I.13).` },
+  { q: `Therefore, is the remaining angle CGB also one-third of two right angles? (yes/no):`,
+    hint: `Subtracting equal parts leaves equal remainders.` },
+  { q: `Hence, are the three angles EGD, DGC, and CGB all equal to one another? (yes/no):`,
+    hint: `Each is one-third of two right angles.` },
+  { q: `And are the vertical opposite angles to these—BGA, AGF, and FGE—also equal? (yes/no):`,
+    hint: `Vertical angles are equal (I.15).` },
+  { q: `Therefore, are the six angles around the center G—EGD, DGC, CGB, BGA, AGF, and FGE—equal? (yes/no):`,
+    hint: `All were shown to be equal by the above reasoning.` },
+  { q: `If equal angles stand on equal circumferences, are the arcs AB, BC, CD, DE, EF, and FA all equal? (yes/no):`,
+    hint: `Proposition III.26 — equal central angles subtend equal arcs.` },
+  { q: `And if equal circumferences are subtended by equal chords, are the sides AB, BC, CD, DE, EF, and FA all equal? (yes/no):`,
+    hint: `Proposition III.29 — equal arcs subtend equal straight lines.` },
+  { q: `Therefore, is the hexagon ABCDEF equilateral? (yes/no):`,
+    hint: `All six sides are equal.` },
+  { q: `Now, since circumference FA equals circumference ED, if we add equal circumferences ABCD to each, are the totals FABCD and EDCBA equal? (yes/no):`,
+    hint: `Adding equals to equals yields equals (Common Notion 2).` },
+  { q: `The angle FED stands on circumference FABCD, and the angle AFE stands on circumference EDCBA. Are these two angles equal? (yes/no):`,
+    hint: `Proposition III.27 — angles standing on equal circumferences are equal.` },
+  { q: `Can we similarly prove that each remaining angle of the hexagon is equal to these? (yes/no):`,
+    hint: `The same relationship applies successively around the circle.` },
+  { q: `Therefore, is the hexagon ABCDEF equiangular as well as equilateral? (yes/no):`,
+    hint: `All its sides and angles have been shown equal.` },
+  { q: `From this, do we see that each side of the hexagon is equal to the radius of the circle? (yes/no):`,
+    hint: `Each chord subtending one-sixth of the circle equals the radius.` },
+  { q: `And if tangents are drawn at each vertex, would an equilateral and equiangular hexagon be circumscribed about the circle? (yes/no):`,
+    hint: `Tangents at equal divisions of a circle form equal external sides.` }
+];
+
+const conclusion = `Congratulations! You just inscribed an equilateral and equiangular hexagon in the given circle.
+Q.E.F. (Quod Erat Faciendum — which was to be done)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

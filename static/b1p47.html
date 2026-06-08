@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>I.47 — MenoChat (Toggle: Pure ↔ Graph)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>I.47 – Prove that in a right-angled triangle the square on the hypotenuse equals the squares on the sides (Pythagorean theorem)</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements I.47 chatbot!
+
+We are given a right-angled triangle ABC, with a right angle at A. Do you agree? (yes/no):`,
+    hint: `A right-angled triangle has one angle equal to 90°.` },
+  { q: `Our goal is to prove that the square on BC (the side opposite the right angle) is equal to the sum of the squares on BA and AC. Does that make sense? (yes/no):`,
+    hint: `This is the famous Pythagoras' theorem.` },
+  { q: `First, construct the square BDEC on side BC. Can we do this? (yes/no):`,
+    hint: `By Proposition I.46, we can describe a square on any straight line.` },
+  { q: `Next, construct the squares BFGA and AHKC on BA and AC respectively. Is this possible? (yes/no):`,
+    hint: `Again, Proposition I.46 allows this construction.` },
+  { q: `From A, draw AL parallel to BD (or CE) so that L falls on DE. Can we do this? (yes/no):`,
+    hint: `A straight line parallel to a given straight line can be drawn through a point (Postulate).` },
+  { q: `Now join AD and FC. Possible? (yes/no):`,
+    hint: `Postulate 1 allows a straight line to be drawn between any two points.` },
+  { q: `Now, compare ∠BAC and ∠BAG. Are they right angles? (yes/no):`,
+    hint: `By Proposition I.14, if adjacent angles sum to two right angles, the lines form one straight line.` },
+  { q: `If they are right angles, do AC and AG form a single straight line? (yes/no):`,
+    hint: `By Proposition I.14, if adjacent angles sum to two right angles, the lines form one straight line.` },
+  { q: `By the same reasoning, is BA in a straight line with AH? (yes/no):`,
+    hint: `By I.14, if adjacent angles sum to two right angles, the lines form one straight line.` },
+  { q: `Now compare ∠DBC and ∠FBA. Are they equal? (yes/no):`,
+    hint: `Both are right angles.` },
+  { q: `Adding ∠ABC to each, do we have ∠DBA equal to ∠FBC? (yes/no):`,
+    hint: `Equals added to equals yield equals (Common Notion 2).` },
+  { q: `If DB equals BC and FB equals BA, do we have the pairs AB, BD and FB, BC matching in length? (yes/no):`,
+    hint: `Both follow from square constructions.` },
+  { q: `If ∠ABD equals ∠FBC and the two sides AB,BD equal to the two sides FB,BC, do we have △ABD equal to △FBC by SAS? (yes/no):`,
+    hint: `Proposition I.4 (SAS) establishes triangle equality.` },
+  { q: `Now, is parallelogram BL double of △ABD? (yes/no):`,
+    hint: `By Proposition I.41, a parallelogram and a triangle on the same base and parallels have double/half relation.` },
+  { q: `Similarly, is square GB double of △FBC? (yes/no):`,
+    hint: `Same reasoning: base FB and parallels FB, GC.` },
+  { q: `If △FBC and △ABD are equal, are the doubles of them BL and GB equal? (yes/no):`,
+    hint: `Common Notion 2: doubles of equals are equal.` },
+  { q: `In the same way, if we join AE and BK, can we show that parallelogram CL and square HC are equal by the very same reasoning? (yes/no):`,
+    hint: `By joining AE and BK, a symmetric argument applies.` },
+  { q: `Therefore, is the whole square BDEC equal to squares GB and HC taken together? (yes/no):`,
+    hint: `If each part matches, the wholes are equal (Common Notion 2).` },
+  { q: `And if BDEC is a square on BC, while GB and HC are squares on BA and AC, do we conclude that the square on BC is equal to the sum of the squares on BA and AC? (yes/no):`,
+    hint: `This is the enunciation of the theorem.` },
+  { q: `In right-angled triangles, is the square on the side subtending the right angle equal to the squares on the sides containing it? (yes/no):`,
+    hint: `Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated).` }
+];
+
+const conclusion = `Congratulations! You just proved the famous Pythagorean theorem: in right-angled triangles, the square on the side subtending the right angle is equal to the squares on the sides containing it.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

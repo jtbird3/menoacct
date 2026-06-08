@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>III.22 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>III.22 - Prove that a quadrilateral inscribed in a circle has opposite angles equal to two right angles.</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements III.22 chatbot!
+
+We are given a quadrilateral ABCD inscribed in a circle. Do you agree? (yes/no):`,
+    hint: `A quadrilateral in a circle means all four vertices lie on the circle.` },
+  { q: `Our goal is to prove that each pair of opposite angles (ABC with ADC, and BAD with DCB) are equal to two right angles. Does that make sense? (yes/no):`,
+    hint: `Two right angles equal 180°.` },
+  { q: `Let us join the diagonals AC and BD. Can we do that? (yes/no):`,
+    hint: `Postulate 1 allows drawing a straight line between any two points.` },
+  { q: `Now consider the triangle ABC. Do you see its three angles CAB, ABC, and BCA? (yes/no):`,
+    hint: `Every triangle has three interior angles at its vertices.` },
+  { q: `By Proposition I.32, are the three angles of triangle ABC equal to two right angles? (yes/no):`,
+    hint: `The sum of the three interior angles of a triangle is always equal to 180°.` },
+  { q: `Is angle CAB equal to angle BDC, since they stand on the same arc BADC? (yes/no):`,
+    hint: `Proposition III.21 says angles in the same segment of a circle are equal.` },
+  { q: `Is angle ACB equal to angle ADB, since they stand on the same arc ADCB? (yes/no):`,
+    hint: `Again, by Proposition III.21, angles in the same segment are equal.` },
+  { q: `Therefore, is the whole angle ADC equal to the sum of angles CAB and ACB? (yes/no):`,
+    hint: `ADC is composed of the two angles equal to CAB and ACB.` },
+  { q: `Now add angle ABC to both sides. Then do the three angles CAB + ABC + ACB equal the two angles ABC + ADC? (yes/no):`,
+    hint: `Adding equal angles to both sides keeps the equality.` },
+  { q: `But are the three angles CAB + ABC + ACB equal to two right angles (from triangle ABC)? (yes/no):`,
+    hint: `This was shown earlier using I.32.` },
+  { q: `Therefore, do the two opposite angles ABC and ADC also equal two right angles? (yes/no):`,
+    hint: `Equality transfers: the sum ABC + ADC = 180°.` },
+  { q: `Can we similarly prove that the other pair of opposite angles, BAD and DCB, are also equal to two right angles? (yes/no):`,
+    hint: `The same reasoning applies using the other triangle.` },
+  { q: `Therefore, in a circle, the opposite angles of a quadrilateral are equal to two right angles. Do you agree? (yes/no):`,
+    hint: `This completes the proof for both pairs of opposite angles.` }
+];
+
+const conclusion = `Congratulations! You have proven that in a circle, the opposite angles of a quadrilateral equal two right angles. 
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

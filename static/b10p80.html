@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.80</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.80 – Prove that to a first apotome of a medial straight line only one medial straight line can be annexed which is commensurable with the whole in square only and which contains with the whole a rational rectangle.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+{ q: `Welcome to Elements X.80 chatbot!
+
+We are given a straight line AB, which is a first apotome of a medial straight line. Do you agree? (yes/no):`,
+  hint: `A first apotome is defined in Book X as a straight line composed of medial parts with a specific irrational relation.` },
+{ q: `Let BC be annexed to AB, so that AC and CB are medial straight lines. Do you agree? (yes/no):`,
+  hint: `“Annexed” means joined end to end so that AC is the whole.` },
+{ q: `Are AC and CB commensurable in square only? (yes/no):`,
+  hint: `This is part of the definition of an annex in this context.` },
+{ q: `Do AC and CB contain a rational rectangle? (yes/no):`,
+  hint: `By hypothesis and Proposition X.74.` },
+{ q: `Our goal is to show that no other medial straight line can be annexed to AB with these same properties. Does that make sense? (yes/no):`,
+  hint: `We want to prove uniqueness of such an annex.` },
+
+{ q: `Suppose, if possible, that DB is also annexed to AB with the same properties. Is this assumption clear? (yes/no):`,
+  hint: `This is a proof by contradiction.` },
+{ q: `Do AD and DB then form medial straight lines commensurable in square only? (yes/no):`,
+  hint: `This follows from the assumption that DB is annexed in the same way as BC.` },
+{ q: `Do AD and DB contain a rational rectangle? (yes/no):`,
+  hint: `Again by Proposition X.74.` },
+
+{ q: `Now consider the squares on AD and DB. Do you agree that the excess of their squares over twice the rectangle AD, DB equals the square on AB? (yes/no):`,
+  hint: `This follows from Euclid II.7.` },
+{ q: `Similarly, does the excess of the squares on AC and CB over twice the rectangle AC, CB also equal the square on AB? (yes/no):`,
+  hint: `The same geometric identity applies.` },
+{ q: `Since both excesses equal the square on AB, are the two excesses equal to each other? (yes/no):`,
+  hint: `Things equal to the same thing are equal to one another.` },
+
+{ q: `Does it follow that the excess of the squares on AD, DB over the squares on AC, CB equals the excess of twice the rectangle AD, DB over twice the rectangle AC, CB? (yes/no):`,
+  hint: `This is Euclid’s alternation argument.` },
+{ q: `Do twice the rectangles AD, DB and AC, CB each form rational areas? (yes/no):`,
+  hint: `Each rectangle is rational by hypothesis.` },
+{ q: `Does it follow that their difference is also a rational area? (yes/no):`,
+  hint: `The difference of rational areas is rational.` },
+
+{ q: `Therefore, do the squares on AD, DB exceed the squares on AC, CB by a rational area? (yes/no):`,
+  hint: `This follows directly from the previous steps.` },
+{ q: `Is this impossible, since the squares on AD, DB and on AC, CB are medial areas? (yes/no):`,
+  hint: `A medial area cannot exceed a medial area by a rational area (X.26).` },
+
+{ q: `Since the assumption that DB could also be annexed leads to an impossibility, must the assumption be false? (yes/no):`,
+  hint: `This completes the contradiction.` },
+{ q: `Therefore, is there only one medial straight line that can be annexed to AB with these properties? (yes/no):`,
+  hint: `Uniqueness is established.` },
+]
+
+const conclusion = `Congratulations! You just proved that to a first apotome of a medial straight line only one medial straight line can be annexed which is commensurable with the whole in square only and which contains with the whole a rational rectangle.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

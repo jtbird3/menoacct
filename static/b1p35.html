@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>I.35 — MenoChat (Toggle: Pure ↔ Graph)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>I.35 – Prove that parallelograms on the same base and in the same parallels are equal</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements I.35 chatbot!
+
+We are given two parallelograms, ABCD and EBCF, on the same base BC and in the same parallels AF and BC. Do you agree? (yes/no):`,
+    hint: `Both parallelograms share BC as a base, and their opposite sides lie along the same parallel lines.` },
+  { q: `Our goal is to prove that parallelogram ABCD is equal to parallelogram EBCF. Does that make sense? (yes/no):`,
+    hint: `Equal means they have the same area.` },
+  { q: `Since ABCD is a parallelogram, is AD equal to BC? (yes/no):`,
+    hint: `In a parallelogram, opposite sides are equal (Proposition I.34).` },
+  { q: `For the same reason, is EF equal to BC? (yes/no):`,
+    hint: `In parallelogram EBCF, opposite sides are also equal (Proposition I.34).` },
+  { q: `If AD = BC and EF = BC, then is AD also equal to EF? (yes/no):`,
+    hint: `Things equal to the same thing are equal to one another (Common Notion 1).` },
+  { q: `Now, DE is common to both AE and DF. Does that mean AE = DF? (yes/no):`,
+    hint: `If equals are added to equals, the wholes are equal (Common Notion 2).` },
+  { q: `Also, in parallelogram ABCD, is AB equal to DC? (yes/no):`,
+    hint: `Again, opposite sides of a parallelogram are equal (Proposition I.34).` },
+  { q: `So, do we have EA = FD and AB = DC? (yes/no):`,
+    hint: `Yes, two pairs of sides are equal respectively.` },
+  { q: `Is the angle FDC equal to the angle EAB? (yes/no):`,
+    hint: `By Proposition I.29, alternate interior and exterior angles are equal when lines are parallel.` },
+  { q: `If two sides and the included angle are equal, can we say triangle EAB is equal to triangle FDC? (yes/no):`,
+    hint: `Proposition I.4 (SAS) says triangles with two equal sides and included angle equal are congruent.` },
+  { q: `If we remove triangle DGE from each parallelogram, are the trapezia ABGD and EGCF equal? (yes/no):`,
+    hint: `Subtract equals from equals, the remainders are equal (Common Notion 3).` },
+  { q: `If we then add triangle GBC to each trapezium, do we get that ABCD = EBCF? (yes/no):`,
+    hint: `Adding equals to equals gives equals (Common Notion 2).` },
+  { q: `Therefore, are the parallelograms ABCD and EBCF equal in area? (yes/no):`,
+    hint: `Yes, they are equal as was to be shown.` }
+];
+
+const conclusion = `Congratulations, We just proved parallelograms on the same base and in the same parallels are equal to one another!
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

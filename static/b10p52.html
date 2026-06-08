@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.52</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.52 – Find the fifth binomial straight line.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+{ q: `Welcome to Elements X.52 chatbot!
+
+We are given two numbers AC and CB, such that AB does not have to either of them the ratio which a square number has to a square number. Do you agree? (yes/no):`,
+    hint: `This means neither CA:AB nor AB:CB is a square-number ratio.` },
+    
+    { q: `Let a rational straight line D be set out. Is this given? (yes/no):`,
+    hint: `D is assumed rational by hypothesis.` },
+    { q: `Let EF be set out commensurable with D. Is that allowed? (yes/no):`,
+    hint: `A straight line commensurable in length with a rational straight line is itself rational.` },
+    { q: `Therefore, is EF a rational straight line? (yes/no):`,
+    hint: `By the definition of rational straight lines.` },
+    
+    { q: `Let it be contrived that, as CA is to AB, so is the square on EF to the square on FG. Is this construction possible? (yes/no):`,
+    hint: `This follows from Elements X.6, which allows numerical ratios to be represented by squares on straight lines.` },
+    
+    { q: `Our goal is to show that EG is a fifth binomial straight line. Does that make sense? (yes/no):`,
+    hint: `We want to classify the binomial more precisely.` },
+    
+    { q: `Since CA has not to AB the ratio which a square number has to a square number, does it follow that the square on EF has not to the square on FG such a ratio? (yes/no):`,
+    hint: `Equal ratios preserve the property of being or not being a square-number ratio.` },
+    { q: `Therefore, are EF and FG rational straight lines commensurable in square only? (yes/no):`,
+    hint: `By Elements X.9, lack of a square-number ratio implies incommensurability in length, while commensurability of squares is preserved.` },
+    { q: `From this, is EG a binomial straight line? (yes/no):`,
+    hint: `By Elements X.36, the sum of two rational straight lines commensurable in square only is binomial.` },
+    
+    { q: `Next, since as CA is to AB, so is the square on EF to the square on FG, is it also true inversely that, as BA is to AC, so is the square on FG to the square on FE? (yes/no):`,
+    hint: `This follows by inversion of the proportion.` },
+    { q: `Does this imply that the square on FG is greater than the square on FE? (yes/no):`,
+    hint: `Since BA > AC, the corresponding square must be greater.` },
+    
+    { q: `Let the square on EF and the square on H together be equal to the square on FG. Can we suppose such a straight line H? (yes/no):`,
+    hint: `This represents the excess of the square on FG over the square on EF.` },
+    { q: `Then, by conversion, is it true that as AB is to BC, so is the square on FG to the square on H? (yes/no):`,
+    hint: `This follows from Elements V.19 (conversion of ratios).` },
+    
+    { q: `But AB has not to BC the ratio which a square number has to a square number. Do you agree? (yes/no):`,
+    hint: `This was part of the original hypothesis.` },
+    { q: `Therefore, does the square on FG have not to the square on H the ratio which a square number has to a square number? (yes/no):`,
+    hint: `Equal ratios preserve the same numerical character.` },
+    { q: `Does it then follow that FG is incommensurable in length with H? (yes/no):`,
+    hint: `By Elements X.9.` },
+    
+    { q: `So is the square on FG greater than the square on FE by the square on a straight line incommensurable with FG? (yes/no):`,
+    hint: `The straight line H measures exactly this excess.` },
+    { q: `Are GF and FE rational straight lines commensurable in square only? (yes/no):`,
+    hint: `This was already established earlier.` },
+    { q: `Is the lesser term EF commensurable in length with the rational straight line D set out? (yes/no):`,
+    hint: `EF was chosen commensurable in length with D.` },
+    
+    { q: `Therefore, does EG satisfy all the conditions of a fifth binomial straight line? (yes/no):`,
+    hint: `Its terms are rational, commensurable in square only, the excess square is on a line incommensurable with the greater term, and the lesser term is commensurable in length with a given rational line.` },
+    { q: `Therefore, have we found a fifth binomial straight line EG? (yes/no):`,
+    hint: `All defining properties have now been verified.` }
+]
+
+const conclusion = `Congratulations! You just found the fifth binomial straight line.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

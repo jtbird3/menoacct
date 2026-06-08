@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements IX.20</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>IX.20 — Prove that prime numbers are more than any assigned multitude of prime numbers (infinitude of primes)</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements IX.20 chatbot!
+
+We are given an assigned multitude of prime numbers, namely A, B, C. Do you agree? (yes/no):`,
+    hint: `These are assumed to be prime by hypothesis.` },
+
+  { q: `Our goal is to show that there exist more prime numbers than A, B, C. Does that make sense? (yes/no):`,
+    hint: `We want to find at least one prime not among A, B, C.` },
+
+  { q: `Let the least number measured by A, B, C be taken, and let it be called DE. Is this construction acceptable? (yes/no):`,
+    hint: `DE is the least number measured by A, B, C.` },
+
+  { q: `Now let the unit DF be added to DE, forming EF. Do you see that this can be done? (yes/no):`,
+    hint: `A unit can be added to any number.` },
+
+  { q: `Now EF is either prime or not. Do you agree? (yes/no):`,
+    hint: `Every number is either prime or composite.` },
+
+  { q: `Suppose first that EF is prime. Is this clear? (yes/no):`,
+    hint: `This is the first case.` },
+
+  { q: `If EF is prime, have we found a prime number not among A, B, C? (yes/no):`,
+    hint: `EF is different from each of A, B, C.` },
+
+  { q: `Have we now found more prime numbers than A, B, C? (yes/no):`,
+    hint: `We now have A, B, C, and EF.` },
+
+  { q: `Now suppose that EF is not prime. Is this the remaining case? (yes/no):`,
+    hint: `This covers all possibilities.` },
+
+  { q: `Since EF is not prime, is it measured by some prime number? (yes/no):`,
+    hint: `Every composite number is measured by a prime [VII.31].` },
+
+  { q: `Let that prime number be called G. Is this acceptable? (yes/no):`,
+    hint: `We name the prime divisor.` },
+
+  { q: `Let us claim that G is not the same as any of the numbers A, B, C. Do you understand the claim? (yes/no):`,
+    hint: `We will prove G is different from A, B, C.` },
+
+  { q: `Suppose, if possible, that G is the same as one of A, B, C. Can we assume this for contradiction? (yes/no):`,
+    hint: `We assume the opposite of what we want to prove.` },
+
+  { q: `Since A, B, C measure DE, would G also measure DE? (yes/no):`,
+    hint: `If G equals one of them, it measures DE.` },
+
+  { q: `But G also measures EF. Do you agree? (yes/no):`,
+    hint: `G was chosen as a prime divisor of EF.` },
+
+  { q: `If G measures both DE and EF, does it also measure their remainder DF? (yes/no):`,
+    hint: `A number measuring two numbers also measures their difference.` },
+
+  { q: `But DF is a unit. Is this clear? (yes/no):`,
+    hint: `DF was defined as one unit.` },
+
+  { q: `Can a prime number measure a unit? (yes/no):`,
+    hint: `No number greater than one measures a unit.` },
+
+  { q: `Is this absurd? (yes/no):`,
+    hint: `This contradicts the nature of a prime.` },
+
+  { q: `Therefore, is G not the same as any of A, B, C? (yes/no):`,
+    hint: `The assumption led to a contradiction.` },
+
+  { q: `And by hypothesis, is G prime? (yes/no):`,
+    hint: `G was taken as a prime divisor.` },
+
+  { q: `Since G is prime and not among A, B, C, have we found more prime numbers than the assigned multitude? (yes/no):`,
+    hint: `We now have A, B, C, and G.` },
+
+  { q: `Therefore, are prime numbers more than any assigned multitude of prime numbers? (yes/no):`,
+    hint: `This completes the demonstration.` }
+]
+
+
+
+
+
+
+
+const conclusion = `Congratulations! You just proved that prime numbers are more than any assigned multitude of prime numbers.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

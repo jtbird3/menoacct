@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>VI.23 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>VI.23 - Prove that equiangular parallelograms have to one another the ratio compounded of the ratios of their corresponding sides</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements VI.23 chatbot!
+
+We are given two equiangular parallelograms AC and CF, having the angle BCD equal to the angle ECG. Do you agree? (yes/no):`,
+    hint: `Equiangular means each pair of corresponding angles are equal, here ∠BCD = ∠ECG.` },
+  { q: `Our goal is to prove that the parallelogram AC has to CF the ratio compounded of the ratios of their sides. Does that make sense? (yes/no):`,
+    hint: `A ratio “compounded of” others means it combines two ratios successively (e.g., A:B and B:C compose to A:C).` },
+  { q: `Let the parallelograms be placed so that BC is in a straight line with CG. Can we imagine them arranged this way? (yes/no):`,
+    hint: `By placing them with adjacent sides BC and CG in one line, the adjacent sides DC and CE also align in a straight line.` },
+  { q: `Let us complete the parallelogram DG. Do you see that this forms another parallelogram on the same line? (yes/no):`,
+    hint: `Completing DG extends the figure so the sides can be compared more easily.` },
+  { q: `Now let a straight line K be set out. Can we then take points L and M so that as BC is to CG, so is K to L, and as DC is to CE, so is L to M? (yes/no):`,
+    hint: `By Proposition VI.12, it is possible to represent proportional ratios along another straight line.` },
+  { q: `Then do the ratios of K:L and L:M match the ratios of the sides BC:CG and DC:CE? (yes/no):`,
+    hint: `That follows directly from how K, L, M were chosen.` },
+  { q: `Now, is the ratio of K:M the ratio compounded of K:L and L:M? (yes/no):`,
+    hint: `A compounded ratio means the combination of successive ratios—so K:M combines both.` },
+  { q: `Since as BC is to CG, so is the parallelogram AC to the parallelogram CH (Prop. VI.1), and as BC is to CG, so is K to L, can we say as K is to L, so is AC to CH? (yes/no):`,
+    hint: `By Proposition V.11, equal ratios can be substituted.` },
+  { q: `Similarly, since as DC is to CE, so is CH to CF, and as DC is to CE, so is L to M, do we also have as L is to M, so is CH to CF? (yes/no):`,
+    hint: `Again, by Proposition V.11, equal ratios correspond.` },
+  { q: `Then, if as K is to L so is AC to CH, and as L is to M so is CH to CF, can we say as K is to M so is AC to CF? (yes/no):`,
+    hint: `By the property ex aequali (V.22), successive equal ratios yield an equal compounded ratio.` },
+  { q: `But we have that K:M is the ratio compounded of the ratios of the sides. Therefore, does it follow that AC:CF is also the ratio compounded of the ratios of the sides? (yes/no):`,
+    hint: `Since the correspondences were established step by step, the same compounded relation holds for the parallelograms.` }
+];
+
+const conclusion = `Congratulations! You just proved that equiangular parallelograms have to one another the ratio compounded of the ratios of their corresponding sides.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

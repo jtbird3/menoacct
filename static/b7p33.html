@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements VII.33</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>VII.33 — Find the least numbers having the same ratio as given numbers</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements VII.33 chatbot!
+    
+We are given numbers A, B, C, each as many as we please. Do you agree? (yes/no):`,
+    hint: `Think of A, B, C as any collection of numbers composed of multiple units (i.e. integers greater than 1).` },
+
+  { q: `Our goal is to find the least numbers that have the same ratio with A, B, C. Does that make sense? (yes/no):`,
+    hint: `We want numbers proportional to A, B, C but as small as possible.` },
+
+  { q: `Is it possible that A, B, C are already prime to one another? (yes/no):`,
+    hint: `Numbers are prime to one another if they have no common divisor greater than an.` },
+
+  { q: `If A, B, C are prime to one another, are they already the least numbers in that ratio? (yes/no):`,
+    hint: `By VII.21, relatively prime numbers are the least with their ratio.` },
+
+  { q: `If A, B, C are not prime to one another, can we take D as their greatest common measure? (yes/no):`,
+    hint: `VII.3 allows finding the greatest common divisor.` },
+
+  { q: `As many times as D measures A, B, C, can we form numbers E, F, G with those numbers of units? (yes/no):`,
+    hint: `For example, if D fits into A six times, E has six units.` },
+
+  { q: `Do each of E, F, G measure A, B, C the same number of times respectively? (yes/no):`,
+    hint: `This follows directly from how E, F, G were created.` },
+
+  { q: `Since each measure A, B, C the same number of times, are E, F, G in the same ratio as A, B, C? (yes/no):`,
+    hint: `This is the definition of proportional numbers (VII. Def. 20).` },
+
+  { q: `Next, must we prove that E, F, G are the least numbers with that ratio? (yes/no):`,
+    hint: `Our construction is not complete until we have also found the least numbers with that ratio.` },
+
+  { q: `Suppose E, F, G are not the least — let us imagine smaller numbers H, K, L in the same ratio. Can we do this? (yes/no):`,
+    hint: `We are probing for contradiction.` },
+
+  { q: `If H measures A a certain number of times, let another number M contain exactly that many units. Can we do this? (yes/no):`,
+    hint: `M is defined to match how often H fits into A.` },
+
+  { q: `Do K and L measure B and C according to the units in M? (yes/no):`,
+    hint: `Because H, K, L are assumed to keep the same ratio to A, B, C.` },
+
+  { q: `Since H measures A according to units in M, does M also measure A according to units in H? (yes/no):`,
+    hint: `In other words, we have imagined the numbers such that A fits into H M times, and H fits into M A times.` },
+
+  { q: `Likewise, do you agree that M measures B and C according to the units in K and L respectively? (yes/no):`,
+    hint: `The measurement extends to all three numbers.` },
+
+  { q: `Therefore, M measures A, B, and C. Do you agree? (yes/no):`,
+    hint: `All three are divisible by M under this assumption.` },
+
+  { q: `Since H measures A according to units in M, does H multiplied by M make A? (yes/no):`,
+    hint: `VII. Def. 15: “That which measures, multiplied by what it measures by, makes the measured number.”` },
+
+  { q: `And similarly, does E multiplied by D make A? (yes/no):`,
+    hint: `E was defined by how often D measures A.` },
+
+  { q: `If E and D produced (A) equal H and M produced (A), is E to H as M is to D? (yes/no):`,
+    hint: `By VII.19, the alternation of proportions if E is to D as H is to M, we can claim that E is to H as M is to D.` },
+
+  { q: `Since E is greater than H, must M be greater than D? (yes/no):`,
+    hint: `In a proportion, if the antecedent increases, so does the consequent.` },
+
+  { q: `But if M is greater than D and yet M measures A, B, C, does this contradict D being the greatest common measure of A, B, C? (yes/no):`,
+    hint: `D should be the largest number dividing all three.` },
+
+  { q: `Therefore, can there be no numbers smaller than E, F, G with the same ratio as A, B, C? (yes/no):`,
+    hint: `The contradiction shows such smaller numbers cannot exist.` },
+
+  { q: `Thus, are E, F, G the least numbers in the same ratio with A, B, C? (yes/no):`,
+    hint: `They are obtained by dividing out the greatest common measure.` }
+  ]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const conclusion = `Congratulations! You have found the least numbers having the same ratio as given numbers.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

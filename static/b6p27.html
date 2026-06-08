@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>VI.26 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>VI.27 - Prove that, of all parallelograms applied to the same straight line and deficient by parallelograms similar and similarly situated to that on its half, the greatest is that applied to the half of the line and similar to the defect.</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements VI.27 chatbot!
+
+We are given a straight line AB, and it is bisected at point C. Do you agree? (yes/no):`,
+    hint: `To bisect a line means to divide it into two equal parts, so AC = CB.` },
+  { q: `Now, a parallelogram AD is applied to the straight line AB, but it is deficient by the parallelogrammic figure DEBC described on half of AB, that is, CB. Does that make sense? (yes/no):`,
+    hint: `“Deficient” means the applied parallelogram falls short by a smaller parallelogram (the “defect”) similar and similarly situated to a given one.` },
+  { q: `Our goal is to show that, among all parallelograms applied to AB and deficient by figures similar and similarly situated to DB, the one applied to the half (that is, AD) is the greatest. Does that make sense? (yes/no):`,
+    hint: `We compare parallelograms on the same line AB, all with similar defects; the one using the half of AB as its base will be the largest.` },
+  { q: `Suppose another parallelogram AGFK is applied to AB, deficient by the parallelogrammic figure FHBK, which is similar and similarly situated to DB. Is that acceptable? (yes/no):`,
+    hint: `We introduce AF with the same kind of deficiency so we can compare it to AD.` },
+  { q: `We must show that AD is greater than AF. Do you see the goal clearly? (yes/no):`,
+    hint: `We will compare areas using properties of similar parallelograms and equal lines.` },
+  { q: `Since the parallelogram DB is similar to the parallelogram FB, are they about the same diameter? (yes/no):`,
+    hint: `Prop. VI.26: similar parallelograms are about the same diameter (their corresponding diagonals align).` },
+  { q: `Let the common diameter DB be drawn and the figures described on it. Possible? (yes/no):`,
+    hint: `Drawing the diameter lets us compare complements and establish area equalities.` },
+  { q: `Is CF equal to FE? (yes/no):`,
+    hint: `Prop. I.43: complements of parallelograms about a diagonal are equal in area.` },
+  { q: `And is FB common to both configurations? (yes/no):`,
+    hint: `The same parallelogram FB appears in both constructions, so it counts once on each side.` },
+  { q: `From these, do we conclude that the whole CH is equal to the whole KE? (yes/no):`,
+    hint: `Equal complements plus the common figure imply the sums of corresponding parts are equal.` },
+  { q: `Is CH equal to CG, since AC equals CB? (yes/no):`,
+    hint: `Prop. I.36: parallelograms on equal bases and between the same parallels are equal in area.` },
+  { q: `Then, does it follow that GC is equal to EK? (yes/no):`,
+    hint: `Substituting equal areas step by step transfers equality across corresponding parts.` },
+  { q: `If we add CF to both GC and EK, is the total AF equal to the gnomon LMN (DF + FE + FB)? (yes/no):`,
+    hint: `Adding equals to equals yields equal wholes (Common Notion 2); the gnomon LMN matches AF in area.` },
+  { q: `Since the parallelogram DB (that is, AD) is greater than the parallelogram AF, do we have our result? (yes/no):`,
+    hint: `AD exceeds AF because its corresponding gnomon includes all the equal parts plus additional area beyond AF.` }
+];
+
+const conclusion = `Congratulations! You just proved that, of all parallelograms applied to the same straight line and deficient by parallelograms similar and similarly situated to that on its half, the greatest is that applied to the half of the line and similar to the defect.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

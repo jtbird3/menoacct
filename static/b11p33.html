@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements XI.33</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>XI.33 – Prove that similar parallelepipedal solids are to one another in the triplicate ratio of their corresponding sides.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements XI.33 chatbot!
+
+We are given two similar parallelepipedal solids AB and CD. Do you agree? (yes/no):`,
+    hint: `The solids are stated to be similar.` },
+
+  { q: `One side AE of solid AB corresponds to side CF of solid CD. Do you agree? (yes/no):`,
+    hint: `Corresponding sides are specified in the statement.` },
+
+  { q: `Our goal is to show that the solid AB has to the solid CD the triplicate ratio of that which AE has to CF. Does that make sense? (yes/no):`,
+    hint: `“Triplicate ratio” means the ratio taken three times continuously.` },
+
+  { q: `Let EK, EL, EM be produced in a straight line with AE, GE, HE respectively. Is this construction allowed? (yes/no):`,
+    hint: `A straight line can be produced continuously (Postulate 2).` },
+
+  { q: `Let EK be made equal to CF, EL equal to FN, and EM equal to FR. Is this possible? (yes/no):`,
+    hint: `A straight line equal to a given straight line can be constructed (I.2).` },
+
+  { q: `Let the parallelogram KL and the solid KP be completed. Can we do this? (yes/no):`,
+    hint: `Parallelograms and parallelepipedal solids can be completed on given edges.` },
+
+  { q: `Since KE = CF and EL = FN, and the angle KEL equals the angle CFN, do we have parallelogram KL equal and similar to parallelogram CN? (yes/no):`,
+    hint: `Two sides and the included angle are equal.` },
+
+  { q: `For the same reason, is parallelogram KM equal and similar to CR, and EP to DF? (yes/no):`,
+    hint: `The same correspondence applies to the other faces.` },
+
+  { q: `Therefore, are three parallelograms of the solid KP equal and similar to three parallelograms of the solid CD? (yes/no):`,
+    hint: `Corresponding faces match in equality and similarity.` },
+
+  { q: `Since opposite parallelograms in a solid are equal and similar, do the whole solids KP and CD become equal and similar? (yes/no):`,
+    hint: `Equal corresponding faces imply equal and similar solids (XI.24 and XI.Def.10).` },
+
+  { q: `Let the parallelogram GK be completed. Is this construction possible? (yes/no):`,
+    hint: `A parallelogram can be completed on a given straight line.` },
+
+  { q: `On parallelograms GK and KL as bases, and with the same height as AB, let solids EO and LQ be completed. Can we do this? (yes/no):`,
+    hint: `Solids can be constructed on given bases with a given height.` },
+
+  { q: `Because the solids AB and CD are similar, as AE is to CF, so is EG to FN and EH to FR. Do you agree? (yes/no):`,
+    hint: `In similar solids, corresponding edges are proportional.` },
+
+  { q: `Since CF = EK, FN = EL, and FR = EM, does it follow that as AE is to EK, so is GE to EL and HE to EM? (yes/no):`,
+    hint: `Equal magnitudes may replace one another in ratios.` },
+
+  { q: `As AE is to EK, so is AG to parallelogram GK. Do you agree? (yes/no):`,
+    hint: `A straight line and the parallelogram on it are proportional (VI.1).` },
+
+  { q: `As GE is to EL, so is GK to KL. Do you agree? (yes/no):`,
+    hint: `Corresponding bases are proportional.` },
+
+  { q: `As HE is to EM, so is QE to KM. Do you agree? (yes/no):`,
+    hint: `Again using VI.1.` },
+
+  { q: `Therefore, are AG, GK, KL, and KM continuously proportional? (yes/no):`,
+    hint: `Each ratio follows successively from the previous.` },
+
+  { q: `As AG is to GK, so is solid AB to solid EO. Do you agree? (yes/no):`,
+    hint: `Solids on proportional bases with the same height are proportional (XI.32).` },
+
+  { q: `As GK is to KL, so is solid EO to solid QL. Do you agree? (yes/no):`,
+    hint: `The same principle applies again.` },
+
+  { q: `As QE is to KM, so is solid QL to solid KP. Do you agree? (yes/no):`,
+    hint: `Again by XI.32.` },
+
+  { q: `Therefore, are the solids AB, EO, QL, KP continuously proportional? (yes/no):`,
+    hint: `Each solid stands in the same ratio as the previous.` },
+
+  { q: `If four magnitudes are continuously proportional, does the first have to the fourth the triplicate ratio of that which it has to the second? (yes/no):`,
+    hint: `Definition of triplicate ratio (V.Def.10).` },
+
+  { q: `Therefore, does the solid AB have to KP the triplicate ratio of that which AB has to EO? (yes/no):`,
+    hint: `Apply the definition directly.` },
+
+  { q: `But as AB is to EO, so is parallelogram AG to GK, and the straight line AE to EK. Do you agree? (yes/no):`,
+    hint: `VI.1 connects lines, planes, and solids.` },
+
+  { q: `Therefore, does the solid AB have to KP the triplicate ratio of that which AE has to EK? (yes/no):`,
+    hint: `Replace equals by equals in the ratio.` },
+
+  { q: `But KP is equal to CD, and EK is equal to CF. Do you agree? (yes/no):`,
+    hint: `These were established earlier.` },
+
+  { q: `Therefore, does the solid AB have to the solid CD the triplicate ratio of that which AE has to CF? (yes/no):`,
+    hint: `This is the exact statement to be proved.` }
+]
+
+const conclusion = `Congratulations! You just similar parallelepipedal solids are to one another in the triplicate ratio of their corresponding sides.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

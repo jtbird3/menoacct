@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>II.9 — MenoChat (Toggle: Pure ↔ Graph)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>II.10 - Prove that if a line is bisected and a line added, the square on the whole with the added part plus the square on the added part equals twice the squares on the half and on the half with the added part.</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements II.10 chatbot!
+
+We are given a straight line AB bisected at C, and an added line BD in a straight line. Do you agree? (yes/no):`,
+    hint: `C is the midpoint of AB; BD continues AB in a straight line.` },
+  { q: `Our goal is to prove that the squares on AD and DB are double of the squares on AC and CD. Does that make sense? (yes/no):`,
+    hint: `We want to prove AD² + DB² = 2(AC²+CD²).` },
+  { q: `Now, can we draw CE equal to AC at right angles to AB? (yes/no):`,
+    hint: `Proposition I.11 allows a perpendicular to a given line from a point. Proposition I.3 allows us to cut off or construct a line equal to another.` },
+  { q: `Shall we join EA and EB? (yes/no):`,
+    hint: `Postulate 1 allows drawing a line from any point to any point.` },
+  { q: `Can we draw EF parallel to AD, and FD parallel to CE? (yes/no):`,
+    hint: `Proposition I.31 allows drawing a line parallel to a given line through a point.` },
+  { q: `Since EF falls on parallels EC and FD, are ∠CEF and ∠EFD equal to two right angles? (yes/no):`,
+    hint: `Proposition I.29 states that angles on a straight line across parallels equal two right angles.` },
+  { q: `Therefore, are ∠FEB and ∠EFD less than two right angles? (yes/no):`,
+    hint: `If two adjacent angles make two right angles, any other pair is less.` },
+  { q: `If ∠FEB and ∠EFD are less than two right angles, will EB and FD meet when produced? (yes/no):`,
+    hint: `Postulate 5 says lines with such angles meet if extended.` },
+  { q: `Let them meet at G. Can we join AG? (yes/no):`,
+    hint: `Postulate 1: join any two points.` },
+  { q: `Since AC equals CE, are the base angles ∠EAC and ∠AEC equal? (yes/no):`,
+    hint: `Proposition I.5: angles at the base of an isosceles triangle are equal.` },
+  { q: `And since ∠ACE is right, are ∠EAC and ∠AEC each half a right angle? (yes/no):`,
+    hint: `The whole angle at C is a right angle, so each equal angle is half of it.` },
+  { q: `By the same reasoning in triangle CEB, are ∠CEB and ∠EBC each half a right angle? (yes/no):`,
+    hint: `Again, equal base angles together make a right angle.` },
+  { q: `Therefore, is ∠AEB a right angle? (yes/no):`,
+    hint: `The sum of ∠EAC and ∠CEB is a right angle.` },
+  { q: `If ∠EBC is half a right angle, is the vertical angle ∠DBG also half a right angle? (yes/no):`,
+    hint: `Proposition I.15: vertical angles are equal.` },
+  { q: `Since ∠BDG is right, is ∠DGB also half a right angle? (yes/no):`,
+    hint: `Proposition I.29: alternate angles with a right angle are equal.` },
+  { q: `If ∠DBG equals ∠DGB, is BD equal to GD? (yes/no):`,
+    hint: `Proposition I.6: if two angles in a triangle are equal, the sides opposite are equal.` },
+  { q: `Likewise, since ∠EGF equals ∠FEG, is GF equal to EF? (yes/no):`,
+    hint: `Proposition I.6 again.` },
+  { q: `Is the square on EC equal to the square on AC? (yes/no):`,
+    hint: `Because EC = AC by construction.` },
+  { q: `Therefore, are the squares on EC and AC together double the square on AC? (yes/no):`,
+    hint: `Two equal squares equal twice one.` },
+  { q: `But is the square on EA equal to the sum of the squares on EC and AC? (yes/no):`,
+    hint: `Proposition I.47 (Pythagoras).` },
+  { q: `So is the square on EA double the square on AC? (yes/no):`,
+    hint: `It equals the sum of two equal squares.` },
+  { q: `Similarly, is the square on EG double the square on CD? (yes/no):`,
+    hint: `Because GF = EF and EF = CD, then EG² = GF² + FE² = 2·CD².` },
+  { q: `So, are the squares on EA and EG together double the squares on AC and CD? (yes/no):`,
+    hint: `By Common Notion 2: equals added to equals are equal.` },
+  { q: `Is the square on AG equal to the squares on AE and EG? (yes/no):`,
+    hint: `Proposition I.47 again.` },
+  { q: `Therefore, is the square on AG double the squares on AC and CD? (yes/no):`,
+    hint: `It equals EA² + EG², already shown double.` },
+  { q: `But are the squares on AD and DG equal to the square on AG? (yes/no):`,
+    hint: `By Pythagoras.` },
+  { q: `Therefore, are the squares on AD and DG double the squares on AC and CD? (yes/no):`,
+    hint: `By substitution.` },
+  { q: `Since DG equals DB, are the squares on AD and DB double the squares on AC and CD? (yes/no):`,
+    hint: `DG was shown equal to DB.` }
+];
+
+const conclusion = `Congratulations! You just proved if a straight line is bisected and extended by another straight line, the squares on the whole and on the added part are double the squares on the half and on the half plus the added part.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

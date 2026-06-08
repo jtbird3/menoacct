@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.40</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.40 - Prove that if two straight lines incommensurable in square, whose squares have a medial sum but whose rectangle is rational, are added together, the whole straight line is irrational; let it be called the side of a rational plus a medial area.</h1><div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements X.40 chatbot!
+
+We are given two straight lines AB and BC. Do you agree? (yes/no):`,
+hint: `The proposition begins by assuming two straight lines, named AB and BC.` },
+{ q: `These two straight lines are incommensurable in square. Is that given? (yes/no):`,
+hint: `“Incommensurable in square” means the squares on them have no common measure.` },
+{ q: `The sum of the squares on AB and BC is medial. Is this part of the given conditions? (yes/no):`,
+hint: `This is explicitly stated in the proposition.` },
+{ q: `The rectangle contained by AB and BC is rational. Is that also given? (yes/no):`,
+hint: `The text says the rectangle is rational.` },
+{ q: `Now AB and BC are added together to form AC. Do you see that AC is the whole straight line formed? (yes/no):`,
+hint: `Adding AB and BC end-to-end gives the straight line AC.` },
+
+{ q: `Our goal is to show that AC is irrational, and to give it a specific name. Does that make sense? (yes/no):`,
+hint: `The conclusion states both a property (irrational) and a name.` },
+
+{ q: `Since the sum of the squares on AB and BC is medial, is it incommensurable with a rational magnitude? (yes/no):`,
+hint: `A medial magnitude is incommensurable with a rational one.` },
+{ q: `Twice the rectangle contained by AB and BC is rational. Is that stated or implied? (yes/no):`,
+hint: `The rectangle AB, BC is rational, so twice it is also rational.` },
+{ q: `Therefore, is the sum of the squares on AB and BC incommensurable with twice the rectangle AB, BC? (yes/no):`,
+hint: `A medial magnitude cannot be commensurable with a rational one.` },
+{ q: `By Proposition X.16, if the sum of the squares on AB and BC is incommensurable with twice the rectangle AB, BC, does it follow that the square on AC is incommensurable with twice the rectangle AB, BC? (yes/no):`,
+hint: `X.16 relates the square on the whole line to the sum of the squares and twice the rectangle.` },
+{ q: `But twice the rectangle AB, BC is rational. Is that correct? (yes/no):`,
+hint: `This was already established.` },
+{ q: `If the square on AC is incommensurable with a rational magnitude, is the square on AC irrational? (yes/no):`,
+hint: `By definition, a square incommensurable with a rational magnitude is irrational.` },
+{ q: `If the square on AC is irrational, does it follow that AC itself is irrational? (yes/no):`,
+hint: `Euclid’s Definition X.4 defines irrational straight lines by their squares.` },
+
+{ q: `Therefore, have we shown that AC is irrational? (yes/no):`,
+hint: `This completes the logical chain of the proof.` },
+{ q: `And is AC rightly called the side of a rational plus a medial area? (yes/no):`,
+hint: `The name reflects the rational rectangle and medial sum of squares involved.` }
+
+]
+
+
+
+
+
+const conclusion = `Congratulations! You just proved that if two straight lines incommensurable in square, whose squares have a medial sum but whose rectangle is rational, are added together, the whole straight line is irrational; let it be called the side of a rational plus a medial area.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

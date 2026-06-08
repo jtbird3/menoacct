@@ -1,0 +1,207 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Aristotle's Categories: Primary vs Secondary Substance</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #fdfdfd;
+      color: #333;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+      line-height: 1.5;
+    }
+    h1 { font-size: 22px; border-bottom: 2px solid #000; padding-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 15px;
+      min-height: 350px;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow-y: auto;
+      margin-bottom: 20px;
+    }
+    .msg.bot { color: #000; font-weight: bold; }
+    .msg.user { color: #555; font-style: italic; border-left: 3px solid #ccc; padding-left: 10px; }
+    #controls { display: flex; gap: 10px; margin-bottom: 10px; }
+    .btn {
+      padding: 8px 12px;
+      cursor: pointer;
+      font-family: inherit;
+      background: #fff;
+      border: 1px solid #000;
+    }
+    .btn.active { background: #000; color: #fff; }
+    input[type="text"] {
+      width: 100%;
+      padding: 12px;
+      font-family: inherit;
+      font-size: 16px;
+      border: 1px solid #000;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Aristotle's Categories: Substance</h1>
+
+<div id="controls">
+  <button id="voiceToggle" class="btn">Enable Voice Mode</button>
+  <span id="status" style="font-size: 0.8em; align-self: center;"></span>
+</div>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type or say your answer..." autofocus>
+</div>
+
+<script>
+const steps = [
+  { 
+    q: `Aristotle defines 'Primary Substance' as something that is not predicted of a subject. If I point to a specific 'individual man' or a 'specific horse,' would those be examples of Primary Substances?`,
+    expected: ["yes", "y", "yeah", "sure", "they would"],
+    hint: `Yes. A Primary Substance is a specific, individual thing that isn't 'said of' anything else.` 
+  },
+  { 
+    q: `Now, imagine the general species 'Man' or the genus 'Animal'. These groups include the individuals. Does Aristotle call these groups 'Primary' or 'Secondary' substances?`,
+    expected: ["secondary", "secondary substance", "second"],
+    hint: `Look at the text: Species and genera are called substances in a 'secondary' sense.` 
+  },
+  { 
+    q: `To check your understanding: Is a specific person like Socrates a Primary Substance or a Secondary Substance?`,
+    expected: ["primary", "primary substance", "the first"],
+    hint: `Individual, concrete things that aren't categories are Primary.` 
+  },
+  { 
+    q: `Finally, if 'Man' is the species, what is the 'Genus' that includes that species?`,
+    expected: ["animal"],
+    hint: `Aristotle uses 'Man' as the species and 'Animal' as the broader genus.` 
+  }
+];
+
+const conclusion = `Excellent. You've mastered the core of Chapter 5! Primary substances are individuals (like a specific horse), while secondary substances are the species and genera (like 'horse' or 'animal') that contain them.`;
+
+let currentStep = 0;
+let voiceEnabled = false;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+const voiceBtn = document.getElementById('voiceToggle');
+const statusSpan = document.getElementById('status');
+
+let synthVoice = null;
+function loadVoices() {
+  const voices = window.speechSynthesis.getVoices();
+  synthVoice = voices.find(v => v.name.includes('Google UK English Male')) || 
+               voices.find(v => v.name.includes('Premium')) ||
+               voices.find(v => v.lang.startsWith('en-GB')) ||
+               voices[0];
+}
+window.speechSynthesis.onvoiceschanged = loadVoices;
+loadVoices();
+
+function speak(text) {
+  if (!voiceEnabled) return;
+  window.speechSynthesis.cancel();
+  const cleanText = text.replace(/'/g, "");
+  const utterance = new SpeechSynthesisUtterance(cleanText);
+  utterance.voice = synthVoice;
+  utterance.rate = 0.88; 
+  utterance.pitch = 0.95; 
+  window.speechSynthesis.speak(utterance);
+}
+
+const Recognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition;
+if (Recognition) {
+  recognition = new Recognition();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript;
+    inputField.value = transcript;
+    processAnswer(transcript);
+  };
+
+  recognition.onend = () => {
+    if (voiceEnabled && currentStep < steps.length) {
+      statusSpan.textContent = "Listening...";
+      recognition.start();
+    }
+  };
+}
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = (role === 'user' ? "> " : "") + text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+  if (role === 'bot') speak(text);
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    voiceEnabled = false;
+    statusSpan.textContent = "Finished.";
+  }
+}
+
+function processAnswer(answer) {
+  const cleanAnswer = answer.toLowerCase().trim();
+  if (cleanAnswer === "") return;
+  
+  addMessage(answer, 'user');
+
+  const possibleMatches = steps[currentStep].expected;
+  const isCorrect = possibleMatches.some(m => cleanAnswer.includes(m));
+
+  if (isCorrect) {
+    currentStep++;
+    setTimeout(showStep, 1200);
+  } else {
+    setTimeout(() => {
+      addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+    }, 600);
+  }
+}
+
+voiceBtn.addEventListener('click', () => {
+  voiceEnabled = !voiceEnabled;
+  voiceBtn.classList.toggle('active');
+  voiceBtn.textContent = voiceEnabled ? "Voice Mode: ON" : "Enable Voice Mode";
+  
+  if (voiceEnabled && recognition) {
+    loadVoices();
+    recognition.start();
+    statusSpan.textContent = "Listening...";
+    speak(steps[currentStep].q);
+  } else {
+    recognition.stop();
+    statusSpan.textContent = "";
+  }
+});
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    processAnswer(inputField.value);
+    inputField.value = '';
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

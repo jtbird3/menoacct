@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Conics I.23</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>I.23 - Prove that a straight line drawn between two diameters of an ellipse, and cutting the ellipse, will, when produced, meet each diameter outside the ellipse.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [{ q: `Welcome to Apollonius' Conics I.23 chatbot!
+
+We are given an ellipse with diameters AB and CD. Do you agree? (yes/no):`,
+  hint: `An ellipse may have many diameters; here AB and CD are fixed.` },
+{ q: `Let us draw a straight line EF that cuts the ellipse, situated (in the space) between the diameters AB and CD, such that E is nearer to the center of the ellipse than F. Is that clear? (yes/no):`,
+  hint: `“Between the diameters” means EF lies in the region bounded by AB and CD.` },
+{ q: `From points E and F, let GE and FH be dropped as ordinates to AB. Can this be done? (yes/no):`,
+  hint: `An ordinate is drawn perpendicular to a diameter.` },
+{ q: `From points E and F, let EK and FL be dropped as ordinates to CD. Is this possible? (yes/no):`,
+  hint: `Ordinates can be drawn from any point on the ellipse to a diameter.` },
+{ q: `Our goal is to show that EF, when continued, meets both AB and CD producedoutside the ellipse. Does that make sense? (yes/no):`,
+  hint: `“Outside the section” means beyond the ellipse, not between its vertices.` },
+{ q: `By Proposition I.21, is the square on GE to the square on FH as the rectangle BG,GA is to the rectangle BH,HA? (yes/no):`,
+  hint: `Apollonius relates ordinates to rectangles formed on diameters.` },
+{ q: `Similarly, is the square on FL to the square on EK as the rectangle DL,LC is to the rectangle DK,KC? (yes/no):`,
+  hint: `The same proportionality holds for ordinates to the other diameter.` },
+{ q: `Is rectangle BG,GA greater than rectangle BH,HA? (yes/no):`,
+  hint: `G is nearer to the midpoint of AB than H (Euclid II.5).` },
+{ q: `Is rectangle DL,LC greater than rectangle DK,KC? (yes/no):`,
+  hint: `L is nearer to the midpoint of CD than K.` },
+{ q: `From these inequalities, do we conclude that the square on GE is greater than the square on FH? (yes/no):`,
+  hint: `Greater rectangles imply greater corresponding squares.` },
+{ q: `Likewise, is the square on FL greater than the square on EK? (yes/no):`,
+  hint: `The same reasoning applies on diameter CD.` },
+{ q: `If the square on GE is greater than the square on FH, is GE greater than FH? (yes/no):`,
+  hint: `Greater squares imply greater lengths.` },
+{ q: `If the square on FL is greater than the square on EK, is FL greater than EK? (yes/no):`,
+  hint: `Length comparison follows from square comparison.` },
+{ q: `Are GE and FH parallel to each other? (yes/no):`,
+  hint: `Both are ordinates to the same diameter AB.` },
+{ q: `Are FL and EK parallel to each other? (yes/no):`,
+  hint: `Both are ordinates to diameter CD.` },
+{ q: `If parallel unequal segments are drawn from a line, will the line meet the base outside the bounded region? (yes/no):`,
+  hint: `By Euclid I.10 and I.33, a longer parallel forces intersection beyond the shorter.` },
+{ q: `Therefore, does EF when continued meet diameter AB outside the ellipse? (yes/no):`,
+  hint: `GE > FH and both are parallel ordinates.` },
+{ q: `And does EF when continued meet diameter CD outside the ellipse? (yes/no):`,
+  hint: `FL > EK gives the same result for CD.` },
+{ q: `Therefore, have we shown that a straight line situated between two diameters of an ellipse, when continued, meets each diameter outside the section? (yes/no):`,
+  hint: `This is exactly what was required to be shown.` },
+
+
+]
+
+const conclusion = `Congratulations! You just proved that a straight line drawn between two diameters of an ellipse, and cutting the ellipse, will, when produced, meet each diameter outside the ellipse.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

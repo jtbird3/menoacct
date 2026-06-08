@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements VIII.12</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>VII.12 — Prove that between two cube numbers there are two mean proportionals, and that cubes have the triplicate ratio of their sides</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements VIII.12 chatbot!
+
+We are given two cube numbers A and B, whose sides are C and D respectively. Do you agree? (yes/no):`,
+    hint:`A cube number is produced by multiplying its side by itself and again by itself.` },
+
+  { q:`Our goal is to show that two mean proportional numbers lie between A and B, and that A to B is the triplicate ratio of C to D. Does that make sense? (yes/no):`,
+    hint:`“Triplicate ratio” means the ratio taken three times in order: first, second, third proportional jumps.` },
+
+  { q:`First, let C multiplied by C make E, and let C multiplied by D make F. Acceptable? (yes/no):`,
+    hint:`“Multiplying” here means forming numbers in the sense of Book VII.` },
+
+  { q:`Next, let D multiplied by D make G, and let C multiplied by E make A. Can we do that? (yes/no):`,
+    hint:`Since A is a cube with side C, it must equal C×C×C.` },
+
+  { q:`Also let D multiplied by G make B. Reasonable? (yes/no):`,
+    hint:`Since B is a cube with side D, B = D×D×D.` },
+
+  { q:`From C multiplying C produces E and C multiplying D produces F, can we say C is to D as E is to F? (yes/no):`,
+    hint:`Euclid VII.17: the ratio of multipliers equals the ratio of the products.` },
+
+  { q:`If C multiplying D produces F and D multiplying D produces G, can we say that C is to D as F is to G? (yes/no):`,
+    hint:`Euclid VII.18 allows extending this pattern.` },
+
+  { q:`Next, if C multiplying E produces A and C multiplying F produces H, can we say that E is to F as A is to H? (yes/no):`,
+    hint:`Again VII.17: same multiplier C gives proportional products.` },
+
+  { q:`And since E is to F as C is to D, may we conclude that A is to H as C is to D? (yes/no):`,
+    hint:`Replace E is to F as C is to D with C is to D to obtain A is to H as C is to D.` },
+
+  { q:`Now, since C multiplying F produces H and D multiplying F produces K, can we say that C is to D as H is to K? (yes/no):`,
+    hint:`Euclid VII.18: same multiplicand (F) yields proportional results.` },
+
+  { q:`Since D multiplying F produces K and D multiplying G produces B, can we claim that F is to G as K is to B? (yes/no):`,
+    hint:`VII.17: same multiplier D gives proportional products.` },
+
+  { q:`And since F is to G as C is to D, can we add H is to K and K is to B to the chain so that A is to H as C is to D, H is to K as C is to D, and K is to B as C is to D? (yes/no):`,
+    hint:`Each step repeats the same ratio C:D.` },
+
+  { q:`If A is to H as H is to K as K is to B, do H and K become two mean proportionals between A and B? (yes/no):`,
+    hint:`Two equal ratios inserted between A and B create two means.` },
+
+  { q:`Now for the second part: since A, H, K, B are in continuous proportion, does A to B give the triplicate ratio of A to H? (yes/no):`,
+    hint:`Definition V.10: four proportional numbers yield a triplicate ratio.` },
+
+  { q:`But A is to H as C is to D. Therefore, is A to B the triplicate ratio of C to D? (yes/no):`,
+    hint:`Replace A:H with C:D in the triplicate ratio.` }
+]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const conclusion = `Congratulations! You just proved that between two cube numbers there are two mean proportionals, and that cubes have the triplicate ratio of their sides.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

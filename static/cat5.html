@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Aristotle: Socratic Inquiry</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 15px;
+      min-height: 300px;
+      max-height: 500px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .msg { line-height: 1.5; }
+    .bot { font-weight: bold; color: #333; }
+    .bot::before { content: "INQUIRER: "; }
+    .user { color: #555; font-style: italic; padding-left: 20px; }
+    .user::before { content: "YOU: "; }
+    #inputArea { display: flex; gap: 10px; }
+    input[type="text"] {
+      flex-grow: 1;
+      padding: 10px;
+      border: 1px solid #000;
+      font-family: inherit;
+    }
+    button {
+      padding: 10px 20px;
+      background: #000;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+    }
+  </style>
+</head>
+<body>
+
+<h1>The Distinction of Names</h1>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Explain your reasoning..." autofocus>
+  <button id="sendBtn">SEND</button>
+</div>
+
+<script>
+const steps = [
+  { 
+    q: "Look at the real man standing before you and the figure in the painting. We call them both 'animal'. In your own words, how do they differ in reality?",
+    check: (input) => input.length > 5 
+  },
+  { 
+    q: "If you had to define 'animal' for the living man, and then define 'animal' for the painting, would the definition for one accurately describe the other?",
+    check: (input) => input.toLowerCase().includes('no') || input.toLowerCase().includes('differ') || input.toLowerCase().includes('paint')
+  },
+  { 
+    q: "Since they share a name but possess different essential definitions, Aristotle calls this 'equivocal' naming. Can you explain why the name 'animal' is insufficient to describe their actual nature?",
+    check: (input) => input.length > 10
+  }
+];
+
+const conclusion = "Precisely. As the text states: 'Things are said to be named equivocally when, though they have a common name, the definition corresponding with the name differs for each.' You have articulated the distinction yourself.";
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+const sendBtn = document.getElementById('sendBtn');
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function handleInput() {
+  const val = inputField.value.trim();
+  if (!val) return;
+
+  addMessage(val, 'user');
+  inputField.value = '';
+
+  if (steps[currentStep].check(val)) {
+    currentStep++;
+    if (currentStep < steps.length) {
+      setTimeout(() => addMessage(steps[currentStep].q, 'bot'), 600);
+    } else {
+      setTimeout(() => addMessage(conclusion, 'bot'), 600);
+      inputField.disabled = true;
+      sendBtn.disabled = true;
+    }
+  } else {
+    setTimeout(() => addMessage("Consider more deeply: how does the 'whatness' of a living being differ from a representation on canvas?", 'bot'), 600);
+  }
+}
+
+inputField.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleInput(); });
+sendBtn.addEventListener('click', handleInput);
+
+// Initial prompt
+addMessage(steps[0].q, 'bot');
+</script>
+
+</body>
+</html>

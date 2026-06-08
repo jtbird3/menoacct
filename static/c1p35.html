@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Conics I.35</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>I.35 — Prove that if a tangent to a parabola meets the diameter outside the section, the ordinate from the point of contact cuts off on the diameter a segment equal to that between the vertex and the intersection of the tangent with the diameter, and no straight line can fall between the tangent and the section.</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Apollonius' Conics I.35 chatbot!
+
+We are given a parabola with diameter AB and vertex G. Do you agree? (yes/no):`, 
+hint: `The diameter passes through the vertex of the parabola.` },
+{ q: `Let us draw line BC as an ordinate to the diameter, such that AC is tangent to the parabola at C. Can we do that? (yes/no):`, hint: `An ordinate is a line drawn perpendicular to the diameter.` },
+{ q: `Our goal is first to prove that AG equals GB. Does that make sense? (yes/no):`, hint: `We want to prove that the vertex G cuts the segment AB into two equal parts determined by the tangent.` },
+{ q: `Suppose, for contradiction, that AG is not equal to GB. Is this a valid assumption for a proof by contradiction? (yes/no):`, hint: `We temporarily assume the opposite of what we want to prove.` },
+{ q: `Let us construct a point E on the diameter such that GE equals AG. Is this possible? (yes/no):`, hint: `A segment equal to another can always be laid off on a straight line.` },
+{ q: `From point E, let us erect EF as an ordinate to the diameter. Can we do this? (yes/no):`, hint: `An ordinate is drawn perpendicular to the diameter.` },
+{ q: `Next, let us join the straight line AF. Possible? (yes/no):`, hint: `Any two points can be joined by a straight line.` },
+{ q: `According to Proposition I.33 of Apollonius, must the line AF (when produced) meet the tangent line AC? (yes/no):`, hint: `Proposition I.33 describes how lines from such ordinate constructions interact with tangents of the parabola.` },
+{ q: `If AF must meet AC, must the two straight lines have the same endpoints A and the intersection point? (yes/no):`, hint: `This would create two distinct straight lines sharing the same endpoints.` },
+{ q: `Is it impossible for two distinct straight lines to have the same endpoints? (yes/no):`, hint: `Only one straight line can join two points.` },
+{ q: `Therefore must our assumption that AG is unequal to GB be false? (yes/no):`, hint: `The contradiction forces the original assumption to be rejected.` },
+{ q: `Therefore, must we conclude that AG equals GB? (yes/no):`, hint: `This completes the first claim of the proposition.` },
+{ q: `Now our next goal is to show that no straight line can fall between the tangent AC and the parabola. Does that make sense? (yes/no):`, hint: `We must prove that the region between the tangent and the curve contains no straight line segment.` },
+{ q: `Suppose, for contradiction, that a straight line CD falls between the tangent AC and the parabola. Is this a valid assumption? (yes/no):`, hint: `Again we assume the opposite to reach a contradiction.` },
+{ q: `Let us mark a point E on the diameter so that GE equals GD. Can we do this? (yes/no):`, hint: `A segment equal to another can be constructed on a straight line.` },
+{ q: `From point E, let us erect EF as an ordinate to the diameter. Is this possible? (yes/no):`, hint: `As before, EF is drawn perpendicular to the diameter.` },
+{ q: `Let us join D to F. Can we do this? (yes/no):`, hint: `We can join any two points with a straight line.` },
+{ q: `According to Proposition I.33, must line DF touch the parabola? (yes/no):`, hint: `The proposition ensures the line from D to F acts as a tangent.` },
+{ q: `If this tangent DF is produced, must it fall outside the parabola? (yes/no):`, hint: `A tangent touches the parabola at one point and then lies outside it.` },
+{ q: `Must this produced line meet the line CD? (yes/no):`, hint: `If CD lies between the tangent AC and the section, the lines must intersect.` },
+{ q: `Would this again produce two straight lines with the same endpoints? (yes/no):`, hint: `The intersection would force an impossibility similar to the earlier contradiction.` },
+{ q: `Is this impossible? (yes/no):`, hint: `Two distinct straight lines cannot share the same endpoints.` },
+{ q: `Therefore must our assumption that a line can fall between AC and the parabola be false? (yes/no):`, hint: `The contradiction shows such a line cannot exist.` },
+{ q: `Therefore, must we conclude that no straight line falls between the tangent AC and the parabola? (yes/no):`, hint: `This completes the second part of the proposition.` }
+];
+
+const conclusion = `Congratulations! You just proved that if a tangent to a parabola meets the diameter outside the section, the ordinate from the point of contact cuts off on the diameter a segment equal to that between the vertex and the intersection of the tangent with the diameter, and no straight line can fall between the tangent and the section.
+
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

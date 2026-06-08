@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>I.1 — MenoChat (Voice Version)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    #inputArea {
+      margin-top: 10px;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    .status-bar {
+      margin-top: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      font-size: 14px;
+    }
+
+    .status-pill {
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid #000;
+    }
+
+    .btn {
+      padding: 6px 10px;
+      border: 1px solid #000;
+      background: #fff;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 14px;
+    }
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>I.1 - Construct an equilateral triangle on a finite straight line</h1>
+<p>
+  This version <strong>speaks the questions out loud</strong> and can listen for your spoken
+  “yes” or “no”. You can still type your answers if you prefer.
+</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<div class="status-bar">
+  <button id="voiceToggle" class="btn">Enable Voice Mode</button>
+  <span id="voiceSupport" class="status-pill"></span>
+  <span id="voiceStatus" class="status-pill">Idle</span>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+/* --- Script content (Questions / Hints) --- */
+
+const steps = [
+  { q: `Welcome to Euclid's Elements I.1 chatbot!
+
+We are given a finite straight line, which we will call AB. Do you agree? (yes/no):`,
+    hint: `A finite straight line is a line with two endpoints.` },
+  { q: `Our goal is to construct an equilateral triangle on this line AB. Does that make sense? (yes/no):`,
+    hint: `An equilateral triangle has three equal sides.` },
+  { q: `First, draw a circle with center A and radius AB. Possible? (yes/no):`,
+    hint: `Postulate 3 allows us to draw a circle with any center and radius.` },
+  { q: `Now, draw another circle with center B and radius BA. Possible? (yes/no):`,
+    hint: `Postulate 3 allows us to draw a circle with any center and radius.` },
+  { q: `The two circles intersect at two points. Let's choose one of these points and call it C. Do you see that this point C exists? (yes/no):`,
+    hint: `Since the circles are drawn with radius AB and centered at A and B, they must cross each other.` },
+  { q: `Where the circles meet at C, can we join C to A and C to B with straight lines? (yes/no):`,
+    hint: `We can join any two points with a straight line.` },
+  { q: `Does AC = AB? (yes/no):`,
+    hint: `AC is a radius of the first circle (centered at A), and AB is also a radius of that same circle. All radii of the same circle are equal.` },
+  { q: `Does AB = BC? (yes/no):`,
+    hint: `AB is a radius of the second circle (centered at B), and BC is also a radius of that circle. All radii of the same circle are equal.` },
+  { q: `If AC = AB and AB = BC. Can we conclude that AC = AB = BC? (yes/no):`,
+    hint: `Common Notion 1: Things which are equal to the same thing are also equal to one another.` }
+];
+
+const conclusion = `Congratulations! You have constructed an equilateral triangle ABC on the line segment AB.
+Q.E.F. (Quod Erat Faciendum - which was to be done.)`;
+
+/* --- DOM References --- */
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+const mobileYesBtn = document.getElementById('mobileYes');
+const mobileNoBtn = document.getElementById('mobileNo');
+const voiceToggleBtn = document.getElementById('voiceToggle');
+const voiceSupportSpan = document.getElementById('voiceSupport');
+const voiceStatusSpan = document.getElementById('voiceStatus');
+
+const isMobile =
+  window.innerWidth <= 768 ||
+  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  );
+
+/* --- Chat Helpers --- */
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+/* --- Voice: Speech Synthesis --- */
+
+const synth = window.speechSynthesis;
+let voiceModeEnabled = false;
+let isSpeaking = false;
+
+function speak(text, onEnd) {
+  if (!('speechSynthesis' in window)) {
+    if (onEnd) onEnd();
+    return;
+  }
+
+  // cancel any ongoing speech
+  synth.cancel();
+  const utterance = new SpeechSynthesisUtterance(text);
+  isSpeaking = true;
+  setVoiceStatus('Speaking…');
+
+  utterance.onend = () => {
+    isSpeaking = false;
+    setVoiceStatus('Waiting to listen…');
+    if (onEnd) onEnd();
+  };
+
+  utterance.onerror = () => {
+    isSpeaking = false;
+    setVoiceStatus('Speech error');
+    if (onEnd) onEnd();
+  };
+
+  synth.speak(utterance);
+}
+
+/* --- Voice: Speech Recognition --- */
+
+const SpeechRecognition =
+  window.SpeechRecognition || window.webkitSpeechRecognition || null;
+
+let recognition = null;
+let isListening = false;
+
+if (SpeechRecognition) {
+  recognition = new SpeechRecognition();
+  recognition.lang = 'en-US';
+  recognition.interimResults = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.onstart = () => {
+    isListening = true;
+    setVoiceStatus('Listening… say “yes” or “no”');
+  };
+
+  recognition.onend = () => {
+    isListening = false;
+    if (voiceModeEnabled && currentStep < steps.length) {
+      // If recognition ended without a result, we can prompt to speak again.
+      setVoiceStatus('Tap “Enable Voice Mode” or answer by typing.');
+    } else if (currentStep >= steps.length) {
+      setVoiceStatus('Finished');
+    }
+  };
+
+  recognition.onerror = (event) => {
+    console.error('Speech recognition error:', event);
+    isListening = false;
+    setVoiceStatus('Recognition error');
+  };
+
+  recognition.onresult = (event) => {
+    const transcript =
+      event.results[0][0].transcript.trim().toLowerCase();
+    let interpreted = null;
+
+    if (transcript.startsWith('y')) {
+      interpreted = 'yes';
+    } else if (transcript.startsWith('n')) {
+      interpreted = 'no';
+    } else if (transcript.includes('yes')) {
+      interpreted = 'yes';
+    } else if (transcript.includes('no')) {
+      interpreted = 'no';
+    }
+
+    if (interpreted) {
+      processAnswer(interpreted);
+    } else {
+      addMessage(`(Heard: "${transcript}". Please say "yes" or "no".)`, 'bot');
+      if (voiceModeEnabled) {
+        // Try listening again
+        startListening();
+      }
+    }
+  };
+}
+
+/* --- Voice mode helpers --- */
+
+function setVoiceStatus(text) {
+  voiceStatusSpan.textContent = text;
+}
+
+function startListening() {
+  if (!recognition || !voiceModeEnabled) return;
+  if (isListening) return; // already listening
+  try {
+    recognition.start();
+  } catch (e) {
+    // can throw if called too quickly
+    console.warn('Recognition start error:', e);
+  }
+}
+
+function askWithVoice(text) {
+  // If voice mode not enabled, just show question text.
+  if (!voiceModeEnabled) return;
+
+  // Speak, then listen.
+  speak(text, () => {
+    if (voiceModeEnabled && currentStep < steps.length) {
+      startListening();
+    }
+  });
+}
+
+/* --- Main flow --- */
+
+function showStep() {
+  if (currentStep < steps.length) {
+    const q = steps[currentStep].q;
+    addMessage(q, 'bot');
+    askWithVoice(q);
+  } else {
+    addMessage(conclusion, 'bot');
+    disableInputs();
+    setVoiceStatus('Finished');
+  }
+}
+
+function disableInputs() {
+  if (inputField) inputField.disabled = true;
+  if (mobileYesBtn) mobileYesBtn.disabled = true;
+  if (mobileNoBtn) mobileNoBtn.disabled = true;
+  voiceToggleBtn.disabled = true;
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+    // After giving a hint, re-ask (and re-speak if in voice mode)
+    const q = steps[currentStep].q;
+    addMessage(q, 'bot');
+    askWithVoice(q);
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+    if (voiceModeEnabled) {
+      startListening();
+    }
+  }
+}
+
+/* --- Text input handlers --- */
+
+if (inputField) {
+  inputField.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+      const answer = inputField.value.trim();
+      if (answer) {
+        processAnswer(answer);
+        inputField.value = '';
+      }
+    }
+  });
+}
+
+/* --- Mobile button handlers --- */
+
+if (mobileYesBtn && mobileNoBtn) {
+  mobileYesBtn.addEventListener('click', function () {
+    processAnswer('yes');
+  });
+  mobileNoBtn.addEventListener('click', function () {
+    processAnswer('no');
+  });
+}
+
+/* --- Voice support UI --- */
+
+if (SpeechRecognition && 'speechSynthesis' in window) {
+  voiceSupportSpan.textContent = 'Voice supported';
+} else if (!SpeechRecognition && 'speechSynthesis' in window) {
+  voiceSupportSpan.textContent = 'Speak-only (no mic support)';
+} else if (SpeechRecognition && !('speechSynthesis' in window)) {
+  voiceSupportSpan.textContent = 'Listen-only (no speech output)';
+} else {
+  voiceSupportSpan.textContent = 'No voice support in this browser';
+  voiceToggleBtn.disabled = true;
+}
+
+/* --- Voice mode toggle --- */
+
+voiceToggleBtn.addEventListener('click', () => {
+  if (!SpeechRecognition && !('speechSynthesis' in window)) {
+    alert('Your browser does not support the Web Speech API. Try Chrome.');
+    return;
+  }
+
+  voiceModeEnabled = !voiceModeEnabled;
+
+  if (voiceModeEnabled) {
+    voiceToggleBtn.textContent = 'Disable Voice Mode';
+    setVoiceStatus('Speaking…');
+    // Immediately speak the current question again
+    if (currentStep < steps.length) {
+      const q = steps[currentStep].q;
+      speak(q, () => startListening());
+    }
+  } else {
+    voiceToggleBtn.textContent = 'Enable Voice Mode';
+    setVoiceStatus('Voice mode off');
+    if (recognition && isListening) {
+      recognition.stop();
+    }
+    if (synth && isSpeaking) {
+      synth.cancel();
+    }
+  }
+});
+
+/* --- Start --- */
+showStep();
+</script>
+
+</body>
+</html>

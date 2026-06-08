@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements IX.12</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>IX.12 — Prove that if numbers beginning from a unit are in continued proportion, then the lesser measures the greater according to one of the numbers in the progression</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements IX.12 chatbot!
+
+We are given numbers A, B, C, D, beginning from a unit A, and they are in continued proportion. Do you agree? (yes/no):`,
+    hint: `“Beginning from a unit” means A = 1, and A : B = B : C = C : D.`
+  },
+
+  {
+    q: `Our goal is to prove that any prime number which measures D also measures A. Does that make sense? (yes/no):`,
+    hint: `We are comparing the prime divisors of D with those of A.`
+  },
+
+  {
+    q: `Let D be measured by some prime number E. Do you see that this is our assumption? (yes/no):`,
+    hint: `We choose an arbitrary prime E that divides D.`
+  },
+
+  {
+    q: `We now claim that E measures A. Is this what we want to prove? (yes/no):`,
+    hint: `Showing this for an arbitrary prime E proves the theorem.`
+  },
+
+  {
+    q: `Suppose that E does not measure A. May we assume this for contradiction? (yes/no):`,
+    hint: `We assume the opposite of what we want to prove.`
+  },
+
+  {
+    q: `Since E is prime, and it does not measure A, are E and A prime to one another? (yes/no):`,
+    hint: `A prime is prime to any number it does not measure (VII.29).`
+  },
+
+  {
+    q: `Since E measures D, let it measure it according to F. Do you see that D is equal to E multiplied by F? (yes/no):`,
+    hint: `“Measures according to F” means D equals E multiplied by F.`
+  },
+
+  {
+    q: `Since A measures D according to the units in C, is D equal to A multiplied by C? (yes/no):`,
+    hint: `From continued proportion beginning from a unit, D = A·C (IX.11).`
+  },
+
+  {
+    q: `Since D equals A multiplied by C and also D equals E multiplied by F, does A multiplied by C equal E multiplied by F? (yes/no):`,
+    hint: `Both expressions represent D.`
+  },
+
+  {
+    q: `From A multiples C equals E multiplying F, do we have that A is to E as F is to C? (yes/no):`,
+    hint: `This is Euclid VII.19 on converting a product equality into a proportion.`
+  },
+
+  {
+    q: `Are A and E prime numbers? (yes/no):`,
+    hint: `E is prime by hypothesis, and A is the unit (also treated as a least number).`
+  },
+
+  {
+    q: `Are prime numbers also least numbers? (yes/no):`,
+    hint: `Yes—VII.21 states this.`
+  },
+
+  {
+    q: `If least numbers have the same ratio as other numbers, do they measure them equally, antecedent antecedent and consequent consequent? (yes/no):`,
+    hint: `Proposition VII.20.`
+  },
+
+  {
+    q: `From this, does E measure C? (yes/no):`,
+    hint: `From A:E = F:C and A, E least, E must measure C.`
+  },
+
+  {
+    q: `Let E measure C according to G. Do you see that C equals E multiplied by G? (yes/no):`,
+    hint: `This is the definition of measurement.`
+  },
+
+  {
+    q: `By the theorem before this, does A also by multiplying B make C? (yes/no):`,
+    hint: `From continued proportion, C = A × B (IX.11).`
+  },
+
+  {
+    q: `Since C equals A multiplied by B and also C equals E multiplied by G, are the products AB and EG equal? (yes/no):`,
+    hint: `Both expressions represent C.`
+  },
+
+  {
+    q: `From this equality, do we get A is to E as G is to B? (yes/no):`,
+    hint: `Another application of VII.19.`
+  },
+
+  {
+    q: `Are A and E still prime and least? (yes/no):`,
+    hint: `Yes, nothing has changed about them.`
+  },
+
+  {
+    q: `From A is to E as G is to B, does it follow that E measures B? (yes/no):`,
+    hint: `VII.20 applied again.`
+  },
+
+  {
+    q: `Let E measure B according to H. Do you see that B equals E multiplied by H? (yes/no):`,
+    hint: `This is the meaning of measuring.`
+  },
+
+  {
+    q: `But does A also by multiplying itself make B? (yes/no):`,
+    hint: `Since A is the unit, B = A × A (IX.8).`
+  },
+
+  {
+    q: `Since B equals E multiplied by H and also B equals A multiplied by A, are the product EH and the square on A equal? (yes/no):`,
+    hint: `Both equal B.`
+  },
+
+  {
+    q: `From this, do we get E is to A as A is to H? (yes/no):`,
+    hint: `Another proportion from VII.19.`
+  },
+
+  {
+    q: `Are A and E prime and least here as well? (yes/no):`,
+    hint: `Yes, the same reasoning still applies.`
+  },
+
+  {
+    q: `From this ratio, does E measure A? (yes/no):`,
+    hint: `By VII.20, least numbers in the same ratio measure correspondingly.`
+  },
+
+  {
+    q: `But did we not assume that E does not measure A? (yes/no):`,
+    hint: `This was our assumption for contradiction.`
+  },
+
+  {
+    q: `Is this a contradiction? (yes/no):`,
+    hint: `A number cannot both measure and not measure the same number.`
+  },
+
+  {
+    q: `Therefore, is it false that E and A are prime to one another? (yes/no):`,
+    hint: `The contradiction shows E and A must share a common measure.`
+  },
+
+  {
+    q: `So are E and A composite to one another? (yes/no):`,
+    hint: `If not prime to one another, they are composite to one another.`
+  },
+
+  {
+    q: `Are numbers composite to one another measured by some number? (yes/no):`,
+    hint: `Definition VII.14.`
+  },
+
+  {
+    q: `Since E is prime, is it measured by any number other than itself? (yes/no):`,
+    hint: `A prime is measured only by itself.`
+  },
+
+  {
+    q: `Therefore, does E measure A? (yes/no):`,
+    hint: `The only possible common measure is E itself.`
+  },
+
+  {
+    q: `Since E was any prime measuring D, have we shown that the same prime measures A? (yes/no):`,
+    hint: `The argument applies to any such prime.`
+  },
+
+  {
+    q: `Therefore, by however many prime numbers D is measured, is A also measured by the same? (yes/no):`,
+    hint: `Each prime divisor of D must also divide A.`
+  }
+]
+
+
+
+
+
+
+
+
+const conclusion = `Congratulations! You just proved that if numbers beginning from a unit are in continued proportion, then the lesser measures the greater according to one of the numbers in the progression.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

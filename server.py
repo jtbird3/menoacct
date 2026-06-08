@@ -5,6 +5,7 @@ from pathlib import Path
 
 from fastapi import FastAPI, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
+from fastapi.staticfiles import StaticFiles
 from starlette.middleware.sessions import SessionMiddleware
 from jinja2 import Environment, FileSystemLoader
 import hashlib, base64
@@ -242,6 +243,8 @@ async def admin_seed(request: Request):
                     status = 'already set up' if row['username'] else 'already added'
                     results.append({'name': name, 'status': status, 'link': f"{BASE_URL}/invite/{row['invite_token']}"})
     return {'results': results}
+
+app.mount('/', StaticFiles(directory='static', html=True), name='static')
 
 # ── Entry point ────────────────────────────────────────────────────────────────
 

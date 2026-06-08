@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>I.1 — MenoChat (Toggle: Pure ↔ Graph)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>I.1 - Construct an equilateral triangle on a finite straight line</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  // --- P1: Initial Error (Simulated) ---
+  { q: `Welcome to the Socratic learning engine for Euclid's Elements I.1!
+We are given a finite straight line, which we will call AB. Our goal is to construct an equilateral triangle on it.
+Do you think you could just 'sketch' a triangle on AB that looks equilateral? (yes/no):`,
+    hint: `A sketch is not a proof. A proper construction must be proven to be equilateral.` },
+  
+  // --- P2: Elenchus/Aporia (The Meno Moment) ---
+  { q: `If you simply sketch it, can you *prove* that the sides are perfectly equal without relying on geometric rules? (yes/no):`,
+    hint: `Without an axiomatic system (like Euclid's Postulates), your construction is just an assumption, not a certain truth. This is the moment of Aporia.` },
+  
+  // --- P3: Anamnesis (Guided Discovery - Your original perfect scaffold) ---
+  { q: `Then, we must rely only on our established geometric rules (Postulates and Common Notions). Does that make sense? (yes/no):`,
+    hint: `A construction must be built from the ground up using accepted truths.` },
+  { q: `First, draw a circle with center A and radius AB. Possible? (yes/no):`,
+    hint: `Postulate 3 allows us to draw a circle with any center and radius.` },
+  { q: `Now, draw another circle with center B and radius BA. Possible? (yes/no):`,
+    hint: `Postulate 3 allows us to draw a circle with any center and radius.` },
+  { q: `The two circles intersect at two points. Let's choose one of these points and call it C. Do you see that this point C exists? (yes/no):`,
+    hint: `Since the circles are drawn with radius AB and centered at A and B, they must cross each other.` },
+  { q: `Where the circles meet at C, can we join C to A and C to B with straight lines? (yes/no):`,
+    hint: `Postulate 1 allows us to join any two points with a straight line.` },
+  { q: `Does AC = AB? (yes/no):`,
+    hint: `AC is a radius of the first circle (centered at A), and AB is also a radius of that same circle. All radii of the same circle are equal (Definition).` },
+  { q: `Does AB = BC? (yes/no):`,
+    hint: `AB is a radius of the second circle (centered at B), and BC is also a radius of that circle. All radii of the same circle are equal (Definition).` },
+  { q: `If AC = AB and AB = BC. Can we conclude that AC = BC? (yes/no):`,
+    hint: `Common Notion 1: Things which are equal to the same thing are also equal to one another.` },
+  { q: `Therefore, is the triangle ABC equilateral (AC = AB = BC)? (yes/no):`,
+    hint: `The definition of an equilateral triangle is a triangle with three equal sides.` }
+];
+
+const conclusion = `Congratulations! You have constructed an equilateral triangle ABC on the line segment AB solely by applying the fundamental axioms of geometry.
+Q.E.F. (Quod Erat Faciendum - which was to be done.)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  
+  // NOTE: For the Meno Engine, we often want the *wrong* answer (or a challenged answer)
+  // in the Aporia phase to trigger the hint, forcing reflection.
+  
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    // If the learner accepts the initial error (Step 0) or affirms a truth (Steps 2+), proceed.
+    // If they affirm they can 'prove' (Step 1), we still push the hint to expose the flaw.
+    if (currentStep === 1) { // Aporia trigger
+      addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+    }
+    
+    // For all other 'yes' answers, simply proceed.
+    if (currentStep !== 1) {
+        currentStep++;
+        showStep();
+    }
+    
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    // If they correctly reject the initial error (Step 0) or correctly admit Aporia (Step 1), proceed.
+    if (currentStep < 2) { // Allow 'no' to proceed through the Aporia steps
+        currentStep++;
+        showStep();
+    } else { // After Aporia, 'no' is an error
+        addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+    }
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

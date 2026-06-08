@@ -242,6 +242,15 @@
   <button id="btn-draw">Draw</button>
 </div>
 
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+// Auth gate — redirect to login if not logged in
+const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+_sb.auth.getSession().then(({ data: { session } }) => {
+  if (!session) window.location.href = 'login.html'
+})
+</script>
 <script>
 // ─────────────────────────────────────────────────────────────────────────────
 // SCRIPT — follows the user's authored flow exactly
@@ -646,7 +655,9 @@ function showStep(){
   updatePanels();
   if(step>=STEPS.length){
     addMsg(CONCLUSION,'bot'); setMode('done');
-    fetch('/api/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({proposition:1})}).catch(()=>{});
+    _sb.auth.getSession().then(({ data: { session } }) => {
+      if (session) _sb.from('completions').insert({ user_id: session.user.id, proposition: 1 })
+    })
     return;
   }
   const s=STEPS[step];

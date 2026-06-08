@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Conics I.11</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>I.11 - Prove that in a certain conic section (a parabola), any line drawn parallel to the base cuts off on the diameter a segment whose square equals a constant rectangle</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Conics I.11 chatbot!
+
+We are given a cone with vertex A, base circle BC, and axial triangle ABC. Do you agree? (yes/no):`,
+hint: `The cone is defined by its vertex and circular base. An axial triangle is formed by the vertex and two points on the base in a straight line with the axis of the cone.` },
+{ q: `Next, let us draw section DFE, a curve on the cone's surface, cutting BC on the base circle at G by perpendicular line DE. Let us draw DEF as a parabola, so that diameter DG is parallel to AC. Do you follow? (yes/no):`,
+hint: `This second plane intersects the cone so that DE is at right angles to BC in the base.` },
+{ q: `From F, draw FH perpendicular to FG. Can we do this? (yes/no):`,
+hint: `A perpendicular can be drawn from any point to a given straight line.` },
+{ q: `Let it be arranged that as the square on BC is to the rectangle contained by BA and AC, so HF is to FA. Does that follow? (yes/no):`,
+hint: `This proportional relation defines the scale between the cone’s geometry and the section.` },
+{ q: `Now, take any point K on the section DFE, and through K draw KL parallel to DE so that L is on the diameter DG. Understood? (yes/no):`,
+hint: `The line KL is parallel to the intersection of the plane and the base, and serves as an ordinate.` },
+{ q: `We wish to show that the square on KL is equal to the rectangle HF × FL. Does that make sense? (yes/no):`,
+hint: `This is the defining property of the parabola — each ordinate squared equals a constant rectangle on a fixed line.` },
+{ q: `Let MN be drawn through L parallel to BC. Can we do that? (yes/no):`,
+hint: `A line parallel to the base can be drawn through any point.` },
+{ q: `Since DE is parallel to KL, the plane through KL and MN is parallel to the plane through BC and DE. Do you see that? (yes/no):`,
+hint: `If two lines are parallel and lie in different planes, those planes are also parallel.` },
+{ q: `Therefore, the plane through KL and MN is a circle with diameter MN. Do you agree? (yes/no):`,
+hint: `A plane parallel to the base of a cone cuts the cone in a circle.` },
+{ q: `Because KL is perpendicular to MN, the rectangle ML × LN equals the square on KL. True? (yes/no):`,
+hint: `By Euclid VI.17: if three straight lines are proportional, then the rectangle contained by the extremes equals the square on the mean.` },
+{ q: `By the given proportion, as the square on BC is to the rectangle BA × AC, so HF is to HA. Correct? (yes/no):`,
+hint: `This ratio ties the cone’s base and axial dimensions to the section’s geometry.` },
+{ q: `Hence, as HF : FA, so the rectangle ML × LN is to the rectangle LF × FA. Correct? (yes/no):`,
+hint: `This step follows from applying Euclid VI.23 to the compound ratio.` },
+{ q: `Since FL is a common height, the ratio of rect HF, FL to rect LF, FA equals that of HF : FA. Is that clear? (yes/no):`,
+hint: `Equal heights in rectangles preserve the ratio of their bases.` },
+{ q: `Therefore, as rect ML, LN : rect LF, FA, so rect HF, FL : rect LF, FA. Does that make sense? (yes/no):`,
+hint: `Equal ratios permit substitution (Euclid V.11).` },
+{ q: `Thus, rect ML, LN = rect HF, FL. Do you agree? (yes/no):`,
+hint: `Euclid V.9: if two ratios are equal and share a common ratio, the quantities are equal.` },
+{ q: `But rect ML, LN = sq. KL; therefore sq. KL = rect HF, FL. True? (yes/no):`,
+hint: `This establishes the defining relation of the parabola.` },
+{ q: `Does the goal — defining the parabola by this equality — now make sense? (yes/no):`,
+hint: `A parabola is the section of a cone for which the square on the ordinate equals a constant rectangle under the latus rectum.` },
+
+
+
+
+
+
+
+];
+
+const conclusion = `Congratulations! You just proved that the line between two points on a conic section lies within the section, but its extension falls outside.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

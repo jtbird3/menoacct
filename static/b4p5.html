@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>IV.5 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>IV.5 - Circumscribe a circle about a given triangle</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements IV.5 chatbot!
+
+We are given a triangle ABC. Do you agree? (yes/no):`,
+    hint: `The triangle ABC is the figure about which we will draw the circle.` },
+  { q: `Our goal is to circumscribe a circle about this triangle ABC. Does that make sense? (yes/no):`,
+    hint: `To circumscribe a circle means to draw a circle that passes through all three vertices of the triangle.` },
+  { q: `First, let the sides AB and AC be bisected at points D and E. Can we do that? (yes/no):`,
+    hint: `By Proposition I.10, a straight line can be bisected at a given point.` },
+  { q: `From the midpoints D and E, draw DF and EF at right angles to AB and AC. Is this construction possible? (yes/no):`,
+    hint: `A line can be drawn from a given point at a right angle to a given straight line (Proposition I.11).` },
+  { q: `Will these lines DF and EF meet at some point F—within the triangle, on the side BC, or outside the triangle? (yes/no):`,
+    hint: `The perpendicular bisectors of two sides of a triangle always meet at a single point.` },
+  { q: `Suppose they meet within the triangle at F, and join FA, FB, FC. Can we do that? (yes/no):`,
+    hint: `By Postulate 1, a straight line may be drawn from any point to any point.` },
+  { q: `Since AD = DB and DF is common and at right angles, is AF = FB? (yes/no):`,
+    hint: `From I.4, if two triangles have two sides and the included right angle equal, the bases are equal.` },
+  { q: `Can we also prove in the same way that CF = AF? (yes/no):`,
+    hint: `By the same reasoning, the triangle formed on side AC gives CF = AF.` },
+  { q: `Therefore, are FA, FB, FC all equal? (yes/no):`,
+    hint: `If AF = FB and CF = AF, then all three are equal by Common Notion 1.` },
+  { q: `If all three lines FA, FB, FC are equal, can a circle with center F and radius FA pass through A, B, and C? (yes/no):`,
+    hint: `A circle drawn from center F with radius equal to the distance to one vertex will pass through all three vertices if those distances are equal.` },
+  { q: `Then the circle is circumscribed about triangle ABC. Agreed? (yes/no):`,
+    hint: `“Circumscribed” means the circle passes through all the triangle's vertices.` },
+  { q: `Now, suppose DF and EF meet on the side BC. Would the same proof show that F is the circle's center? (yes/no):`,
+    hint: `The perpendicular bisectors intersect at the same center point even when they meet on a side.` },
+  { q: `And if DF and EF meet outside the triangle, does the same argument still prove F is the circle's center? (yes/no):`,
+    hint: `Yes — equal reasoning applies regardless of whether the intersection lies inside or outside.` },
+  { q: `Is it clear that when the center F lies within the triangle, the angle BAC is less than a right angle? (yes/no):`,
+    hint: `The angle at the circumference in a segment greater than a semicircle is less than a right angle.` },
+  { q: `When the center lies on the side BC, is ∠BAC a right angle? (yes/no):`,
+    hint: `The angle in a semicircle is a right angle (Proposition III.31).` },
+  { q: `When the center lies outside the triangle, is ∠BAC greater than a right angle? (yes/no):`,
+    hint: `The angle in a segment less than a semicircle is greater than a right angle (Proposition III.31).` }
+];
+
+const conclusion = `Congratulations! You just circumscribed a circle about a given triangle. 
+Q.E.F. (Quod Erat Faciendum — which was to be done)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

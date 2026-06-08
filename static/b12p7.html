@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements XII.7</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>XII.7 – Prove that any prism with a triangular base can be divided into three equal pyramids having triangular bases.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements XII.7 chatbot!
+
+We are given a prism ABCDEF, where the triangle ABC is the base and DEF is its opposite. Do you agree? (yes/no):`,
+    hint: `A prism has two equal and parallel bases; here they are triangles ABC and DEF.` },
+
+  { q: `Our goal is to show that this prism is divided into three pyramids equal to one another, each having a triangular base. Does that make sense? (yes/no):`,
+    hint: `We want to partition the prism into three equal-volume pyramids.` },
+
+  { q: `Let the straight lines BD, CE, and CD be joined. Can we do this? (yes/no):`,
+    hint: `By Postulate 1, a straight line may be drawn from any point to any point.` },
+
+  { q: `Since ABED is a parallelogram, do you see that AB is parallel to DE and AD is parallel to BE? (yes/no):`,
+    hint: `Opposite sides of a parallelogram are parallel.` },
+
+  { q: `Is BD a diameter (diagonal) of the parallelogram ABED? (yes/no):`,
+    hint: `BD joins opposite vertices of the parallelogram.` },
+
+  { q: `Since BD is a diagonal of parallelogram ABED, are the triangles ABD and EBD equal? (yes/no):`,
+    hint: `Proposition I.34: the diagonal of a parallelogram divides it into two equal triangles.` },
+
+  { q: `If triangles ABD and EBD are equal, are the pyramids with base ABD and vertex C, and with base DEB and vertex C, equal? (yes/no):`,
+    hint: `By XII.5, pyramids on equal bases and between the same parallels are equal.` },
+
+  { q: `Is the pyramid with base DEB and vertex C the same as the pyramid with base EBC and vertex D? (yes/no):`,
+    hint: `They are contained by the same planes, only described by different base–vertex pairs.` },
+
+  { q: `Therefore, is the pyramid with base ABD and vertex C equal to the pyramid with base EBC and vertex D? (yes/no):`,
+    hint: `Things equal to the same thing are equal to one another.` },
+
+  { q: `Now, since FCBE is a parallelogram, do you agree that FC is parallel to BE and CE is parallel to FB? (yes/no):`,
+    hint: `Opposite sides of a parallelogram are parallel.` },
+
+  { q: `Is CE the diagonal of the parallelogram FCBE? (yes/no):`,
+    hint: `CE joins opposite vertices.` },
+
+  { q: `Does this imply that triangle CEF is equal to triangle CBE? (yes/no):`,
+    hint: `Again by Proposition I.34.` },
+
+  { q: `If triangles CEF and CBE are equal, are the pyramids with base BCE and vertex D, and with base ECF and vertex D, equal? (yes/no):`,
+    hint: `By Proposition XII.5.` },
+
+  { q: `Was the pyramid with base BCE and vertex D already shown to be equal to the pyramid with base ABD and vertex C? (yes/no):`,
+    hint: `This was established earlier through equality of pyramids.` },
+
+  { q: `Therefore, is the pyramid with base CEF and vertex D equal to the pyramid with base ABD and vertex C? (yes/no):`,
+    hint: `By transitivity of equality.` },
+
+  { q: `Do we now have three pyramids—ABD with vertex C, EBC with vertex D, and CEF with vertex D—that are all equal? (yes/no):`,
+    hint: `Each has been shown equal to the same pyramid.` },
+
+  { q: `Therefore, has the prism ABCDEF been divided into three equal pyramids with triangular bases? (yes/no):`,
+    hint: `This completes the main construction.` },
+
+  { q: `Do you see that the pyramid with base ABD and vertex C is the same as the pyramid with base CAB and vertex D? (yes/no):`,
+    hint: `They are contained by the same bounding planes.` },
+
+  { q: `Since the pyramid with base ABD and vertex C was shown to be one-third of the prism, does it follow that the pyramid with base ABC and vertex D is also one-third of the same prism? (yes/no):`,
+    hint: `Equal pyramids occupying the same prism volume must each be one-third.` },
+
+  { q: `Porism: From this, is it clear that any pyramid is one-third part of the prism which has the same base and equal height? (yes/no):`,
+    hint: `The prism can always be divided into three equal pyramids of that kind.` }
+]
+
+const conclusion = `Congratulations! You just proved that any prism with a triangular base can be divided into three equal pyramids having triangular bases.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

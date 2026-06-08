@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.3</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.3 – Find the greatest common measure of two commensurable magnitudes.</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements X.3 chatbot!
+
+We are given two commensurable magnitudes AB and CD, with AB the less. Do you agree? (yes/no):`,
+hint: `AB is assumed shorter than CD, and both are commensurable, meaning they have a common measure.` },
+{ q: `Our goal is to find the greatest common measure of AB and CD. Does that make sense? (yes/no):`,
+hint: `A common measure measures both magnitudes exactly.` },
+{ q: `Now, AB either measures or does not measure CD. Do you agree? (yes/no):`,
+hint: `Either AB measures CD exactly, or it does not. We have two cases to consider.` },
+{ q: `If AB does measure CD, does AB also measure itself? (yes/no):`,
+hint: `Either AB measures CD exactly, or it does not.` },
+{ q: `If AB does measure CD, does AB also measure itself? (yes/no):`,
+hint: `Any magnitude measures itself.` },
+{ q: `If AB measures both AB and CD, is AB a common measure of AB and CD? (yes/no):`,
+hint: `A common measure must measure both magnitudes.` },
+{ q: `When AB measured CD, is AB the greatest common measure in this case? (yes/no):`,
+hint: `No magnitude greater than AB can measure AB itself.` },
+{ q: `Next, suppose AB does not measure CD. May we assume this? (yes/no):`,
+hint: `We now proceed under the second case.` },
+{ q: `If the less magnitude is continually subtracted from the greater, will the remainder at some point measure the previous remainder, since AB and CD are commensurable? (yes/no):`,
+hint: `This follows from the definition of commensurable magnitudes (cf. X.2).` },
+{ q: `Let AB measure ED, leaving EC less than AB. Do you agree this step is allowed? (yes/no):`,
+hint: `ED is a multiple of AB, with EC as remainder.` },
+{ q: `Let EC measure FB, leaving AF less than EC. Is this consistent? (yes/no):`,
+hint: `We continue the subtraction process.` },
+{ q: `Let AF measure CE exactly. Do you accept this? (yes/no):`,
+hint: `The process terminates because the magnitudes are commensurable.` },
+{ q: `If AF measures CE, and CE measures FB, must AF measure FB? (yes/no):`,
+hint: `If one magnitude measures another which measures a third, it measures the third.` },
+{ q: `Does AF also measure itself? (yes/no):`,
+hint: `Any magnitude measures itself.` },
+{ q: `Therefore, does AF measure the whole AB? (yes/no):`,
+hint: `AB consists of FB and AF together.` },
+{ q: `If AB measures ED, and AF measures AB, does AF also measure ED? (yes/no):`,
+hint: `A measure of a measure is also a measure.` },
+{ q: `Does AF measure CE as well? (yes/no):`,
+hint: `This was given earlier.` },
+{ q: `If AF measures CE and ED, does AF measure the whole CD? (yes/no):`,
+hint: `CD consists of ED and CE together.` },
+{ q: `Is AF therefore a common measure of AB and CD? (yes/no):`,
+hint: `It measures both magnitudes exactly.` },
+{ q: `Now, we claim that AF is the greatest common measure. Do you understand this claim? (yes/no):`,
+hint: `We proceed by contradiction.` },
+{ q: `Suppose there is a magnitude G greater than AF that measures both AB and CD. Do you accept this assumption? (yes/no):`,
+hint: `This sets up the contradiction.` },
+{ q: `Since G measures AB, and AB measures ED, does G also measure ED? (yes/no):`,
+hint: `A measure of a measure measures the result.` },
+{ q: `Since G measures the whole CD, does it also measure the remainder CE? (yes/no):`,
+hint: `If it measures the whole and one part, it measures the remainder.` },
+{ q: `Since CE measures FB, does G also measure FB? (yes/no):`,
+hint: `Transitivity of measuring.` },
+{ q: `Since G measures AB, does it also measure the remainder AF? (yes/no):`,
+hint: `AF is the remainder when FB is removed from AB.` },
+{ q: `But we assumed G was greater than AF. Do you see that? (yes/no):`,
+  hint: `G was assumed greater than AF to set up the contradiction.` },
+{ q: `Is it impossible for a greater magnitude to measure a lesser one exactly? (yes/no):`,
+hint: `The greater cannot measure the less.` },
+{ q: `Does this contradiction show that no magnitude greater than AF measures both AB and CD? (yes/no):`,
+hint: `The assumption leads to impossibility.` },
+{ q: `Therefore, is AF the greatest common measure of AB and CD? (yes/no):`,
+hint: `It is common, and none greater is possible.` },
+{ q: `Thus, have we found the greatest common measure of the two given commensurable magnitudes AB and CD? (yes/no):`,
+hint: `This completes the demonstration.` },
+{ q: `PORISM: If a magnitude measures two magnitudes, will it also measure their greatest common measure? (yes/no):`,
+hint: `Any common measure must measure the greatest one among them.` }
+]
+
+
+
+
+
+
+const conclusion = `Congratulations! You just found the greatest common measure of two commensurable magnitudes.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements XIII.18</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>XIII.18 – Set out the sides of the five regular solids and compare them with one another.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [{ q: `Welcome to Elements XIII.18 chatbot!
+
+We are given a sphere, and AB is set out as its diameter. Do you agree? (yes/no):`, hint: `AB is explicitly stated to be the diameter of the given sphere.` },
+{ q: `The line AB is cut at C so that AC equals CB. Is this clear? (yes/no):`, hint: `C is the midpoint of AB.` },
+{ q: `The line AB is also cut at D so that AD is double of DB. Agreed? (yes/no):`, hint: `AD : DB = 2 : 1.` },
+{ q: `A semicircle AEB is described on AB. Is this construction allowed? (yes/no):`, hint: `A semicircle can be described on a given diameter.` },
+{ q: `From points C and D, lines CE and DF are drawn at right angles to AB. Is this possible? (yes/no):`, hint: `A perpendicular can be drawn from a point to a straight line.` },
+{ q: `The straight lines AF, FB, and EB are joined. Do you agree this can be done? (yes/no):`, hint: `Any two points can be joined by a straight line.` },
+{ q: `Since AD is double of DB, is AB triple of BD? (yes/no):`, hint: `AB = AD + DB, and AD = 2·DB.` },
+{ q: `Convertendo, is BA one and a half times AD? (yes/no):`, hint: `This follows by proportional conversion.` },
+{ q: `The triangles AFB and AFD are equiangular. Do you agree? (yes/no):`, hint: `They are right triangles sharing an acute angle.` },
+{ q: `As BA is to AD, is the square on BA to the square on AF in the same ratio? (yes/no):`, hint: `Similar triangles give proportional squares (VI.8).` },
+{ q: `Is the square on BA one and a half times the square on AF? (yes/no):`, hint: `BA : AD = 3 : 2.` },
+{ q: `The square on the diameter of the sphere is also one and a half times the square on the side of the pyramid. Do you agree? (yes/no):`, hint: `This is established in XIII.13.` },
+{ q: `Since AB is the diameter of the sphere, is AF equal to the side of the pyramid? (yes/no):`, hint: `Equal squares imply equal sides.` },
+{ q: `Again, since AB is triple of BD, is the square on AB triple of the square on BF? (yes/no):`, hint: `Proportional sides give proportional squares.` },
+{ q: `The square on the diameter of the sphere is also triple of the square on the side of the cube. Do you agree? (yes/no):`, hint: `This is shown in XIII.15.` },
+{ q: `Therefore, is BF the side of the cube? (yes/no):`, hint: `AB is the diameter of the sphere.` },
+{ q: `Since AC equals CB, is AB double of BC? (yes/no):`, hint: `C is the midpoint.` },
+{ q: `As AB is to BC, is the square on AB to the square on BE in the same ratio? (yes/no):`, hint: `Similar right triangles apply again.` },
+{ q: `The square on the diameter of the sphere is also double of the square on the side of the octahedron. Do you agree? (yes/no):`, hint: `This follows from XIII.14.` },
+{ q: `Therefore, is BE the side of the octahedron? (yes/no):`, hint: `Equal squares imply equal sides.` },
+{ q: `Next, from A draw AG at right angles to AB, and make AG equal to AB. Is this possible? (yes/no):`, hint: `A perpendicular and an equal length can be constructed.` },
+{ q: `GC is joined, and from H a perpendicular HK is drawn to AB. Agreed? (yes/no):`, hint: `These are standard constructions.` },
+{ q: `Since GA equals AB and AB is double of AC, is GA double of AC? (yes/no):`, hint: `AC is half of AB.` },
+{ q: `As GA is to AC, so is HK to KC. Do you agree? (yes/no):`, hint: `Corresponding sides in similar triangles are proportional.` },
+{ q: `Is HK therefore double of KC? (yes/no):`, hint: `GA : AC = 2 : 1.` },
+{ q: `Is the square on HK quadruple of the square on KC? (yes/no):`, hint: `The square of double is fourfold.` },
+{ q: `Therefore, is the square on HC five times the square on KC? (yes/no):`, hint: `HC consists of HK and KC.` },
+{ q: `Since HC equals CB, is the square on BC five times the square on CK? (yes/no):`, hint: `Equal lengths have equal squares.` },
+{ q: `Since AB is double of CB and AD is double of DB, is BD double of DC? (yes/no):`, hint: `Subtract equals from equals.` },
+{ q: `Is BC therefore triple of CD? (yes/no):`, hint: `BC = BD + DC.` },
+{ q: `Is the square on BC nine times the square on CD? (yes/no):`, hint: `Triple length gives ninefold square.` },
+{ q: `Since the square on BC is five times the square on CK, is CK greater than CD? (yes/no):`, hint: `Five is greater than one.` },
+{ q: `Let CL be made equal to CK, and from L let LM be drawn at right angles to AB. Is this allowed? (yes/no):`, hint: `Equal lengths and perpendiculars are constructible.` },
+{ q: `Is KL the radius of the circle from which the icosahedron is described? (yes/no):`, hint: `From XIII.16, the square relation is fivefold.` },
+{ q: `Therefore, is KL a side of the hexagon in that circle? (yes/no):`, hint: `IV.15 establishes this.` },
+{ q: `Are AK and LB sides of the decagon inscribed in the same circle? (yes/no):`, hint: `The diameter is composed of one hexagon side and two decagon sides.` },
+{ q: `Since ML equals KL, and LB belongs to a decagon, does MB belong to a pentagon? (yes/no):`, hint: `This follows from XIII.10.` },
+{ q: `Is the side of the pentagon the side of the icosahedron? (yes/no):`, hint: `Shown in XIII.16.` },
+{ q: `Now, FB is a side of the cube, and it is cut in extreme and mean ratio at N. Agreed? (yes/no):`, hint: `This construction is assumed.` },
+{ q: `Is NB the side of the dodecahedron? (yes/no):`, hint: `This follows from XIII.17.` },
+{ q: `Are the squares on the sides of the pyramid, octahedron, and cube in rational ratios? (yes/no):`, hint: `They correspond to 4, 3, and 2 parts respectively.` },
+{ q: `Are the sides of the icosahedron and dodecahedron irrational relative to the others? (yes/no):`, hint: `One is minor, the other an apotome.` },
+{ q: `Is MB greater than NB? (yes/no):`, hint: `The subsequent argument establishes this.` },
+{ q: `Finally, are there exactly five and no more regular solids? (yes/no):`, hint: `Solid angles cannot be formed beyond the stated cases.` },
+
+]
+
+const conclusion = `Congratulations! You just set out the sides of the five regular solids and compare them with one another.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

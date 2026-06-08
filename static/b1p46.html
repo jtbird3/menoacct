@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>I.46 — MenoChat (Toggle: Pure ↔ Graph)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>I.46 – Describe a square on a given straight line</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements I.46 chatbot!
+
+We are given a straight line AB. Do you agree? (yes/no):`,
+    hint: `A straight line is the base on which we want to construct the square.` },
+  { q: `Our goal is to construct a square on AB. Does that make sense? (yes/no):`,
+    hint: `A square is a four-sided figure, equilateral and right-angled.` },
+  { q: `First, can we draw from point A a straight line AC at right angles to AB? (yes/no):`,
+    hint: `Proposition I.11 allows a straight line to be drawn at right angles to a given line from a given point.` },
+  { q: `Next, can we make AD equal to AB on the line AC? (yes/no):`,
+    hint: `Using Proposition I.3 (cutting off equal segments), we can set AD = AB.` },
+  { q: `Through point D, can we draw DE parallel to AB? (yes/no):`,
+    hint: `Proposition I.31 allows a line to be drawn parallel to a given line through a given point.` },
+  { q: `Through point B, can we draw BE parallel to AD, meeting DE at E? (yes/no):`,
+    hint: `Again, Proposition I.31 permits this.` },
+  { q: `Now, is the quadrilateral ADEB a parallelogram? (yes/no):`,
+    hint: `A figure with opposite sides parallel is a parallelogram.` },
+  { q: `In a parallelogram, are opposite sides equal, so AB = DE and AD = BE? (yes/no):`,
+    hint: `Proposition I.34 states opposite sides of a parallelogram are equal.` },
+  { q: `But is AB also equal to AD by construction? (yes/no):`,
+    hint: `We set AD = AB earlier.` },
+  { q: `So are BA, AD, DE, and EB all equal? (yes/no):`,
+    hint: `Yes, each side equals AB.` },
+  { q: `Therefore, is ADEB equilateral? (yes/no):`,
+    hint: `All four sides are equal.` },
+  { q: `Now, since AD falls upon parallels AB and DE, do ∠BAD and ∠ADE sum to two right angles? (yes/no):`,
+    hint: `Proposition I.29 states an exterior angle equals the sum of interior opposite angles.` },
+  { q: `But ∠BAD is right; so is ∠ADE also right? (yes/no):`,
+    hint: `If two add to two right angles, and one is right, the other is also right.` },
+  { q: `In a parallelogram, are opposite angles equal, so ∠ABE and ∠BED are also right? (yes/no):`,
+    hint: `Proposition I.34 gives equality of opposite angles.` },
+  { q: `So is ADEB right-angled as well as equilateral? (yes/no):`,
+    hint: `Yes, all four angles are right angles, and all sides equal.` },
+  { q: `Therefore, is ADEB a square on AB? (yes/no):`,
+    hint: `A square is defined as an equilateral right-angled parallelogram.` }
+];
+
+const conclusion = `Congratulations! You have described a square on the straight line AB.
+Q.E.F. (Quod Erat Faciendum — which was to be done)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

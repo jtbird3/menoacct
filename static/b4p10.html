@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>IV.10 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>IV.10 - Construct an isosceles triangle with base angles double the remaining angle.</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements IV.10 chatbot!
+
+We are given a straight line AB. Do you agree? (yes/no):`,
+    hint: `AB will serve as the base for the construction.` },
+  { q: `Our goal is to construct an isosceles triangle whose base angles are each double the remaining angle. Does that make sense? (yes/no):`,
+    hint: `The triangle's vertex angle will be half each of the base angles.` },
+  { q: `First, let us cut the line AB at point C so that the rectangle contained by AB and BC equals the square on CA. Can we do this? (yes/no):`,
+    hint: `Proposition II.11 allows us to cut a straight line so that the rectangle under the whole and one part equals the square on the other part.` },
+  { q: `Next, with center A and distance AB, draw a circle BDE. Possible? (yes/no):`,
+    hint: `By Postulate 3, we can draw a circle with any center and radius.` },
+  { q: `Now, fit in the circle BDE a straight line BD equal to the straight line AC. Is this construction possible? (yes/no):`,
+    hint: `Proposition IV.1 allows a straight line equal to a given line (not greater than the diameter) to be fitted in a circle.` },
+  { q: `Join AD and DC. Agreed? (yes/no):`,
+    hint: `Postulate 1 allows a straight line to be drawn from any point to any point.` },
+  { q: `Next, describe the circle ACD about the triangle ACD. Can we do that? (yes/no):`,
+    hint: `Proposition IV.5 allows a circle to be circumscribed about any triangle.` },
+  { q: `Since the rectangle AB x BC equals the square on AC, and AC equals BD, does it follow that the rectangle AB x BC equals the square on BD? (yes/no):`,
+    hint: `Substitute equals for equals; AC = BD implies their squares are equal.` },
+  { q: `From this, since B lies outside the circle ACD, and lines BA and BD are drawn from B such that one cuts and one touches the circle, can we conclude BD touches the circle ACD? (yes/no):`,
+    hint: `Proposition III.37 states that if a point outside a circle has the rectangle under the external segment and the whole equal to the square on the tangent, the line is tangent to the circle.` },
+  { q: `Since BD touches the circle and DC is drawn from the point of contact D, is the angle BDC equal to the angle DAC in the alternate segment? (yes/no):`,
+    hint: `Proposition III.32 says the angle between a tangent and a chord equals the angle in the alternate segment.` },
+  { q: `Now add the angle CDA to both angles BDC and DAC. Then is the whole angle BDA equal to the two angles CDA and DAC? (yes/no):`,
+    hint: `Adding equals to equals yields equal wholes (Common Notion 2).` },
+  { q: `But the exterior angle BCD is equal to the two interior opposite angles CDA and DAC. Is that correct? (yes/no):`,
+    hint: `Proposition I.32: an exterior angle equals the two opposite interior angles.` },
+  { q: `Therefore, is the angle BDA equal to the angle BCD? (yes/no):`,
+    hint: `Each is equal to the sum of CDA and DAC.` },
+  { q: `But AD equals AB, so is the angle BDA equal to the angle DBA? (yes/no):`,
+    hint: `Proposition I.5: in an isosceles triangle, the base angles are equal.` },
+  { q: `If BDA = BCD and BDA = DBA, can we say DBA = BCD as well? (yes/no):`,
+    hint: `Things equal to the same thing are equal to one another (Common Notion 1).` },
+  { q: `Hence, are the three angles BDA, DBA, and BCD all equal? (yes/no):`,
+    hint: `Each of these has been shown equal to the others.` },
+  { q: `Since DBC = BCD, can we conclude BD = DC? (yes/no):`,
+    hint: `Proposition I.6: if two angles of a triangle are equal, the sides opposite them are also equal.` },
+  { q: `But BD equals CA by construction; does that make CA equal to CD? (yes/no):`,
+    hint: `Both BD and CA equal the same length, so they are equal to each other.` },
+  { q: `If CA = CD, is ∠CDA equal to ∠DAC? (yes/no):`,
+    hint: `Proposition I.5 again: equal sides in a triangle have equal opposite angles.` },
+  { q: `Therefore, are the two angles at the base (CDA and DAC) double the smaller one (DAC)? (yes/no):`,
+    hint: `The sum of CDA and DAC equals twice DAC.` },
+  { q: `But ∠BCD equals ∠CDA + ∠DAC, so is ∠BCD double the angle CAD? (yes/no):`,
+    hint: `Substitute the equality of the parts to see the doubling relation.` },
+  { q: `And since ∠BCD equals each of the base angles ∠BDA and ∠DBA, are these also double the vertex angle ∠DAB? (yes/no):`,
+    hint: `All three angles—BCD, BDA, and DBA—are equal, so each is double the small angle at A.` },
+  { q: `Therefore, have we constructed an isosceles triangle ABD whose base angles each double the remaining angle? (yes/no):`,
+    hint: `The triangle ABD satisfies the required property: ∠ABD = ∠ADB = 2 x ∠DAB.` }
+];
+
+const conclusion = `Congratulations! You just constructed an isosceles triangle with base angles double the remaining angle.
+Q.E.F. (Quod Erat Faciendum — which was to be done)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

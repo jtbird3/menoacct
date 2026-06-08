@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>III.14 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>III.14 - Prove that equal chords in a circle are equally distant from the center, and conversely, that chords equally distant from the center are equal.</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements III.14 chatbot!
+
+We are given a circle ABDC, with equal straight lines AB and CD in it. Do you agree? (yes/no):`,
+    hint: `AB and CD are both chords of the circle ABDC.` },
+  { q: `Our goal is to show that equal chords are equally distant from the center, and equally distant chords are equal. Does that make sense? (yes/no):`,
+    hint: `This means that if AB = CD, then the perpendiculars from the center to them are equal; and if those perpendiculars are equal, then AB = CD.` },
+  { q: `Let us find the center of the circle and call it E. Can we do this? (yes/no):`,
+    hint: `By definition, every circle has a center (III.1).` },
+  { q: `From E, draw perpendiculars EF and EG to AB and CD. Can we do this? (yes/no):`,
+    hint: `A straight line can be drawn from a point to a line at right angles.` },
+  { q: `Now join AE and EC. Possible? (yes/no):`,
+    hint: `Postulate 1 allows a straight line to be drawn from any point to any point.` },
+  { q: `Since EF passes through the center and cuts AB at right angles, does it also bisect AB? (yes/no):`,
+    hint: `Proposition III.3 says that a diameter drawn at right angles to a chord bisects it.` },
+  { q: `Therefore is AF = FB, and so AB = 2·AF? (yes/no):`,
+    hint: `If a line is bisected, both parts are equal, so AB is double AF.` },
+  { q: `By the same reasoning, is CD = 2·CG? (yes/no):`,
+    hint: `The same perpendicular argument applies to CD.` },
+  { q: `Since AB = CD, we know AF = CG. Do you agree? (yes/no):`,
+    hint: `If doubles are equal, then their halves are also equal.` },
+  { q: `Now, since AE = EC, are their squares also equal? (yes/no):`,
+    hint: `Equal lines have equal squares.` },
+  { q: `By Pythagoras, is AE² = AF² + FE², and CE² = CG² + GE²? (yes/no):`,
+    hint: `In right-angled triangles, the square on the hypotenuse equals the sum of the squares on the legs (I.47).` },
+  { q: `Since AE² = CE², do we then have AF² + FE² = CG² + GE²? (yes/no):`,
+    hint: `Equal quantities substituted give equal results.` },
+  { q: `We already know that AF² = CG². If we subtract AF² from one side and CG² from the other, do we conclude FE² = GE²? (yes/no):`,
+    hint: `Common Notion 3: If equals are subtracted from equals, the remainders are equal.` },
+  { q: `Therefore FE = EG. We have proven that AB and CD are equally distant from the center. Do you agree? (yes/no):`,
+    hint: `By definition (III.Def.4), chords are equally distant from the center if their perpendiculars from the center are equal.` },
+  { q: `Converse Direction
+Now suppose EF = EG. That means AB and CD are equally distant from the center. Our goal this time is to prove that AB = CD. Do you agree? (yes/no):`,
+    hint: `This is given now as the starting condition.` },
+  { q: `With the same construction, do we still have AB = 2·AF and CD = 2·CG, since EF and EF were drawn perpendicular to AB and CD from the center? (yes/no):`,
+    hint: `Perpendiculars through the center bisect chords, as before.` },
+  { q: `Since AE = CE, do we again have AE² = CE²? (yes/no):`,
+    hint: `Equal lines give equal squares.` },
+  { q: `And from right triangles, AE² = EF² + FA², and CE² = EG² + GC². Is that correct? (yes/no):`,
+    hint: `This is again the Pythagorean theorem (I.47).` },
+  { q: `Since EF = EG, do we conclude FA² = GC², hence FA = CG? (yes/no):`,
+    hint: `Subtract equals from equals; the remainders are equal.` },
+  { q: `If AF = CG, and AB = 2·AF, CD = 2·CG, do we conclude AB = CD? (yes/no):`,
+    hint: `If halves are equal, their doubles are also equal.` },
+  { q: `Therefore, have we proven that equally distant chords AB and CD are equal? (yes/no):`,
+    hint: `This completes the proof in both directions.` }
+];
+
+const conclusion = `Congratulations! You just proved that equal chords are equally distant from the center, and equally distant chords are equal.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

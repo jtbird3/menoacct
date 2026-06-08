@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements XIII.13</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>XIII.13 – Construct a pyramid inscribed in a given sphere, and prove that the square on the diameter of the sphere is one and a half times the square on the side of the pyramid.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `We are given a sphere, and its diameter AB is set out.\nDo you agree? (yes/no):`, hint: `A diameter is a straight line through the center, terminating at the sphere.` },
+  { q: `The diameter AB is cut at a point C so that AC is double of CB.\nIs this construction clear? (yes/no):`, hint: `AC = 2·CB by construction.` },
+  { q: `Our goal is to construct a pyramid, comprehend it in the given sphere, and prove a ratio involving the square on the diameter and the square on the side.\nDoes that make sense? (yes/no):`, hint: `We want both a construction and a proportional result.` },
+  { q: `Let the semicircle ADB be described on AB.\nCan we do this? (yes/no):`, hint: `A semicircle can be drawn on a given diameter.` },
+  { q: `From point C, let CD be drawn at right angles to AB, meeting the semicircle at D.\nIs this possible? (yes/no):`, hint: `A perpendicular can be drawn to a straight line from a given point.` },
+  { q: `Let DA be joined.\nCan we draw this straight line? (yes/no):`, hint: `Postulate 1 allows joining any two points.` },
+  { q: `Let a circle be set out with center C and radius CD.\nIs this allowed? (yes/no):`, hint: `A circle can be drawn with any center and radius.` },
+  { q: `Let an equilateral triangle EFG be inscribed in this circle.\nIs this construction possible? (yes/no):`, hint: `By Book IV, Proposition 2.` },
+  { q: `Let the center of the circle be taken, and call it H.\nDo you agree? (yes/no):`, hint: `Every circle has a unique center.` },
+  { q: `Let HE, HF, and HG be joined.\nCan we draw these lines? (yes/no):`, hint: `Postulate 1 again.` },
+  { q: `From point H, let HK be set up at right angles to the plane of the circle EFG.\nIs this construction legitimate? (yes/no):`, hint: `A perpendicular can be erected to a plane from a point in it.` },
+  { q: `From HK, let a segment equal to AC be cut off.\nCan we do this? (yes/no):`, hint: `A straight line equal to a given straight line can be cut off.` },
+  { q: `Let KE, KF, and KG be joined.\nIs this possible? (yes/no):`, hint: `Any two points can be joined by a straight line.` },
+  { q: `Since HK is at right angles to the plane of the circle, does it make right angles with all lines in that plane which meet it? (yes/no):`, hint: `Definition of perpendicular to a plane.` },
+  { q: `Do the straight lines HE, HF, and HG meet HK? (yes/no):`, hint: `They all pass through H.` },
+  { q: `Therefore, is HK at right angles to each of HE, HF, and HG? (yes/no):`, hint: `Lines in the plane through H meet HK at right angles.` },
+  { q: `Since AC = HK, CD = HE, and the included angles are right angles, can we say DA = KE? (yes/no):`, hint: `Triangles with two sides and the included angle equal are equal (I.4).` },
+  { q: `For the same reason, is KF = DA and KG = DA? (yes/no):`, hint: `The same construction applies to each pair.` },
+  { q: `Therefore, are KE, KF, and KG all equal to one another? (yes/no):`, hint: `Things equal to the same thing are equal to each other.` },
+  { q: `Since AC is double of CB, is AB triple of CB? (yes/no):`, hint: `AB = AC + CB = 2CB + CB.` },
+  { q: `As AB is to BC, is the square on AD to the square on DC? (yes/no):`, hint: `The sides subtend proportional squares by the right triangle construction.` },
+  { q: `Therefore, is the square on AD triple of the square on DC? (yes/no):`, hint: `Triplicate ratio follows from AB : BC = 3 : 1.` },
+  { q: `Is the square on EF triple of the square on EH? (yes/no):`, hint: `By Book XIII, Proposition 12.` },
+  { q: `Since DC equals EH, do we conclude DA equals EF? (yes/no):`, hint: `Equal squares stand on equal straight lines.` },
+  { q: `Since DA equals KE, KF, and KG, do EF, FG, and GE equal them as well? (yes/no):`, hint: `All are shown equal to DA.` },
+  { q: `Therefore, are the triangles EFG, KEF, KFG, and KEG all equilateral? (yes/no):`, hint: `Each triangle has three equal sides.` },
+  { q: `Have we now constructed a pyramid of four equilateral triangles, with base EFG and vertex K? (yes/no):`, hint: `One base and three congruent lateral faces.` },
+  { q: `Next, we must comprehend the pyramid in the given sphere.\nIs that our next goal? (yes/no):`, hint: `We must show all vertices lie on the sphere.` },
+  { q: `Let HL be produced in a straight line with KH, and let HL be made equal to CB.\nIs this construction possible? (yes/no):`, hint: `A straight line can be produced and a segment cut off equal to a given one.` },
+  { q: `Since AC is to CD as CD is to CB, and AC = KH, CD = HE, CB = HL, do we get KH : HE = HE : HL? (yes/no):`, hint: `Substitution into proportionality.` },
+  { q: `Therefore, is the rectangle KH, HL equal to the square on HE? (yes/no):`, hint: `By VI.17.` },
+  { q: `Are the angles KHE and EHL right angles? (yes/no):`, hint: `Each is formed by a perpendicular.` },
+  { q: `Therefore, does the semicircle on KL pass through E? (yes/no):`, hint: `A right angle stands on a diameter.` },
+  { q: `If the semicircle on KL is rotated about KL, will it also pass through F and G? (yes/no):`, hint: `The same right-angle argument applies symmetrically.` },
+  { q: `Is the pyramid therefore comprehended in the sphere whose diameter is KL? (yes/no):`, hint: `All vertices lie on the rotating semicircle.` },
+  { q: `Is KL equal to AB, the diameter of the given sphere? (yes/no):`, hint: `KH = AC and HL = CB, so KL = AC + CB = AB.` },
+  { q: `Finally, we must prove the square on the diameter is one and a half times the square on the side.\nDoes that make sense? (yes/no):`, hint: `This is the numerical ratio sought.` },
+  { q: `Since AC is double of CB, is AB one and a half times AC? (yes/no):`, hint: `Convertendo gives AB : AC = 3 : 2.` },
+  { q: `As BA is to AC, is the square on BA to the square on AD? (yes/no):`, hint: `Squares are in the duplicate ratio of their sides.` },
+  { q: `Therefore, is the square on BA one and a half times the square on AD? (yes/no):`, hint: `Duplicate ratio of 3 : 2 gives 9 : 4 = 1.5.` },
+  { q: `Is BA the diameter of the sphere, and AD equal to the side of the pyramid? (yes/no):`, hint: `Both were fixed by the construction.` },
+  { q: `Therefore, is the square on the diameter of the sphere one and a half times the square on the side of the pyramid? (yes/no):`, hint: `This completes the proof.` }
+]
+
+const conclusion = `Congratulations! You just constructed a pyramid inscribed in a given sphere, and proved that the square on the diameter of the sphere is one and a half times the square on the side of the pyramid.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

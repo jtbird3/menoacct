@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Gödel's First Incompleteness Theorem</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>Gödel I — Prove that any consistent system able to express arithmetic contains a true statement that it cannot prove</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Gödel's First Incompleteness Theorem chatbot!
+
+We consider a formal mathematical system S. Do you agree? (yes/no):`,
+    hint:`A formal system has symbols, rules of formation, and rules of proof.` },
+
+  { q:`Assume that system S is consistent. Does that make sense? (yes/no):`,
+    hint:`Consistent means S does not prove both a statement and its negation.` },
+
+  { q:`Assume also that S is sufficiently expressive to describe basic arithmetic. Agreed? (yes/no):`,
+    hint:`The system can talk about natural numbers and simple computations.` },
+
+  { q:`Our goal is to show that there exists a true statement about numbers that S cannot prove. Does that make sense? (yes/no):`,
+    hint:`We want to show that even if the system is consistent and talks correctly about numbers,
+there are statements that are true but unprovable inside the system.` },
+
+  { q:`First, by Gödel numbering, can statements, proofs, and symbols of S be encoded as natural numbers? (yes/no):`,
+    hint:`This is called Gödel numbering: by assigning a unique number to each symbol, formula, and natural number, we can represent reasoning in numbers themselves.` },
+
+  { q:`Does each formula of S correspond to a unique number under this encoding? (yes/no):`,
+    hint:`Different strings get different numbers.` },
+
+  { q:`Can relations about formulas and proofs then be translated into relations about numbers? (yes/no):`,
+    hint:`Syntax becomes arithmetic.` },
+
+  { q:`In particular, can the property "x is the Gödel number of a valid proof of y" be expressed arithmetically? (yes/no):`,
+    hint:`Proof checking is mechanical and finite.` },
+
+  { q:`Therefore, can the notion "y is provable in S" be expressed inside S itself? (yes/no):`,
+    hint:`Provability becomes a formula of arithmetic.` },
+
+  { q:`Now, let us construct a sentence G that speaks about itself such that G asserts: "G is not provable in S". Does that make sense? (yes/no):`,
+    hint:`Use diagonalization to make a sentence refer to its own Gödel number. G encodes its own unprovability.` },
+
+  { q:`Assume for a moment that sentence G is provable in S. Is that a clear assumption? (yes/no):`,
+    hint:`We test what follows from this.` },
+
+  { q:`If G were provable, would that contradict what G asserts? (yes/no):`,
+    hint:`G says it is not provable.` },
+
+  { q:`So if system S proved sentence G, would S prove a false statement? (yes/no):`,
+    hint:`That would violate consistency.` },
+
+  { q:`Yet did we assume S to be consistent, meaning it does not prove both a statement and its negation? (yes/no):`,
+    hint:`This is the given assumption.` },
+
+  { q:`So, is it impossible for G to be provable in S if S is consistent? (yes/no):`,
+    hint:`No consistent system proves G.` },
+
+  { q:`Now assume instead that sentence G is not provable in S. Agreed? (yes/no):`,
+    hint:`This is the remaining case.` },
+
+  { q:`If sentence G is not provable, does that make the statement G true? (yes/no):`,
+    hint:`G asserts exactly its own unprovability.` },
+
+  { q:`So is G a true statement about the natural numbers? (yes/no):`,
+    hint:`Its content matches reality.` },
+
+  { q:`Yet is G unprovable within S? (yes/no):`,
+    hint:`We already established this.` },
+
+  { q:`Therefore, does there exist a true statement that S cannot prove? (yes/no):`,
+    hint:`This is precisely what G is.` },
+
+  { q:`Have we shown that S is incomplete? (yes/no):`,
+    hint:`Incomplete means not every true statement is provable.` },
+
+  { q:`Conclusion: Does any consistent, sufficiently expressive formal system of arithmetic is incomplete. Does that follow? (yes/no):`,
+    hint:`This is Gödel’s First Incompleteness Theorem.` }
+]
+
+
+
+
+
+
+
+
+
+
+const conclusion = `Congratulations! You just proved Gödel's First Incompleteness Theorem: that any consistent system able to express arithmetic contains a true statement that it cannot prove.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>I.5 — MenoChat (Anamnesis Mode)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 860px;
+      margin: auto;
+      line-height: 1.35;
+    }
+    h1 { font-size: 22px; margin: 0 0 10px; }
+    .sub { margin: 0 0 14px; font-size: 13px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 12px;
+      min-height: 220px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .msg { padding: 0; margin: 0; }
+    .bot { }
+    .user { }
+    #inputArea { margin-top: 10px; }
+    input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      font-family: inherit;
+      font-size: 14px;
+      border: 1px solid #000;
+      border-radius: 0;
+    }
+
+    /* Mobile */
+    @media (max-width: 768px) {
+      body { padding: 15px; padding-bottom: 110px; }
+      h1 { font-size: 18px; }
+      #inputArea { display: none; }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        background: #fff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+      .mobile-btn {
+        flex: 1;
+        max-width: 140px;
+        padding: 16px 18px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+      .mobile-btn:active { background: #000; color: #fff; }
+      .mobile-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    }
+
+    /* Hide on desktop */
+    .mobile-buttons { display: none; }
+    @media (max-width: 768px) { .mobile-buttons { display: flex; } }
+  </style>
+</head>
+<body>
+
+<h1>I.5 — Base angles of an isosceles triangle are equal</h1>
+<p class="sub">
+Anamnesis mode: you only say <b>yes</b> to what you can actually grant, and <b>no</b> when you need a push.
+</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+/*
+  Euclid I.5 (classical letter scheme):
+  Given isosceles triangle ABC with AB = AC.
+  Produce BA to D and CA to E.
+  Take AD = AE.
+  Join DC and EB.
+  Prove ∠ABC = ∠ACB and ∠CBD = ∠BCE.
+*/
+
+const steps = [
+  {
+    q: `Welcome.
+
+We are given triangle ABC, and it is isosceles with AB = AC. Do you agree? (yes/no)`,
+    hint: `“Isosceles” here means the sides from A to the base endpoints are equal: AB equals AC.`
+  },
+  {
+    q: `We produce BA beyond A to a point D, and we produce CA beyond A to a point E.
+Is that allowed? (yes/no)`,
+    hint: `Postulate 2: a finite straight line can be produced (extended) in a straight line.`
+  },
+  {
+    q: `Now we choose points D and E so that AD = AE.
+Is that construction possible? (yes/no)`,
+    hint: `Use Proposition I.3: from a greater line cut off a part equal to a lesser. (Here you can match the lengths AD and AE.)`
+  },
+  {
+    q: `We join DC and we join EB.
+Can we draw those straight lines? (yes/no)`,
+    hint: `Postulate 1: a straight line can be drawn from any point to any point.`
+  },
+  {
+    q: `State the goal precisely:
+(1) The base angles are equal: ∠ABC = ∠ACB.
+(2) The angles under the base are equal: ∠CBD = ∠BCE.
+Do you accept these as the targets? (yes/no)`,
+    hint: `Those are exactly Euclid’s two claims in I.5.`
+  },
+
+  // First congruence: triangles DBC and ECB
+  {
+    q: `Look at triangles DBC and ECB.
+
+Do they share the side BC in common? (yes/no)`,
+    hint: `BC is literally one side of each triangle: in DBC it’s BC; in ECB it’s CB.`
+  },
+  {
+    q: `Do we also have BD = CE? (yes/no)
+
+(Think: BD is BA + AD, and CE is CA + AE.)`,
+    hint: `Since AB = AC (given) and AD = AE (constructed), adding equals to equals gives BD = CE (Common Notion 2).`
+  },
+  {
+    q: `Do we have DC = EB? (yes/no)
+
+(Think: DC is AC + AD, and EB is AB + AE.)`,
+    hint: `Similarly: AC = AB (given) and AD = AE (constructed), so DC = EB (Common Notion 2).`
+  },
+  {
+    q: `So in triangles DBC and ECB:
+BD = CE, DC = EB, and BC is common.
+Is that enough to conclude the triangles are equal by SSS (I.8)? (yes/no)`,
+    hint: `Yes: three sides equal to three sides → triangles equal (Proposition I.8).`
+  },
+
+  // Deductions from first congruence
+  {
+    q: `From the equality of triangles DBC and ECB,
+do the corresponding angles satisfy ∠DBC = ∠ECB? (yes/no)`,
+    hint: `Equal triangles have equal corresponding angles (the content of I.8’s conclusion).`
+  },
+  {
+    q: `And do we also have ∠DCB = ∠EBC? (yes/no)`,
+    hint: `Same reason: corresponding angles in equal triangles are equal.`
+  },
+
+  // Second congruence: triangles ABC and ACB (or use “subtract equals from equals”).
+  {
+    q: `Now look at triangles ABC and ACB.
+
+They have AB = AC (given) and AC = AB (same fact), and BC is common.
+So are triangles ABC and ACB equal by SSS (I.8)? (yes/no)`,
+    hint: `Yes: AB matches AC, AC matches AB, and BC matches CB.`
+  },
+  {
+    q: `If triangles ABC and ACB are equal, does it follow that ∠ABC = ∠ACB? (yes/no)`,
+    hint: `That’s exactly the base-angle conclusion: corresponding angles are equal.`
+  },
+
+  // “Angles under the base” (external angles)
+  {
+    q: `Finally: the “angles under the base” are ∠CBD and ∠BCE.
+
+Do you see that ∠CBD is the same as ∠DBC, just named with the vertex B and rays BC and BD? (yes/no)`,
+    hint: `Angle CBD: rays BC and BD with vertex at B. Angle DBC: rays BD and BC with vertex at B. Same angle, reversed order.`
+  },
+  {
+    q: `And do you see that ∠BCE is the same as ∠ECB, with vertex at C and rays CB and CE? (yes/no)`,
+    hint: `Angle BCE: rays CB and CE at C. Angle ECB: rays CE and CB at C. Same angle, reversed order.`
+  },
+  {
+    q: `Since we already had ∠DBC = ∠ECB,
+does it follow that ∠CBD = ∠BCE? (yes/no)`,
+    hint: `Yes: they’re the very same angles, just written with reversed ray order.`
+  }
+];
+
+const conclusion = `Conclusion (Q.E.D.)
+
+We proved:
+1) ∠ABC = ∠ACB (the base angles of isosceles triangle ABC are equal),
+2) ∠CBD = ∠BCE (the angles under the base are equal).
+
+That is Euclid I.5.`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    if (inputField) inputField.disabled = true;
+    const y = document.getElementById('mobileYes');
+    const n = document.getElementById('mobileNo');
+    if (y) y.disabled = true;
+    if (n) n.disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  const a = answer.trim().toLowerCase();
+  if (a === 'yes' || a === 'y') {
+    currentStep++;
+    showStep();
+    return;
+  }
+  if (a === 'no' || a === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+    return;
+  }
+  addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+}
+
+if (inputField) {
+  inputField.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      const answer = inputField.value.trim();
+      if (answer) {
+        processAnswer(answer);
+        inputField.value = '';
+      }
+    }
+  });
+}
+
+document.getElementById('mobileYes')?.addEventListener('click', function() {
+  processAnswer('yes');
+});
+document.getElementById('mobileNo')?.addEventListener('click', function() {
+  processAnswer('no');
+});
+
+showStep();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>I.40 — MenoChat (Toggle: Pure ↔ Graph)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>I.40 – Prove that equal triangles on equal bases and on the same side lie in the same parallels</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements I.40 chatbot!
+
+We are given two equal triangles, ABC and CDE, standing on equal bases BC and CE, on the same side. Do you agree? (yes/no):`,
+    hint: `Triangle ABC has base BC, triangle CDE has base CE, and they are said to be equal in area.` },
+  { q: `Our goal is to show that these triangles lie in the same parallels. Does that make sense? (yes/no):`,
+    hint: `We want to prove that line AD is parallel to line BE.` },
+  { q: `First, let us join A to D with a straight line AD. Can we do this? (yes/no):`,
+    hint: `Postulate 1: a straight line can be drawn from any point to any point.` },
+  { q: `Suppose AD is not parallel to BE. Then can we draw through A another line AF parallel to BE? (yes/no):`,
+    hint: `Proposition I.31 allows us to draw a line parallel to a given line through any point not on it.` },
+  { q: `Now, join FE. Can we do that? (yes/no):`,
+    hint: `Postulate 1 again: we may draw a straight line from F to E.` },
+  { q: `By Proposition I.38, is triangle ABC equal to triangle FCE? (yes/no):`,
+    hint: `Yes, because they stand on equal bases BC and CE, and between the same parallels BE and AF.` },
+  { q: `But we were also given that △ABC = △DCE. True? (yes/no):`,
+    hint: `This is part of the original hypothesis.` },
+  { q: `If △ABC = △FCE and △ABC = △DCE, must triangle DCE also equal triangle FCE? (yes/no):`,
+    hint: `By Common Notion 1, things equal to the same thing are equal to one another.` },
+  { q: `But can a greater triangle equal a lesser? Do you agree that this is impossible? (yes/no):`,
+    hint: `This is impossible: one triangle cannot be both greater and equal to another.` },
+  { q: `Therefore AF cannot be parallel to BE. Does that follow? (yes/no):`,
+    hint: `The assumption (AF ∥ BE) led to an impossibility, so it must be false.` },
+  { q: `Thus, is AD the only line through A that can be parallel to BE? (yes/no):`,
+    hint: `Yes, by elimination, AD must be the true parallel.` }
+];
+
+const conclusion = `Therefore, equal triangles on equal bases and on the same side are contained in the same parallels. Congratulations!
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

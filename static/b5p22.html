@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>V.22 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>V.22 - If any number of magnitudes and an equal number of others are pairwise in the same ratios, they are also in the same ratio ex aequali</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements V.22 chatbot!
+
+We are given several magnitudes A, B, C, and others D, E, F equal to them in number such that A is to B as D is to E and B is to C as E is to F. Do you agree? (yes/no):`,
+    hint: `“Equal in multitude” means both groups contain the same number of magnitudes — three in each group.` },
+  { q: `Our goal is to prove that if A:B = D:E and B:C = E:F, then A:C = D:F (ex aequali). Does that make sense? (yes/no):`,
+    hint: `“Ex aequali” means the first-to-last ratio equals the compounded ratios taken pairwise.` },
+  { q: `Let equimultiples of A and D be taken, and call them G and H. Is that acceptable? (yes/no):`,
+    hint: `“Equimultiples” means multiplying each by the same factor (double, triple, etc.).` },
+  { q: `Next, let equimultiples of B and E be taken, and call them K and L. Is that possible? (yes/no):`,
+    hint: `By Book V, Def. 4, we may take as many equal multiples of any magnitudes as we wish.` },
+  { q: `Further, let equimultiples of C and F be taken, and call them M and N. Can we do this too? (yes/no):`,
+    hint: `We repeat the same operation for the third pair to compare them later.` },
+  { q: `Now, since A:B = D:E, and equimultiples G, H of A, D, and K, L of B, E are taken, can we say that G:K = H:L? (yes/no):`,
+    hint: `From Proposition V.4, equal ratios are preserved when equimultiples are taken.` },
+  { q: `For the same reason, since B:C = E:F, do we also have K:M = L:N? (yes/no):`,
+    hint: `Again by V.4, taking equimultiples maintains the given ratio.` },
+  { q: `So now we have G, K, M and H, L, N — two sets of three magnitudes each, equal in multitude, and corresponding pairs in the same ratio. Correct? (yes/no):`,
+    hint: `Each pair G↔H, K↔L, M↔N matches as earlier defined.` },
+  { q: `By Proposition V.20, if magnitudes taken in order are in the same ratio pairwise, are they also in the same ratio ex aequali? (yes/no):`,
+    hint: `V.20 establishes the ex aequali (via equality) relation across the chain.` },
+  { q: `Therefore, if G > M, then H > N; if equal, equal; if less, less. Agreed? (yes/no):`,
+    hint: `That is precisely what it means for the sets to be in the same ratio ex aequali.` },
+  { q: `Since G, H are equimultiples of A, D and M, N equimultiples of C, F, can we now say A:C = D:F? (yes/no):`,
+    hint: `Because the same relation holds among equimultiples, the original magnitudes stand in that ratio (Book V, Def. 5).` }
+];
+
+const conclusion = `Congratulations! You just proved that if any number of magnitudes and an equal number of others are pairwise in the same ratios, they are also in the same ratio ex aequali.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

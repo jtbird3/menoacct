@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements IX.16</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>IX.16 — Prove that if two numbers are prime to one another, then the second has no other number to it in the same ratio as the first has to the second</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements IX.16 chatbot!
+
+We are given two numbers A and B, and they are prime to one another. Do you agree? (yes/no):`,
+    hint: `Numbers are prime to one another if they have no common measure except unity.` },
+
+  { q: `Our goal is to show that B is not to any other number as A is to B. Does that make sense? (yes/no):`,
+    hint: `We want to show that no number C can satisfy the ratio A : B = B : C.` },
+
+  { q: `Suppose, if possible, that as A is to B, so B is to some number C. May we make this assume this for contradiction? (yes/no):`,
+    hint: `This is the standard indirect method: assume what we want to deny.` },
+
+  { q: `Are A and B prime numbers relative to one another? (yes/no):`,
+    hint: `This is given at the start of the proposition.` },
+
+  { q: `Are prime numbers also the least numbers having the same ratio? (yes/no):`,
+    hint: `Proposition VII.21: numbers prime to one another are the least of those which have the same ratio with them.` },
+
+  { q: `Do the least numbers which have the same ratio measure the numbers having that ratio the same number of times, antecedent the antecedent and consequent the consequent? (yes/no):`,
+    hint: `Proposition VII.20: least numbers with the same ratio measure equally: the greater measures the greater, and the less measures the less` },
+
+  { q: `If we have A to B as B is to C, and A, B being least, does A measure B as antecedent measures antecedent? (yes/no):`,
+    hint: `Least numbers in the same ratio measure corresponding terms equally.` },
+
+  { q: `Does A also measure itself? (yes/no):`,
+    hint: `Any number measures itself.` },
+
+  { q: `If A measures both A and B, does A measure the two numbers A and B together? (yes/no):`,
+    hint: `A common measure measures both numbers.` },
+
+  { q: `But are A and B prime to one another? (yes/no):`,
+    hint: `This means they have no common measure greater than one.` },
+
+  { q: `Is it absurd for A to measure both A and B if they are prime to one another? (yes/no):`,
+    hint: `This contradicts the definition of being prime to one another.` },
+
+  { q: `Since the assumption leads to an absurdity, must it be false that B is to C as A is to B? (yes/no):`,
+    hint: `What leads to contradiction must be rejected.` },
+
+  { q: `Therefore, is it true that if two numbers are prime to one another, the second will not be to any other number as the first is to the second? (yes/no):`,
+    hint: `This restates the proposition just proved.` }
+]
+
+
+
+
+
+
+
+
+const conclusion = `Congratulations! You just proved that if two numbers are prime to one another, then the second has no other number to it in the same ratio as the first has to the second.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

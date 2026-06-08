@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements XIII.16</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>XIII.16 – The side of an icosahedron inscribed in a sphere is the irrational straight line called minor.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements XIII.16 chatbot!
+
+Our goal is to construct an icosahedron and comprehend it in a sphere, and to prove that its side is the irrational straight line called minor. We are given a sphere with diameter AB. Do you agree? (yes/no):`,
+    hint: `AB is stated to be the diameter of the given sphere.` },
+
+  { q: `Let AB be cut at C so that AC is four times CB. Is this construction clear? (yes/no):`,
+    hint: `AC : CB = 4 : 1.` },
+
+  { q: `On AB describe the semicircle ADB. Is this allowed? (yes/no):`,
+    hint: `A semicircle can be described on a diameter.` },
+
+  { q: `From C draw CD at right angles to AB, meeting the semicircle at D. Can this be done? (yes/no):`,
+    hint: `A perpendicular can be erected from a point on a line.` },
+
+  { q: `Join DB. Is this permitted? (yes/no):`,
+    hint: `Postulate 1 allows joining any two points by a straight line.` },
+
+  { q: `Set out a circle EFGHK with radius equal to DB. Is this possible? (yes/no):`,
+    hint: `Postulate 3 allows a circle with any center and radius.` },
+
+  { q: `In the circle EFGHK, inscribe an equilateral and equiangular pentagon EFGHK. Can this be done? (yes/no):`,
+    hint: `Regular pentagons can be inscribed in a circle.` },
+
+  { q: `Bisect the arcs EF, FG, GH, HK, KE at points L, M, N, O, P respectively. Is this construction clear? (yes/no):`,
+    hint: `Each arc has a midpoint.` },
+
+  { q: `Join LM, MN, NO, OP, PL, and also join EP. Is this allowed? (yes/no):`,
+    hint: `Straight lines may be drawn between points.` },
+
+  { q: `Is the pentagon LMNOP equilateral? (yes/no):`,
+    hint: `Each side subtends equal arcs.` },
+
+  { q: `Does EP belong to a decagon inscribed in the same circle? (yes/no):`,
+    hint: `EP connects vertices separated by two sides of the pentagon.` },
+
+  { q: `From points E, F, G, H, K erect straight lines EQ, FR, GS, HT, KU at right angles to the plane of the circle, each equal to the circle’s radius. Is this possible? (yes/no):`,
+    hint: `A perpendicular to a plane can be erected at a point.` },
+
+  { q: `Join QR, RS, ST, TU, UQ, and also join QL, LR, RM, MS, SN, NT, TO, OU, UP, PQ. Is this construction acceptable? (yes/no):`,
+    hint: `Straight lines may be drawn between any two points.` },
+
+  { q: `Since EQ and KU are both perpendicular to the same plane, are they parallel? (yes/no):`,
+    hint: `Straight lines perpendicular to the same plane are parallel. [XI.6]` },
+
+  { q: `Are EQ and KU also equal? (yes/no):`,
+    hint: `Each equals the radius of the same circle.` },
+
+  { q: `Does it follow that QU is equal and parallel to EK? (yes/no):`,
+    hint: `Joining equal and parallel straight lines gives equal and parallel results. [I.33]` },
+
+  { q: `Since EK belongs to the equilateral pentagon, does QU also belong to an equilateral pentagon? (yes/no):`,
+    hint: `Corresponding equal parallels preserve polygonal structure.` },
+
+  { q: `By the same reasoning, do QR, RS, ST, TU also belong to an equilateral pentagon? (yes/no):`,
+    hint: `The argument applies cyclically.` },
+
+  { q: `Therefore, is the pentagon QRSTU equilateral? (yes/no):`,
+    hint: `All five sides have been shown equal.` },
+
+  { q: `Since QE belongs to a hexagon, EP to a decagon, and ∠QEP is right, does QP belong to a pentagon? (yes/no):`,
+    hint: `XIII.10: square on pentagon side equals sum of squares on hexagon and decagon sides.` },
+
+  { q: `For the same reason, does PU also belong to a pentagon? (yes/no):`,
+    hint: `The same right-angle/hexagon/decagon argument applies.` },
+
+  { q: `Is QU also a side of a pentagon? (yes/no):`,
+    hint: `QU corresponds to EK, a pentagon side.` },
+
+  { q: `Therefore, is triangle QPU equilateral? (yes/no):`,
+    hint: `All three sides belong to a pentagon.` },
+
+  { q: `By the same reasoning, are triangles QLR, RMS, SNT, TOU also equilateral? (yes/no):`,
+    hint: `Each has sides shown to be pentagon sides.` },
+
+  { q: `Since QL, QP, and LP all belong to a pentagon, is triangle QLP equilateral? (yes/no):`,
+    hint: `All three sides are equal.` },
+
+  { q: `For the same reason, are triangles LRM, MSN, NTO, OUP also equilateral? (yes/no):`,
+    hint: `The argument repeats around the figure.` },
+
+  { q: `Let V be the center of circle EFGHK. From V erect VZ perpendicular to the plane, and produce it to X. Is this construction clear? (yes/no):`,
+    hint: `A perpendicular to the plane can be erected from a point, and produced.` },
+
+  { q: `Cut off VW equal to the side of a hexagon, and let VX and WZ be sides of a decagon. Is this accepted? (yes/no):`,
+    hint: `Required lengths can be cut off equal to given polygon sides.` },
+
+  { q: `Join QZ, QW, UZ, EV, LV, LX, XM. Is this allowed? (yes/no):`,
+    hint: `Straight lines may be drawn between given points.` },
+
+  { q: `Since VW and QE are perpendicular to the same plane, are they parallel? (yes/no):`,
+    hint: `Lines perpendicular to the same plane are parallel.` },
+
+  { q: `Are they also equal? (yes/no):`,
+    hint: `Each equals a hexagon side (radius).` },
+
+  { q: `Does it follow that EV and QW are equal and parallel? (yes/no):`,
+    hint: `By parallels and equal straight lines (I.33).` },
+
+  { q: `Since EV belongs to a hexagon, does QW also belong to a hexagon? (yes/no):`,
+    hint: `Equal to the radius implies hexagon side.` },
+
+  { q: `Since QW belongs to a hexagon, WZ to a decagon, and ∠QWZ is right, does QZ belong to a pentagon? (yes/no):`,
+    hint: `Again use XIII.10.` },
+
+  { q: `For the same reason, does UZ belong to a pentagon? (yes/no):`,
+    hint: `Same construction on the other side.` },
+
+  { q: `Since QU also belongs to a pentagon, is triangle QUZ equilateral? (yes/no):`,
+    hint: `All three sides are pentagon sides.` },
+
+  { q: `Are all remaining triangles with bases QR, RS, ST, TU and vertex Z also equilateral? (yes/no):`,
+    hint: `The same pentagon-side argument applies.` },
+
+  { q: `Since VL belongs to a hexagon, VX to a decagon, and ∠LVX is right, does LX belong to a pentagon? (yes/no):`,
+    hint: `Use XIII.10 again.` },
+
+  { q: `Similarly, does MX belong to a pentagon? (yes/no):`,
+    hint: `Same reasoning for the adjacent arc.` },
+
+  { q: `Since LM belongs to a pentagon, is triangle LMX equilateral? (yes/no):`,
+    hint: `All three sides are pentagon sides.` },
+
+  { q: `Are all remaining triangles with bases MN, NO, OP, PL and vertex X also equilateral? (yes/no):`,
+    hint: `Repeat the argument cyclically.` },
+
+  { q: `Have we constructed an icosahedron contained by twenty equilateral triangles? (yes/no):`,
+    hint: `An icosahedron has exactly twenty triangular faces.` },
+
+  { q: `Our goal is now to comprehend the icosahedron in the given sphere and prove its side is minor. Does that make sense? (yes/no):`,
+    hint: `Now we show all vertices lie on a sphere and identify the side as “minor.”` },
+
+  { q: `Since VW belongs to a hexagon and WZ to a decagon, has VZ been cut in extreme and mean ratio at W? (yes/no):`,
+    hint: `Hexagon/decagon relation yields the golden section.` },
+
+  { q: `Is VW the greater segment? (yes/no):`,
+    hint: `In extreme and mean ratio, the greater segment is the mean.` },
+
+  { q: `Therefore, is ZV : VW = VW : WZ? (yes/no):`,
+    hint: `This is the definition of extreme and mean ratio.` },
+
+  { q: `Since VW = VE and WZ = VX, does ZV : VE = EV : VX? (yes/no):`,
+    hint: `Substitute equals into the proportion.` },
+
+  { q: `Are ∠ZVE and ∠EVX right angles? (yes/no):`,
+    hint: `Each is formed by a line perpendicular to the plane with a line in the plane.` },
+
+  { q: `If we join EZ, is ∠XEZ right? (yes/no):`,
+    hint: `Similar triangles.` },
+
+  { q: `For the same reason, does joining QX give a right angle at Q? (yes/no):`,
+    hint: `The same similarity/right-angle argument applies.` },
+
+  { q: `Does the semicircle on XZ pass through Q? (yes/no):`,
+    hint: `A right angle subtends a semicircle (III.31).` },
+
+  { q: `If the semicircle on XZ is rotated about XZ, does it pass through all angular points of the icosahedron? (yes/no):`,
+    hint: `All vertices satisfy the same right-angle condition by symmetry.` },
+
+  { q: `Therefore, is the icosahedron comprehended in a sphere? (yes/no):`,
+    hint: `All vertices lie on one sphere.` },
+
+  { q: `Let VW be bisected at A′. Is this clear? (yes/no):`,
+    hint: `Any straight line can be bisected.` },
+
+  { q: `Using XIII.3, is the square on ZA′ five times the square on the half of the greater segment? (yes/no):`,
+    hint: `This is the cited proposition’s relation.` },
+
+  { q: `Is ZX double ZA′ and VW double the half-segment? (yes/no):`,
+    hint: `Doubling a half restores the whole.` },
+
+  { q: `Therefore, is the square on ZX five times the square on VW? (yes/no):`,
+    hint: `Squares of doubles scale consistently.` },
+
+  { q: `Since AC is four times CB, is AB five times BC? (yes/no):`,
+    hint: `AB = AC + CB = 4CB + CB = 5CB.` },
+
+  { q: `Therefore, is the square on AB five times the square on BD? (yes/no):`,
+    hint: `From the right-triangle construction in the semicircle.` },
+
+  { q: `Since BD = VW, is AB = ZX? (yes/no):`,
+    hint: `Equal squares imply equal straight lines.` },
+
+  { q: `Since AB is the diameter of the given sphere, is ZX also equal to that diameter? (yes/no):`,
+    hint: `ZX has been shown equal to AB.` },
+
+  { q: `Therefore, has the icosahedron been comprehended in the given sphere? (yes/no):`,
+    hint: `The constructed sphere matches the given one in diameter.` },
+
+  { q: `I say next that the side of the icosahedron is the irrational straight line called minor. Does that make sense? (yes/no):`,
+    hint: `Now we identify the side’s irrational species.` },
+
+  { q: `Since the diameter of the sphere is rational, is the radius of the circle EFGHK rational? (yes/no):`,
+    hint: `It was constructed from BD, derived from the rational diameter.` },
+
+  { q: `Therefore, is the diameter of that circle rational? (yes/no):`,
+    hint: `Twice a rational radius is rational.` },
+
+  { q: `If an equilateral pentagon is inscribed in a circle with rational diameter, is its side the irrational straight line called minor? (yes/no):`,
+    hint: `Hint: XIII.11.` },
+
+  { q: `Is the side of the pentagon EFGHK the side of the icosahedron? (yes/no):`,
+    hint: `Those pentagon sides were used as the repeating edge-length in the solid.` },
+
+  { q: `Therefore, is the side of the icosahedron the irrational straight line called minor? (yes/no):`,
+    hint: `It is the same length shown to be “minor.”` },
+
+  { q: `From this, is it manifest that the square on the diameter of the sphere is five times the square on the radius of the generating circle? (yes/no):`,
+    hint: `This follows from the established fivefold square ratio.` },
+
+  { q: `And that the diameter of the sphere is composed of one side of the hexagon and two sides of the decagon inscribed in the same circle? (yes/no):`,
+    hint: `This is the stated porism about composing the diameter from those polygonal sides.` }
+]
+
+const conclusion = `Congratulations! You just showed that the side of an icosahedron inscribed in a sphere is the irrational straight line called minor.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

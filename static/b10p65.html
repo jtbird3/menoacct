@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.65</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.65 – Prove that if the square on the side of the sum of two medial areas is applied to a rational straight line, the breadth produced is the sixth binomial straight line.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+{ q: `Welcome to Elements X.65 chatbot!
+
+We are given a straight line AB which is the side of the sum of two medial areas, divided at point C. Do you agree? (yes/no):`, hint: `AB is divided at C into AC and CB, and AB is given as the side of the sum of two medial areas.` },
+{ q: `We are also given a rational straight line DE. Agreed? (yes/no):`, hint: `DE is explicitly stated to be rational.` },
+{ q: `On DE, a parallelogram DF equal to the square on AB is applied, producing DG as its breadth. Is this construction understood? (yes/no):`, hint: `The area DF equals the square on AB, and DG is the breadth of the applied parallelogram.` },
+{ q: `Our goal is to show that DG is a sixth binomial straight line. Does that make sense? (yes/no):`, hint: `This is exactly what the proposition claims.` },
+
+{ q: `Since AB is the side of the sum of two medial areas divided at C, are AC and CB straight lines incommensurable in square? (yes/no):`, hint: `This follows from the definition of the side of the sum of two medial areas.` },
+{ q: `Do the squares on AC and CB together make a medial sum? (yes/no):`, hint: `This is part of the same definition.` },
+{ q: `Is the rectangle contained by AC and CB also medial? (yes/no):`, hint: `Heath X.41 establishes this property.` },
+{ q: `Is the sum of the squares on AC and CB incommensurable with the rectangle contained by them? (yes/no):`, hint: `This is explicitly stated in X.41.` },
+
+{ q: `From the previous construction, are the rectangles DL and MF medial? (yes/no):`, hint: `Rectangles corresponding to medial magnitudes are medial by what was previously proved.` },
+{ q: `Are the rectangles DL and MF applied to the rational straight line DE? (yes/no):`, hint: `They arise from the application of DF to DE.` },
+{ q: `Therefore, are the straight lines DM and MG rational but incommensurable in length with DE? (yes/no):`, hint: `By X.22, medial areas applied to a rational line yield such straight lines.` },
+
+{ q: `Since the sum of the squares on AC and CB is incommensurable with twice the rectangle AC, CB, is DL incommensurable with MF? (yes/no):`, hint: `Incommensurability of areas carries over to the corresponding rectangles.` },
+{ q: `If DL is incommensurable with MF, is DM also incommensurable with MG? (yes/no):`, hint: `By VI.1 and X.11, corresponding sides inherit incommensurability.` },
+{ q: `Are DM and MG rational straight lines commensurable in square only? (yes/no):`, hint: `They are rational, but not commensurable in length.` },
+{ q: `Therefore, is DG a binomial straight line? (yes/no):`, hint: `This follows from the definition of a binomial straight line (X.36).` },
+
+{ q: `I say next that DG is not just binomial, but a sixth binomial straight line. Is that clear? (yes/no):`, hint: `Additional conditions must now be verified.` },
+{ q: `Can we similarly prove that the rectangle DK, KM is equal to the square on MN? (yes/no):`, hint: `This follows the same construction used previously.` },
+{ q: `Is DK incommensurable in length with KM? (yes/no):`, hint: `The same reasoning about incommensurable magnitudes applies.` },
+{ q: `Is the square on DM greater than the square on MG by the square on a straight line incommensurable in length with DM? (yes/no):`, hint: `This matches the defining inequality for sixth binomials.` },
+
+{ q: `Is neither of the straight lines DM nor MG commensurable in length with the rational straight line DE? (yes/no):`, hint: `This was already shown earlier using X.22.` },
+{ q: `Given all these conditions, does DG satisfy the definition of a sixth binomial straight line? (yes/no):`, hint: `All defining properties have now been verified.` },
+{ q: `Therefore, does it follow that DG is a sixth binomial straight line? (yes/no):`, hint: `This completes the demonstration.` },
+]
+
+const conclusion = `Congratulations! You just proved that if the square on the side of the sum of two medial areas is applied to a rational straight line, the breadth produced is the sixth binomial straight line.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

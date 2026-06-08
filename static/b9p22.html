@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements IX.22</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>IX.22 — Prove that if any number of odd numbers are added together, and their number is even, the whole is even</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements IX.22 chatbot!
+
+We are given several odd numbers, called AB, BC, CD, DE. Do you agree? (yes/no):`,
+    hint: `These names represent individual odd numbers.` },
+
+  { q: `The number of these odd numbers is even in multitude. Do you agree? (yes/no):`,
+    hint: `“Even in multitude” means there is an even count of numbers.` },
+
+  { q: `Our goal is to show that their total sum, AE, is even. Does that make sense? (yes/no):`,
+    hint: `AE represents the whole obtained by adding AB, BC, CD, and DE.` },
+
+  { q: `Each of the numbers AB, BC, CD, and DE is odd. Do you agree? (yes/no):`,
+    hint: `This is given in the proposition.` },
+
+  { q: `If one unit is subtracted from each odd number, does each remainder become even? (yes/no):`,
+    hint: `By Definition VII.7, an odd number differs from an even number by one unit.` },
+
+  { q: `Are the remainders therefore all even numbers? (yes/no):`,
+    hint: `Subtracting one unit from any odd number produces an even number.` },
+
+  { q: `Is the sum of several even numbers itself even? (yes/no):`,
+    hint: `Proposition IX.21: the sum of even numbers is even.` },
+
+  { q: `Now consider the units that were subtracted. Is the number of these units equal to the number of original odd numbers? (yes/no):`,
+    hint: `One unit was taken from each odd number.` },
+
+  { q: `Since the multitude of odd numbers was even, is the multitude of these units also even? (yes/no):`,
+    hint: `Equal multitudes have the same parity.` },
+
+  { q: `Is the sum of an even number of units even? (yes/no):`,
+    hint: `An even number of ones makes an even number (IX.21).` },
+
+  { q: `If the sum of the remainders is even, and the sum of the units is even, is their total sum even? (yes/no):`,
+    hint: `The sum of two even numbers is even (IX.21).` },
+
+  { q: `Therefore, is the whole AE even? (yes/no):`,
+    hint: `AE is composed of the even remainders together with the even multitude of units.` }
+]
+
+
+
+
+
+
+
+const conclusion = `Congratulations! You just proved that if any number of odd numbers are added together, and their number is even, the whole is even.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

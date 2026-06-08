@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.111</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.111 – The apotome is not the same as the binomial straight line</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+{ q: `Welcome to Elements X.111 chatbot!
+
+We are given a straight line AB, which is an apotome. Do you agree? (yes/no)`,
+  hint: `An apotome is a line defined in Book X, Def. III.1: it is the remainder of a rational line from a rational line, with special properties.` },
+
+{ q: `Our goal is to show that AB is not the same as a binomial straight line. Does that make sense? (yes/no)`,
+  hint: `A binomial is a line composed of two rational lines commensurable in square only (Def. II.1).` },
+
+{ q: `Suppose, for contradiction, that AB is also a binomial. Reasonable? (yes/no)`,
+  hint: `We are using reductio ad absurdum: assume the opposite to find a contradiction.` },
+
+{ q: `Let a rational line DC be set out. Can we do that? (yes/no)`,
+  hint: `We can always set out a rational line by definition.` },
+
+{ q: `To CD, apply a rectangle CE equal in area to the square on AB, producing DE as breadth. Is this possible? (yes/no)`,
+  hint: `Book X Prop. 97 allows applying a rectangle equal to a given square along a rational line.` },
+
+{ q: `Since AB is an apotome, is DE a first apotome? (yes/no)`,
+  hint: `Book X Prop. 97 states that applying the square of an apotome along a rational line yields a first apotome.` },
+
+{ q: `Let EF be the annex to DE. Therefore DF and FE are rational lines commensurable in square only. Agree? (yes/no)`,
+  hint: `This follows from the definition of a first apotome.` },
+
+{ q: `Is the square on DF greater than the square on FE by the square on a line commensurable with DF? (yes/no)`,
+  hint: `Definition III.1 explains the relation of squares in an apotome.` },
+
+{ q: `Is DF commensurable in length with the rational line DC? (yes/no)`,
+  hint: `First apotomes are defined so that one part is commensurable with the given rational line.` },
+
+{ q: `Now, since AB is assumed binomial, would DE also be a first binomial? Do you agree? (yes/no)`,
+  hint: `Book X Prop. 60: squares applied to rational lines yield binomials if the original line is binomial.` },
+
+{ q: `Let DE be divided into its terms at G, with DG the greater term. Can we do this? (yes/no)`,
+  hint: `A binomial is divided into two rational terms, greater and lesser.` },
+
+{ q: `Then DG and GE are rational lines commensurable in square only. True? (yes/no)`,
+  hint: `Definition II.1 of binomial lines.` },
+
+{ q: `Is the square on DG greater than the square on GE by the square on a line commensurable with DG? (yes/no)`,
+  hint: `Again, from Def. II.1 of binomials.` },
+
+{ q: `Is the greater term DG commensurable in length with DC? Do you see that? (yes/no)`,
+  hint: `By definition of the first binomial.` },
+
+{ q: `Therefore, is DF commensurable in length with DG, and the remainder GF commensurable in length with DF? True? (yes/no)`,
+  hint: `Euclid X.12 and X.15: magnitudes commensurable with the same are commensurable; and a remainder is commensurable with the whole when the parts are.` },
+
+{ q: `But DF is incommensurable in length with EF. Therefore, is GF incommensurable with EF? (yes/no)`,
+  hint: `Euclid X.13: if a whole is incommensurable with another, then a part commensurable with that whole is also incommensurable with the other.` },
+
+{ q: `Therefore, are GF and FE rational lines commensurable in square only, and thus is EG an apotome? Do you agree? (yes/no)`,
+  hint: `Book X Prop. 73: two rational lines commensurable in square only compose an apotome.` },
+
+{ q: `But EG is also rational. Is this possible? (yes/no)`,
+  hint: `A line cannot be both rational (commensurable in length with the assigned rational) and an apotome.` },
+
+{ q: `Therefore, is our assumption that AB is also a binomial impossible? Correct? (yes/no)`,
+  hint: `This contradiction completes the reductio ad absurdum.` },
+
+{ q: `Therefore, is the apotome not the same as the binomial straight line? (yes/no)`,
+  hint: `We have shown the impossibility of AB being both apotome and binomial. Q.E.D.` },
+]
+
+const conclusion = `Congratulations! You just proved the apotome is not the same as the binomial straight line.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

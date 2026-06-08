@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements VIII.5</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>VIII.5 — Prove that plane numbers have to one another the ratio compounded of the ratios of their sides</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements VIII.5 chatbot!
+
+We are given two plane numbers A and B, with sides C, D for A and E, F for B. Do you agree? (yes/no):`,
+    hint: `A plane number is the product of two numbers, its “sides.”`
+  },
+  {
+    q: `Our goal is to show that A : B is the ratio compounded of C : E and D : F. Does that make sense? (yes/no):`,
+    hint: `A compounded ratio is built from two successive ratios.`
+  },
+  {
+    q: `The ratios C : E and D : F are given. Can we take the least numbers G, H, K that are continuously in these ratios? (yes/no):`,
+    hint: `By VIII.4, we can take least numbers in given ratios, with C : E = G : H and D : F = H : K.`
+  },
+  {
+    q: `So do we have C : E = G : H and D : F = H : K? (yes/no):`,
+    hint: `This is exactly how G, H, K are chosen.`
+  },
+  {
+    q: `Let D multiplied by E make the number L. Acceptable? (yes/no):`,
+    hint: `We may form a product of two numbers; here D · E = L.`
+  },
+  {
+    q: `Since D multiplied C gives A, and D multiplied E gives L, is A : L = C : E? (yes/no):`,
+    hint: `VII.17: products preserve ratio—if the same multiplier is used.`
+  },
+  {
+    q: `And since C : E = G : H, do we now also have A : L = G : H? (yes/no):`,
+    hint: `Replace equal ratios with equals.`
+  },
+  {
+    q: `Since E multiplied D makes L, and E multiplied F makes B, is L : B = D : F? (yes/no):`,
+    hint: `VII.17: multiplying by the same number E preserves ratio.`
+  },
+  {
+    q: `And since D : F = H : K, do we also have L : B = H : K? (yes/no):`,
+    hint: `Substitute the equal ratios.`
+  },
+  {
+    q: `If A : L = G : H and L : B = H : K, can we combine them ex aequali to obtain A : B = G : K? (yes/no):`,
+    hint: `VII.14: when equal means share a middle term, we can form the ex aequali ratio.`
+  },
+  {
+    q: `But does G : K represent the ratio compounded of the ratios C : E and D : F? (yes/no):`,
+    hint: `G : K is built from G : H and H : K.`
+  },
+  {
+    q: `Therefore, do we conclude that A : B is the ratio compounded of the ratios of the sides? (yes/no):`,
+    hint: `A : B matches G : K, which is the compounded ratio of the given sides.`
+  }
+]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const conclusion = `Congratulations! You just proved that plane numbers have to one another the ratio compounded of the ratios of their sides
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements XII.8</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>XII.8 – Prove that similar pyramids having triangular bases are to one another in the triplicate ratio of their corresponding sides.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements XII.8 chatbot!
+
+We are given two similar and similarly situated pyramids, ABCG and DEFH, having triangular bases ABC and DEF, and vertices G and H. Do you agree? (yes/no):`,
+    hint: `The bases are triangles ABC and DEF, and the vertices are G and H.` },
+
+  { q: `For these pyramids, are the corresponding sides proportional, so that as AB is to DE, so is BC to EF, and BG to EH? (yes/no):`,
+    hint: `This follows from the definition of similar pyramids.` },
+
+  { q: `Now, since the pyramids are similar, are the angles ABC equal to DEF, the angles GBC equal to HEF, and the angles ABG equal to DEH? (yes/no):`,
+    hint: `Similar solids have equal corresponding angles.` },
+
+  { q: `Let parallelepipedal solids BGML and EHQP be completed on the pyramids. Is this construction allowed? (yes/no):`,
+    hint: `Parallelepipedal solids can be completed on given bases.` },
+
+  { q: `Our goal is to show that pyramid ABCG has to pyramid DEFH the ratio triplicate of that which BC has to EF. Does that make sense? (yes/no):`,
+    hint: `“Triplicate ratio” means the cube of the ratio of the corresponding sides.` },
+
+  { q: `Since AB is to DE as BC is to EF, and the angles about these sides are equal, is the parallelogram BM similar to the parallelogram EQ? (yes/no):`,
+    hint: `Parallelograms with proportional sides about equal angles are similar.` },
+
+  { q: `For the same reason, is parallelogram BN similar to ER, and parallelogram BK similar to EO? (yes/no):`,
+    hint: `The same proportionality and angle conditions apply in each case.` },
+
+  { q: `Do we then have three parallelograms MB, BK, BN similar respectively to the three EQ, EO, ER? (yes/no):`,
+    hint: `Each pair corresponds by construction.` },
+
+  { q: `Are the three parallelograms MB, BK, BN equal and similar to their opposites, and likewise the three EQ, EO, ER to theirs? (yes/no):`,
+    hint: `Opposite faces of parallelepipeds are equal and similar (XI.24).` },
+
+  { q: `Therefore, are the solids BGML and EHQP contained by similar planes equal in multitude? (yes/no):`,
+    hint: `Each solid is bounded by six faces arranged correspondingly.` },
+
+  { q: `From this, do we conclude that the solid BGML is similar to the solid EHQP? (yes/no):`,
+    hint: `Solids contained by similar planes equal in number are similar.` },
+
+  { q: `Do similar parallelepipedal solids have to one another the triplicate ratio of their corresponding sides? (yes/no):`,
+    hint: `This is established in Book XI, Proposition 33.` },
+
+  { q: `Therefore, does the solid BGML have to the solid EHQP the triplicate ratio of BC to EF? (yes/no):`,
+    hint: `BC and EF are corresponding edges of the solids.` },
+
+  { q: `Now, is each pyramid one-sixth part of its corresponding parallelepipedal solid? (yes/no):`,
+    hint: `A pyramid is one-third of a prism, and the prism is half of the parallelepiped (XI.28, XII.7).` },
+
+  { q: `If the solids BGML and EHQP are in the triplicate ratio of BC to EF, and the pyramids are corresponding sixth parts of those solids, do the pyramids share the same ratio? (yes/no):`,
+    hint: `Equal fractions of magnitudes preserve ratios.` },
+
+  { q: `Therefore, does the pyramid ABCG have to the pyramid DEFH the ratio triplicate of that which BC has to EF? (yes/no):`,
+    hint: `This completes the demonstration.` },
+
+  { q: `Therefore, similar pyramids which have triangular bases are to one another in the triplicate ratio of their corresponding sides. Q.E.D.`,
+    hint: `` },
+
+  { q: `Porism: Is it manifest from this that similar pyramids with polygonal bases are also in the triplicate ratio of their corresponding sides? (yes/no):`,
+    hint: `Polygonal bases can be divided into similar triangles equal in number (VI.20).` },
+
+  { q: `If each pyramid with a polygonal base is divided into pyramids with triangular bases, do corresponding parts have equal ratios? (yes/no):`,
+    hint: `By proportionality of compounded ratios (V.12).` },
+
+  { q: `Since each triangular pyramid is in the triplicate ratio of corresponding sides, does the whole pyramid with a polygonal base have the same triplicate ratio? (yes/no):`,
+    hint: `The whole follows from the equal ratios of all parts.` }
+]
+
+const conclusion = `Congratulations! You just proved that similar pyramids having triangular bases are to one another in the triplicate ratio of their corresponding sides.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

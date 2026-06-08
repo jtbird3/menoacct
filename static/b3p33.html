@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>III.33 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>III.33 - Construct a segment of a circle containing an angle equal to a given rectilineal angle on a given straight line</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements III.33 chatbot!
+
+We are given a straight line AB, and a rectilineal angle at C. Do you agree? (yes/no):`,
+    hint: `A straight line has two endpoints; the “given angle” is at point C, which may be acute, right, or obtuse.` },
+  { q: `Our goal is to describe on AB a segment of a circle admitting an angle equal to the angle at C. C is either acute, right, or obtuse, so we have three cases to consider. Does that make sense? (yes/no):`,
+    hint: `A segment of a circle is the figure contained by a chord and the arc above it.` },
+  { q: `Case 1: the given angle at C is acute.
+
+At point A on AB, let us construct an angle BAD equal to the given acute angle C. Is this possible? (yes/no):`,
+    hint: `By Proposition I.23, an angle equal to a given angle can be constructed at a given point on a line.` },
+  { q: `Next, can we draw AE at right angles to DA? (yes/no):`,
+    hint: `By Proposition I.11, we can draw a perpendicular to a line from a given point on it.` },
+  { q: `Can we bisect AB at point F? (yes/no):`,
+    hint: `Proposition I.10 allows us to bisect a given straight line.` },
+  { q: `Now, can we draw FG from point F at right angles to AB, and join GB? (yes/no):`,
+    hint: `By Proposition I.11 we can erect a perpendicular; Postulate 1 allows us to join points.` },
+  { q: `Since AF = FB, FG is common, and ∠AFG = ∠BFG, do we have AG = BG? (yes/no):`,
+    hint: `By Proposition I.4 (SAS), equal triangles yield equal bases.` },
+  { q: `If GA = GB, can we draw a circle with center G and radius GA, passing also through B? (yes/no):`,
+    hint: `Postulate 3: a circle can be drawn with any center and radius.` },
+  { q: `Now,let us join EB. Now, do you see that AD touches the circle at A? (yes/no):`,
+    hint: `By Proposition III.16, a perpendicular from the extremity of a diameter touches the circle.` },
+  { q: `Since AD touches and AB cuts the circle, is ∠DAB equal to ∠AEB, the alternate segment angle? (yes/no):`,
+    hint: `By Proposition III.32, the angle between tangent and chord equals the angle in the alternate segment.` },
+  { q: `But ∠DAB = ∠C. Therefore, is ∠AEB also equal to ∠C? (yes/no):`,
+    hint: `Equality transfers directly.` },
+  { q: `So on AB, have we described the circle segment AEB containing an angle equal to the given angle C? (yes/no):`,
+    hint: `AEB equals C, so we have constructed the segment.` },
+  { q: `Case 2: the given angle at C is right.
+    
+At point A on AB, let us construct ∠BAD equal to the right angle at C. Is this possible? (yes/no):`,
+    hint: `Proposition I.11 allows us to construct a right angle.` },
+  { q: `Can we bisect AB at F, and with center F and radius FA draw a circle AEB, then draw AE and EB? (yes/no):`,
+    hint: `A circle can be drawn from any center with any radius.` },
+  { q: `Is AD tangent to this circle at A, since ∠BAD is right? (yes/no):`,
+    hint: `By Proposition III.16, a perpendicular from a diameter's extremity gives a tangent.` },
+  { q: `Is ∠BAD equal to ∠AEB in the semicircle? (yes/no):`,
+    hint: `By Proposition III.31, the angle in a semicircle is right.` },
+  { q: `Since ∠BAD = ∠C, do we conclude ∠AEB = ∠C? (yes/no):`,
+    hint: `Equality transfers.` },
+  { q: `Thus, a segment AEB on AB admits an angle equal to the given right angle C.`,
+    hint: `Construction complete for the right-angle case.` },
+  { q: `Case 3: the given angle at C is obtuse.
+
+At point A on AB, can we construct ∠BAD equal to the obtuse angle at C? (yes/no):`,
+    hint: `By Proposition I.23, we can construct any given angle at a point on a line.` },
+  { q: `Now, let us draw AE at right angles to AD, bisect AB at F, erect FG at right angles to AB, and join GB. Is this possible? (yes/no):`,
+    hint: `These are standard steps as in the acute case (I.11, I.10, I.11).` },
+  { q: `From the triangle construction, do we again conclude AG = BG? (yes/no):`,
+    hint: `Same SAS reasoning as before (I.4).` },
+  { q: `So can we describe circle AEB with center G and radius GA, passing also through B? (yes/no):`,
+    hint: `Postulate 3 again.` },
+  { q: `Finally, let us draw AH and HB in the segment AB to form the angle in segment AB. Is this possible? (yes/no):`,
+    hint: `Postulate 1 allows us to draw any two points with a straight line.` },
+  { q: `Now, does AD touch the circle at A (being perpendicular to diameter AE)? (yes/no):`,
+    hint: `By III.16, a tangent arises from perpendicular to the diameter at its extremity.` },
+  { q: `Since AB cuts the circle, is ∠DAB equal to ∠AHB in the alternate segment? (yes/no):`,
+    hint: `Proposition III.32, tangent-chord angle equals angle in alternate segment.` },
+  { q: `But ∠DAB = ∠C. So is ∠AHB also equal to ∠C? (yes/no):`,
+    hint: `Equality transfers directly.` },
+  { q: `Therefore, on AB have we described the segment AHB of a circle admitting an angle equal to the given obtuse angle C?`,
+    hint: `Construction complete for the obtuse case.` },
+  { q: `So, are all three cases done? (yes/no):`,
+    hint: `We have alreadyconstructed the segment for all three cases.` }
+];
+
+const conclusion = `Congratulations! You have constructed a segment of a circle containing an angle equal to the given rectilineal angle on the given straight line.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

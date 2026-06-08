@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>III.7 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>III.7 - From a point on the diameter of a circle (but not the center), the line through the center is the longest chord, the opposite part of the diameter is the shortest, and among the other chords, the closer a line is to the center the longer it is; only two equal chords can be drawn, one on each side of the shortest line.</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Element's III.7 chatbot!
+
+We are given a circle with diameter AD. Do you agree? (yes/no):`,
+    hint: `A diameter is a straight line through the center, ending on both sides of the circle.` },
+  { q: `Now, let F be a point on AD, on the side toward D, which is not the center of the circle on the same side of the diameter. Let E be the center of the circle. Do you agree? (yes/no):`,
+    hint: `E is the midpoint of AD, but F is chosen elsewhere on AD, distinct from E.` },
+  { q: `From point F, let straight lines FB, FC, and FG fall upon the circle. FB should be closest to A and FG should be closest to D. Do you see that this can be done? (yes/no):`,
+    hint: `Any point on a circle can be joined by a straight line to another given point (Postulate 1).` },
+  { q: `Our goal is to show that FA is greatest, FD is least, and among the others FB > FC > FG; also, only two equal lines fall from F to the circle, one on each side of FD. Does that make sense? (yes/no):`,
+    hint: `We are trying to prove: (1) FA (biggest) > FB > FD > FC > FG < FD (smallest) and (2) one pair of equal lines fall from F to the circle, one on each side of FD.` },
+  { q: `Let us join BE, CE, and GE from the center E to the circle. Is this possible? (yes/no):`,
+    hint: `Connecting to the center will allow triangle comparisons using earlier propositions.` },
+  { q: `Since AE = BE and in △BEF,EB + EF > BF, can we conclude AF > BF? (yes/no):`,
+    hint: `From I.20, two sides of a triangle are greater than the third. AE = BE by radii, so AF > BF.` },
+  { q: `Next, in △BEF and △CEF,since BE = CE and EF is common, and ∠BEF > ∠CEF, is BF > CF? (yes/no):`,
+    hint: `By I.24, if two sides are equal but one included angle is greater, then the opposite side is greater.` },
+  { q: `By the same reasoning, is CF > GF? (yes/no):`,
+    hint: `CE = GE by radii, EF is common, and ∠CFE > ∠GEF because it includes it, so CF > GF by 1.24: if two sides are equal but one included angle is greater, then the opposite side is greater.` },
+  { q: `Now, since GF + FE > GE and GE = ED, do we get GF + FE > ED, and if we subtract EF from both sides, GF > FD? (yes/no):`,
+    hint: `We know GF + FE > GE by 1.20, and GE = ED by radii, so GF + FE > ED. Subtracting EF from both sides gives GF > FD.` },
+  { q: `So, do we conclude FA is greatest, FD is least, and FB > FC > FG? (yes/no):`,
+    hint: `We have shown each inequality step by step.` },
+  { q: `Now, let's consider equal lines from F. If we construct ∠FEH equal to ∠GEF on the other side of line EF, and join FH, do we get FG = FH? (yes/no):`,
+    hint: `By I.4, since GE = EH by radii, EF is common, and ∠GEF = ∠HEF, then FG = FH.` },
+  { q: `Let us suppose that there is another line FK from F to the circle, different from FH, to also equal FG. Do you see that this is impossible? (yes/no):`,
+    hint: `If FK = FG and FH = FG, then FK = FH, which would make two lines of different lengths equal, which is impossible.` },
+  { q: `Therefore, from F only two equal straight lines fall, one on each side of FD. Agreed? (yes/no):`,
+    hint: `These are FG and FH, symmetric about the diameter.` }
+];
+
+const conclusion = `Congratulations! You have shown that FA is greatest, FD is least, the nearer lines are greater than the more remote, and only two equal lines fall from F on the circle.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated).`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

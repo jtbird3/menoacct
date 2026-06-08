@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements XI.35</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>XI.35 – Prove that if there be two equal plane angles, and on their vertices there be set up elevated straight lines containing equal angles with the original straight lines respectively, if on the elevated straight lines points be taken at random and perpendiculars be drawn from them to the planes in which the original angles are, and if from the points so arising in the planes straight lines be joined to the vertices of the original angles, they contain equal angles with the elevated straight lines.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements XI.35 chatbot!
+
+We are given two equal plane rectilineal angles, namely ∠BAC and ∠EDF. Do you agree? (yes/no):`,
+    hint: `These are stated to be equal plane angles.` },
+
+  { q: `From the points A and D, elevated straight lines AG and DM are set up. Is that correct? (yes/no):`,
+    hint: `“Elevated” means not lying in the original planes.` },
+
+  { q: `The angle GAB is equal to the angle MDE, and the angle GAC is equal to the angle MDF. Do you agree? (yes/no):`,
+    hint: `Each elevated line makes equal angles with the corresponding original straight lines.` },
+
+  { q: `Points G and M are taken at random on AG and DM respectively. Is this allowed? (yes/no):`,
+    hint: `The proposition explicitly allows choosing arbitrary points.` },
+
+  { q: `From G and M, perpendiculars GL and MN are drawn to the planes of BA, AC and ED, DF respectively. Do you agree? (yes/no):`,
+    hint: `Each perpendicular meets its plane at a point.` },
+
+  { q: `The perpendiculars meet the planes at points L and N respectively. Correct? (yes/no):`,
+    hint: `These are the feet of the perpendiculars.` },
+
+  { q: `The straight lines LA and ND are joined. Can we do this? (yes/no):`,
+    hint: `A straight line may be drawn from any point to any point.` },
+
+  { q: `Our goal is to prove that the angle GAL is equal to the angle MDN. Does that make sense? (yes/no):`,
+    hint: `We want to compare the angles formed by the elevated lines and the joined lines.` },
+
+  { q: `Let AH be made equal to DM. Is this construction possible? (yes/no):`,
+    hint: `A straight line equal to a given straight line can be constructed.` },
+
+  { q: `Through the point H, let HK be drawn parallel to GL. Can this be done? (yes/no):`,
+    hint: `A straight line may be drawn through a point parallel to a given straight line.` },
+
+  { q: `GL is perpendicular to the plane through BA and AC. Do you agree? (yes/no):`,
+    hint: `GL was drawn perpendicular to that plane by construction.` },
+
+  { q: `Therefore HK is also perpendicular to the plane through BA and AC. Does that follow? (yes/no):`,
+    hint: `A line parallel to a perpendicular is also perpendicular to the same plane (XI.8).` },
+
+  { q: `From points K and N, let KC, KB, NF, and NE be drawn perpendicular to AC, AB, DF, and DE respectively. Is this allowed? (yes/no):`,
+    hint: `A perpendicular can be drawn from a point to a straight line.` },
+
+  { q: `Let HC, CB, MF, and FE be joined. Can we do this? (yes/no):`,
+    hint: `Straight lines may be drawn between any two points.` },
+
+  { q: `Since the square on HA equals the squares on HK and KA, do you agree? (yes/no):`,
+    hint: `Triangle HAK is right-angled at K (I.47).` },
+
+  { q: `The square on KA equals the squares on KC and CA. Is this correct? (yes/no):`,
+    hint: `Triangle KAC is right-angled at C (I.47).` },
+
+  { q: `Therefore the square on HA equals the squares on HK, KC, and CA. Does that follow? (yes/no):`,
+    hint: `Substitute equals for equals.` },
+
+  { q: `The square on HC equals the squares on HK and KC. Do you agree? (yes/no):`,
+    hint: `Triangle HCK is right-angled (I.47).` },
+
+  { q: `Therefore the square on HA equals the squares on HC and CA. Is that correct? (yes/no):`,
+    hint: `Both expressions equal the same sum.` },
+
+  { q: `Hence the angle HCA is right. Do you agree? (yes/no):`,
+    hint: `Converse of the Pythagorean theorem (I.48).` },
+
+  { q: `By the same reasoning, is the angle DFM also right? (yes/no):`,
+    hint: `The construction is symmetric.` },
+
+  { q: `Therefore is the angle ACH equal to the angle DFM? (yes/no):`,
+    hint: `All right angles are equal.` },
+
+  { q: `Is the angle HAC equal to the angle MDF? (yes/no):`,
+    hint: `These were given as equal at the start.` },
+
+  { q: `Do triangles HAC and MDF have two angles equal to two angles respectively, and the side HA equal to MD? (yes/no):`,
+    hint: `HA was constructed equal to MD.` },
+
+  { q: `Therefore are the remaining sides AC and DF equal? (yes/no):`,
+    hint: `Two angles and a corresponding side determine equality (I.26).` },
+
+  { q: `Similarly, can we prove that AB is equal to DE? (yes/no):`,
+    hint: `The same reasoning applies.` },
+
+  { q: `Since AC = DF and AB = DE, are the two sides CA, AB equal to the two sides FD, DE? (yes/no):`,
+    hint: `This restates the conclusion.` },
+
+  { q: `Is the angle CAB equal to the angle FDE? (yes/no):`,
+    hint: `The original plane angles were equal.` },
+
+  { q: `Therefore is the base BC equal to the base EF, and the triangles equal? (yes/no):`,
+    hint: `Side-angle-side congruence (I.4).` },
+
+  { q: `Hence is the angle ACB equal to the angle DFE? (yes/no):`,
+    hint: `Corresponding angles of equal triangles are equal.` },
+
+  { q: `Is the right angle ACK equal to the right angle DFN? (yes/no):`,
+    hint: `Both are right angles.` },
+
+  { q: `Therefore is the remaining angle BCK equal to the remaining angle EFN? (yes/no):`,
+    hint: `Subtract equals from equals.` },
+
+  { q: `Similarly, is the angle CBK equal to the angle FEN? (yes/no):`,
+    hint: `The same reasoning applies.` },
+
+  { q: `Do triangles BCK and EFN have two angles and the included side BC = EF equal? (yes/no):`,
+    hint: `BC was shown equal to EF earlier.` },
+
+  { q: `Therefore are the remaining sides CK and FN equal? (yes/no):`,
+    hint: `By angle–angle–side (I.26).` },
+
+  { q: `Since AC = DF and CK = FN, and both contain right angles, is AK equal to DN? (yes/no):`,
+    hint: `Right-angled triangles with equal sides (I.4).` },
+
+  { q: `Is the square on AH equal to the square on DM? (yes/no):`,
+    hint: `AH was made equal to DM.` },
+
+  { q: `Are the squares on AK and KH equal to the square on AH? (yes/no):`,
+    hint: `Triangle AKH is right-angled (I.47).` },
+
+  { q: `Are the squares on DN and NM equal to the square on DM? (yes/no):`,
+    hint: `Triangle DNM is right-angled (I.47).` },
+
+  { q: `Therefore is the square on KH equal to the square on NM? (yes/no):`,
+    hint: `Subtract equals from equals.` },
+
+  { q: `Hence is HK equal to MN? (yes/no):`,
+    hint: `Equal squares imply equal sides.` },
+
+  { q: `Since HA = MD, AK = DN, and HK = MN, are the triangles HAK and MDN equal? (yes/no):`,
+    hint: `Three sides equal (I.8).` },
+
+  { q: `Therefore is the angle HAK equal to the angle MDN? (yes/no):`,
+    hint: `Corresponding angles of equal triangles are equal.` },
+
+  { q: `Thus is the angle GAL equal to the angle MDN? (yes/no):`,
+    hint: `These are the same angles under different names.` },
+
+  { q: `PORISM: From this, is it manifest that the perpendiculars drawn from the extremities of equal elevated straight lines are equal to one another? (yes/no):`,
+    hint: `Equal right-angled triangles yield equal perpendiculars.` }
+]
+
+const conclusion = `Congratulations! You just if there be two equal plane angles, and on their vertices there be set up elevated straight lines containing equal angles with the original straight lines respectively, if on the elevated straight lines points be taken at random and perpendiculars be drawn from them to the planes in which the original angles are, and if from the points so arising in the planes straight lines be joined to the vertices of the original angles, they contain equal angles with the elevated straight lines.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

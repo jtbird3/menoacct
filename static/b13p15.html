@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements XIII.15</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>XIII.15 – Construct a cube inscribed in a given sphere, and prove that the square on the diameter of the sphere is three times the square on the side of the cube.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `We are given a sphere, and we set out its diameter as a straight line AB. Do you agree? (yes/no):`, hint: `A diameter is a straight line through the center, ending on the sphere at both ends.` },
+  { q: `Let AB be cut at C so that AC is double of CB. Is that clear? (yes/no):`, hint: `"AC double of CB" means AC = 2⋅CB, so AB = AC + CB = 3⋅CB.` },
+  { q: `Let the semicircle ADB be described on AB. Can we do this? (yes/no):`, hint: `A semicircle can be described on a given diameter.` },
+  { q: `From C let CD be drawn at right angles to AB, meeting the semicircle at D. Is that the construction? (yes/no):`, hint: `CD is drawn perpendicular to AB, and D is where it meets the semicircle.` },
+  { q: `Let DB be joined. Can we join D to B? (yes/no):`, hint: `A straight line can be drawn from any point to any point.` },
+  { q: `Now, set out the square EFGH having its side equal to DB. Is that possible? (yes/no):`, hint: `"Side equal to DB" means EF = DB, and EFGH is a square.` },
+  { q: `From E, F, G, H let EK, FL, GM, HN be drawn at right angles to the plane of square EFGH. Is that allowed? (yes/no):`, hint: `These are lines perpendicular to the plane of the square.` },
+  { q: `From EK, FL, GM, HN let the segments EK, FL, GM, HN be cut off equal to one of EF, FG, GH, HE. Do you follow? (yes/no):`, hint: `In a square, EF = FG = GH = HE, so "equal to one of them" means equal to the side of the square.` },
+  { q: `Let KL, LM, MN, NK be joined. Can we join these points? (yes/no):`, hint: `Joining them forms the top square of the cube.` },
+  { q: `So the cube FN has been constructed, contained by six equal squares. Do you agree? (yes/no):`, hint: `A cube has 6 equal square faces.` },
+  { q: `Our goal is to comprehend this cube in the given sphere, and to prove that the square on the diameter of the sphere is triple of the square on the side of the cube. Does that make sense? (yes/no):`, hint: `We must (1) show the cube fits in the sphere, and (2) show (diameter)^2 = 3⋅(cube side)^2.` },
+  { q: `Comprehending the cube in a sphere — Let KG and EG be joined. Can we join K to G, and E to G? (yes/no):`, hint: `These are straight lines between points of the figure.` },
+  { q: `Since KE is at right angles to the plane EFGH, is KE also at right angles to the straight line EG in that plane? (yes/no):`, hint: `A line perpendicular to a plane is perpendicular to every line in that plane through the foot point.` },
+  { q: `Therefore is the angle KEG a right angle? (yes/no):`, hint: `KE ⟂ EG implies ∠KEG is right.` },
+  { q: `If ∠KEG is right, will the semicircle described on KG pass through E? (yes/no):`, hint: `In a circle with diameter KG, any angle subtending KG is a right angle (converse of the right-angle-in-a-semicircle fact).` },
+  { q: `Next, since GF is at right angles to each of the straight lines FL and FE, is GF at right angles to the plane FK? (yes/no):`, hint: `If a line is perpendicular to two intersecting lines in a plane, it is perpendicular to the plane.` },
+  { q: `Hence, if we join FK, is GF at right angles to FK? (yes/no):`, hint: `A line perpendicular to a plane is perpendicular to every line in that plane.` },
+  { q: `For this reason, will the semicircle described on GK also pass through F? (yes/no):`, hint: `If ∠GFK is right, then F lies on the circle with diameter GK.` },
+  { q: `Similarly, will the same semicircle pass through the remaining angular points of the cube? (yes/no):`, hint: `The same right-angle argument applies to the other vertices.` },
+  { q: `If KG remains fixed, and the semicircle on KG is carried round and restored to its first position, do we obtain a sphere? (yes/no):`, hint: `Rotating a semicircle about its diameter generates a sphere.` },
+  { q: `So will the cube be comprehended in a sphere with diameter KG? (yes/no):`, hint: `All the cube's vertices lie on the rotating circle, hence on the generated sphere.` },
+  { q: `Showing it is the given sphere, and proving the triple-square relation — Since GF is equal to FE, and the angle at F is right, is the square on EG double of the square on EF? (yes/no):`, hint: `In a right triangle with equal legs, EG^2 = EF^2 + FG^2 = 2EF^2.` },
+  { q: `But EF is equal to EK. Do you agree? (yes/no):`, hint: `EK was cut off equal to the side of the square, and EF is a side.` },
+  { q: `Therefore, is the square on EG double of the square on EK? (yes/no):`, hint: `Substitute EF = EK into EG^2 = 2EF^2.` },
+  { q: `Since GE and EK are at right angles, is the square on GK equal to the squares on GE and EK? (yes/no):`, hint: `By I.47, GK^2 = GE^2 + EK^2 in right triangle GEK.` },
+  { q: `Then, since GE^2 = 2EK^2, is GK^2 = 2EK^2 + EK^2 = 3EK^2? (yes/no):`, hint: `Add the squares to get a triple.` },
+  { q: `So is the square on GK triple of the square on EK? (yes/no):`, hint: `This is exactly GK^2 = 3EK^2.` },
+  { q: `Now, since AB is triple of BC, and "as AB is to BC, so is the square on AB to the square on BD," do we conclude that the square on AB is triple of the square on BD? (yes/no):`, hint: `If AB:BC = AB^2:BD^2 and AB = 3BC, then AB^2 = 3BD^2.` },
+  { q: `We proved the square on GK is triple of the square on KE. Do you agree? (yes/no):`, hint: `EK and KE are the same segment, and we had GK^2 = 3EK^2.` },
+  { q: `KE was made equal to DB. Is that true by construction? (yes/no):`, hint: `EK was cut off equal to a side EF, and EF was made equal to DB.` },
+  { q: `If GK^2 = 3KE^2 and AB^2 = 3BD^2, and also KE = DB, do we get GK^2 = AB^2? (yes/no):`, hint: `Replace KE with DB: then both squares are triple of the same square.` },
+  { q: `If two straight lines have equal squares on them, are the straight lines themselves equal? (yes/no):`, hint: `Equal squares imply equal lengths for straight lines.` },
+  { q: `Therefore is KG equal to AB? (yes/no):`, hint: `From GK^2 = AB^2, conclude GK = AB.` },
+  { q: `And AB is the diameter of the given sphere. Do you agree? (yes/no):`, hint: `That is how AB was set out at the start.` },
+  { q: `Therefore is KG also equal to the diameter of the given sphere? (yes/no):`, hint: `If KG = AB, then KG equals the sphere's diameter.` },
+  { q: `So has the cube been comprehended in the given sphere, and has it been proved that the square on the diameter of the sphere is triple of the square on the side of the cube? (yes/no):`, hint: `Diameter is AB (or KG), and cube side is DB (or EF or EK).` }
+]
+
+const conclusion = `Congratulations! You just constructed a cube inscribed in a given sphere, and proved that the square on the diameter of the sphere is three times the square on the side of the cube.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

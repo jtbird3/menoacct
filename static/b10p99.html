@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.99</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.99 – Prove that if the square on a second apotome of a medial straight line is applied to a rational straight line, the breadth produced is a third apotome.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+{ q: `Welcome to Elements X.99 chatbot!
+
+We are given a second apotome AB and a rational straight line CD. Do you agree? (yes/no):`,
+  hint: `An apotome is a special type of straight line derived from a medial line; CD is a rational line.` },
+
+{ q: `Our goal is to apply the square on AB to CD and show that the resulting breadth CF is a third apotome. Does that make sense? (yes/no):`,
+  hint: `The square on AB means a rectangle whose sides are equal to AB; the breadth CF is the unknown to determine.` },
+
+{ q: `Let BG be the annex to AB, so that AG and GB are medial straight lines commensurable in square only. Can we define BG this way? (yes/no):`,
+  hint: `Proposition X.75 tells us how to split a second apotome into medial parts.` },
+
+{ q: `Let CH equal the square on AG be applied to CD, producing CK as breadth. Is this construction allowed? (yes/no):`,
+  hint: `By definition, we can apply squares of straight lines to a rational line to produce a rectangle.` },
+
+{ q: `Let KL equal the square on BG be applied to KH, producing KM as breadth. Do you follow? (yes/no):`,
+  hint: `This step separates the square on AB into squares on AG and GB.` },
+
+{ q: `The whole CL is therefore equal to the squares on AG and GB. Is CL medial? (yes/no):`,
+  hint: `By X.15 and X.23, the sum of two medial squares is medial.` },
+
+{ q: `Apply CL to the rational line CD to produce CM as breadth. Is CM rational and incommensurable with CD? (yes/no):`,
+  hint: `Proposition X.22 tells us a medial applied to a rational line produces a rational breadth incommensurable with the base.` },
+
+{ q: `The remainder LF is equal to twice the rectangle AG, GB. Do you see that? (yes/no):`,
+  hint: `II.7: The square on a line equals the sum of the squares on its parts plus twice the rectangle of the parts.` },
+
+{ q: `Bisect FM at N and draw NO parallel to CD. Then rectangles FO and NL are each equal to rectangle AG, GB. Agreed? (yes/no):`,
+  hint: `Drawing parallel lines preserves rectangle equality.` },
+
+{ q: `Since AG and GB are medial, is FL also medial? (yes/no):`,
+  hint: `A rectangle equal to a medial rectangle is itself medial.` },
+
+{ q: `Apply FL to EF to produce FM as breadth. Is FM rational and incommensurable with CD? (yes/no):`,
+  hint: `This follows from X.22: a medial applied to a rational line gives a rational breadth incommensurable with the base.` },
+
+{ q: `AG and GB are commensurable in square only, so AG is incommensurable in length with GB. Therefore, is the square on AG incommensurable with rectangle AG, GB? (yes/no):`,
+  hint: `Propositions VI.1 and X.11 confirm the incommensurability relations.` },
+
+{ q: `The squares on AG and GB are incommensurable with twice the rectangle AG, GB. Is that clear? (yes/no):`,
+  hint: `By X.13, sums of squares are incommensurable with double the rectangle of their sides.` },
+
+{ q: `Since CL equals the squares on AG and GB and FL equals twice the rectangle AG, GB, is CL incommensurable with FL? (yes/no):`,
+  hint: `Two quantities incommensurable with the same third quantity are incommensurable with each other.` },
+
+{ q: `Since CL : FL = CM : FM, is CM incommensurable with FM? (yes/no):`,
+  hint: `By X.11, proportional magnitudes preserve incommensurability.` },
+
+{ q: `Both CM and FM are rational. Therefore, are CM and MF rational straight lines commensurable in square only, making CF an apotome? (yes/no):`,
+  hint: `Definition X.73: Rational lines commensurable in square only form an apotome.` },
+
+{ q: `To show CF is a third apotome, CH is commensurable with KL, so CK is commensurable with KM. Do you follow? (yes/no):`,
+  hint: `VI.1 and X.11 ensure commensurable relations carry through.` },
+
+{ q: `NL is a mean proportional between CH and KL. Therefore CK : MN = MN : KM. Does this make sense? (yes/no):`,
+  hint: `A mean proportional splits a ratio geometrically.` },
+
+{ q: `The rectangle CK, KM equals a fourth part of the square on FM. Is that clear? (yes/no):`,
+  hint: `Proposition V.11 relates rectangles to squares of mean proportionals.` },
+
+{ q: `Since CM and MF are unequal, does the square on CM exceed the square on MF by the square on a line commensurable with CM? (yes/no):`,
+  hint: `Proposition X.17 establishes this result.` },
+
+{ q: `Neither CM nor MF is commensurable with CD. Therefore, is CF a third apotome? (yes/no):`,
+  hint: `By Definition III.3, CF satisfies the criteria for a third apotome.` },
+
+{ q: `We have shown that the square on a second apotome applied to a rational line produces a third apotome. Goal achieved. Does that make sense? (yes/no):`,
+  hint: `Q.E.D. – which was to be done.` },
+]
+
+const conclusion = `Congratulations! You just proved that if the square on a second apotome of a medial straight line is applied to a rational straight line, the breadth produced is a third apotome.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

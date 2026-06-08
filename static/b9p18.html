@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements IX.18</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>IX.18 — Investigate whether a third proportional can be found to two given numbers</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements IX.18 chatbot!
+
+We are given two numbers, A and B. Do you agree? (yes/no):`,
+hint: `These are the two given numbers of the proposition.` },
+
+{ q: `Our goal is to investigate whether it is possible to find a third number D such that A is to B as B is to D. Does that make sense? (yes/no):`,
+hint: `A third proportional means the middle term is repeated in the ratio: A : B = B : D.` },
+
+{ q: `Now, A and B are either prime to one another or not. Do you agree? (yes/no):`,
+hint: `Any two numbers are either relatively prime or they share a common measure.` },
+
+{ q: `Case 1: A and B are prime to one another. If A and B are prime to one another, has it been proved that it is impossible to find a third proportional to them? (yes/no):`,
+hint: `This is established in Proposition IX.16: if two numbers are prime to one another, then the second has no other number to it in the same ratio as the first has to the second.` },
+
+{ q: `So, in this case, is it impossible to find a third proportional to A and B? (yes/no):`,
+hint: `This follows directly from the cited result.` },
+
+{ q: `Case 2: A and B are not prime to one another. Next, let A and B not be prime to one another. Do you agree? (yes/no):`,
+hint: `We now examine the remaining possibility.` },
+
+{ q: `Let B, by multiplying itself, make C. Is that acceptable? (yes/no):`,
+hint: `C is the square on B.` },
+
+{ q: `Now, does A either measure C or not measure it? (yes/no):`,
+hint: `A number either measures another or it does not.` },
+
+{ q: `Subcase 2a: A measures C. First, let A measure C according to D. Do you accept this assumption? (yes/no):`,
+hint: `This means C = A × D.` },
+
+{ q: `Therefore, has A by multiplying D made C? (yes/no):`,
+hint: `This restates what it means to “measure according to D.”` },
+
+{ q: `But B also by multiplying itself has made C. Is that true? (yes/no):`,
+hint: `C was defined as the square on B.` },
+
+{ q: `Therefore, is the product of A and D equal to the square on B? (yes/no):`,
+hint: `Both are equal to C.` },
+
+{ q: `From this, does it follow that as A is to B, so is B to D? (yes/no):`,
+hint: `Proposition VII.19: if four numbers are proportional, the product of the first and fourth equals the product of the second and third; and if these products are equal, the four numbers are proportional.` },
+
+{ q: `Therefore, has a third proportional number D been found to A and B? (yes/no):`,
+hint: `The ratio A : B = B : D is exactly the definition.` },
+
+{ q: `Subcase 2b: A does not measure C. Next, let A not measure C. Do you agree with this hypothesis? (yes/no):`,
+hint: `We now assume the opposite possibility.` },
+
+{ q: `We will investigate whether it is possible to find a third proportional number to A and B in this case. Do you understand the claim? (yes/no):`,
+hint: `This is what we are about to prove by contradiction.` },
+
+{ q: `If possible, let D be a third proportional to A and B. Is this the assumption? (yes/no):`,
+hint: `We assume existence to derive a contradiction.` },
+
+{ q: `Then is the product of A and D equal to the square on B? (yes/no):`,
+hint: `This follows from the definition of third proportional.` },
+
+{ q: `But is the square on B equal to C? (yes/no):`,
+hint: `C was defined earlier as B × B.` },
+
+{ q: `Therefore, is the product of A and D equal to C? (yes/no):`,
+hint: `Both are equal to the same number.` },
+
+{ q: `Hence, has A by multiplying D made C? (yes/no):`,
+hint: `This means A measures C according to D.` },
+
+{ q: `But was it assumed that A does not measure C? (yes/no):`,
+hint: `This was the hypothesis of this subcase.` },
+
+{ q: `Is this a contradiction? (yes/no):`,
+hint: `A number cannot both measure and not measure the same number.` },
+
+{ q: `Have we shown that it is impossible to find a third proportional number to A and B when A does not measure C? (yes/no):`,
+hint: `The contradiction proves the impossibility.` },
+]
+
+
+
+
+
+
+
+const conclusion = `Congratulations! You just investigated whether a third proportional can be found to two given numbers.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

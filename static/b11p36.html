@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements XI.36</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>XI.36 – Prove that if three straight lines be proportional, the parallelepipedal solid formed out of the three is equal to the parallelepipedal solid on the mean which is equilateral and equiangular with the aforesaid solid.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements XI.36 chatbot!
+
+We are given three straight lines A, B, and C, such that as A is to B, so is B to C. Do you agree? (yes/no):`,
+    hint: `This means the three lines are in continued proportion.` },
+
+  { q: `Our goal is to show that the solid formed out of A, B, and C is equal to the solid on B which is equilateral and equiangular with it. Does that make sense? (yes/no):`,
+    hint: `One solid uses three possibly different edges A, B, C; the other uses B for all three edges but has the same angles.` },
+
+  { q: `Let there be set out a solid angle at point E, contained by the plane angles DEG, GEF, and FED. Is this construction understood? (yes/no):`,
+    hint: `A solid angle is formed by three plane angles meeting at a point.` },
+
+  { q: `Let each of the straight lines DE, GE, and EF be made equal to B. Can this be done? (yes/no):`,
+    hint: `Equal straight lines can be laid off from a given point.` },
+
+  { q: `Let the parallelepipedal solid EK be completed on these three equal edges. Is this possible? (yes/no):`,
+    hint: `A parallelepipedal solid is determined once three edges from one vertex are given.` },
+
+  { q: `Let LM be made equal to A. Do you agree? (yes/no):`,
+    hint: `We are transferring the length A to a new straight line.` },
+
+  { q: `On the straight line LM, and at the point L on it, let there be constructed a solid angle equal to the solid angle at E, namely that contained by the plane angles NLO, OLM, and MLN. Is this allowed? (yes/no):`,
+    hint: `Equal solid angles can be constructed with equal plane angles arranged similarly.` },
+
+  { q: `Let LO be made equal to B, and LN equal to C. Can we do this? (yes/no):`,
+    hint: `Straight lines equal to given straight lines can be constructed.` },
+
+  { q: `Now, since as A is to B, so is B to C, and since A = LM, B = LO and DE, and C = LN, do we have that as LM is to LO, so is DE to LN? (yes/no):`,
+    hint: `Equal magnitudes may be substituted into a proportion.` },
+
+  { q: `Do the sides about the equal angles NLM and DEF stand reciprocally proportional? (yes/no):`,
+    hint: `Each pair of corresponding sides has the same ratio, but in reverse order.` },
+
+  { q: `Therefore, by Proposition VI.14, is the parallelogram MN equal to the parallelogram DF? (yes/no):`,
+    hint: `Parallelograms about equal angles with reciprocally proportional sides are equal in area.` },
+
+  { q: `Now, are the angles DEF and NLM plane rectilineal angles? (yes/no):`,
+    hint: `Each is formed by two straight lines in a plane.` },
+
+  { q: `Are the elevated straight lines EG and LO equal to one another, and do they contain equal angles with the original straight lines respectively? (yes/no):`,
+    hint: `Each is set up on equal plane angles in corresponding positions.` },
+
+  { q: `Therefore, are the perpendiculars drawn from points G and O to the planes through DE, EF and NL, LM equal to one another? (yes/no):`,
+    hint: `This follows from Proposition XI.35 (Porism).` },
+
+  { q: `Hence, are the parallelepipedal solids LH and EK of the same height? (yes/no):`,
+    hint: `Equal perpendiculars to the base planes imply equal heights.` },
+
+  { q: `Are parallelepipedal solids on equal bases and of the same height equal to one another? (yes/no):`,
+    hint: `This is Proposition XI.31.` },
+
+  { q: `Therefore, is the solid LH equal to the solid EK? (yes/no):`,
+    hint: `Equal base and equal height give equal solids.` },
+
+  { q: `Is LH the solid formed out of A, B, and C, and EK the solid on B which is equilateral and equiangular with it? (yes/no):`,
+    hint: `LH uses edges equal to A, B, C; EK uses three edges all equal to B.` },
+
+  { q: `Therefore, have we shown that the parallelepipedal solid formed out of A, B, C is equal to the solid on B which is equilateral, but equiangular with the aforesaid solid? (yes/no):`,
+    hint: `This is exactly what was to be demonstrated.` }
+]
+
+const conclusion = `Congratulations! You just if three straight lines be proportional, the parallelepipedal solid formed out of the three is equal to the parallelepipedal solid on the mean which is equilateral and equiangular with the aforesaid solid.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

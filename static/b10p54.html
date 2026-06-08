@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.54</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.54 – Prove that if an area is contained by a rational straight line and the first binomial, the side of the area is the irrational straight line called binomial.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+{ q: `Welcome to Elements X.54 chatbot!
+
+We are given an area AC contained by the rational straight line AB and the first binomial AD. Do you agree? (yes/no):`, hint: `“Contained by AB and AD” means the area equals the rectangle with sides AB and AD.` },
+{ q: `First, since AD is a first binomial, let it be divided into its terms at E, and let AE be the greater term. Can we do that? (yes/no):`, hint: `A “first binomial” is defined as having two rational terms with special properties, and we label the greater term AE.` },
+{ q: `From the definition of a first binomial, do we have that AE and ED are rational straight lines commensurable in square only? (yes/no):`, hint: `“Commensurable in square only” means their squares are commensurable, but their lengths are not.` },
+{ q: `Also from the same definition, is the square on AE greater than the square on ED by the square on some straight line commensurable with AE? (yes/no):`, hint: `This is part of what makes the binomial “first.”` },
+{ q: `And is AE commensurable in length with the rational straight line AB which was set out? (yes/no):`, hint: `The definition includes commensurability of the greater term with the given rational line.` },
+
+{ q: `Now bisect ED at F. Is that possible? (yes/no):`, hint: `Any segment can be bisected (a standard construction).` },
+{ q: `We will now apply a parallelogram to the greater line AE equal to the fourth part of the square on the less term ED, that is, equal to the square on EF, and deficient by a square. Is this allowed? (yes/no):`, hint: `This uses the result: if such a parallelogram is applied under these conditions, it divides the line into commensurable parts (Euclid X.17).` },
+{ q: `So let the rectangle AG, GE (applied to AE) be equal to the square on EF. Can we set up this rectangle on AE? (yes/no):`, hint: `“Applied to AE” means AG is along AE, and GE is a breadth making rectangle AGGE.` },
+{ q: `From this construction, do we get that AG is commensurable in length with EG? (yes/no):`, hint: `That is the key conclusion of X.17 for this setup.` },
+
+{ q: `Next, draw GH, EK, and FL from G, E, and F parallel to either of the straight lines AB and CD. Can we draw these parallels? (yes/no):`, hint: `We are forming a grid of rectangles by drawing parallels.` },
+{ q: `Now construct the square SN equal to the parallelogram AH, and the square NQ equal to GK. Can we do that? (yes/no):`, hint: `Euclid II.14 lets us construct a square equal to a given rectilineal figure.` },
+{ q: `Place these squares so that MN is in a straight line with NO. Can we arrange them that way? (yes/no):`, hint: `This is a placement step so later straight lines line up as needed.` },
+{ q: `If MN is in a straight line with NO, does it follow that RN is in a straight line with NP (as in the lemma setup)? (yes/no):`, hint: `This is part of the cited lemma configuration.` },
+{ q: `Complete the parallelogram SQ. Do we then have that SQ is a square? (yes/no):`, hint: `This is concluded from the lemma: with the placement and construction, SQ comes out a square.` },
+
+{ q: `Since the rectangle AG, GE is equal to the square on EF, do we have the proportion AG : EF = FE : EG? (yes/no):`, hint: `If a rectangle equals a square, similar proportionality follows (VI.17).` },
+{ q: `Using the parallel lines, can we transfer this to say AH : EL = EL : KG? (yes/no):`, hint: `With parallels, corresponding rectangles and segments preserve ratios (VI.1).` },
+{ q: `So is EL a mean proportional between AH and GK? (yes/no):`, hint: `“Mean proportional” means AH : EL = EL : GK.` },
+{ q: `But AH is equal to SN, and GK is equal to NQ. Do you agree? (yes/no):`, hint: `SN was made equal to AH, and NQ was made equal to GK.` },
+{ q: `Therefore, is EL a mean proportional between SN and NQ? (yes/no):`, hint: `Substitute equals for equals.` },
+{ q: `Also, by the lemma, is MR a mean proportional between the same SN and NQ? (yes/no):`, hint: `The lemma provides MR as the mean proportional between those two squares.` },
+{ q: `If EL and MR are both mean proportionals between the same two straight lines SN and NQ, are they equal? (yes/no):`, hint: `The mean proportional is determined uniquely here, so the segments coincide in length.` },
+{ q: `So do we have EL = MR, and therefore EL is also equal to PO (by the placement)? (yes/no):`, hint: `The diagram placement makes MR match PO as well.` },
+
+{ q: `Now, since AH = SN and GK = NQ, do we get that the whole area AC is equal to the whole square SQ? (yes/no):`, hint: `The corresponding parts add to equal wholes.` },
+{ q: `But SQ is the square on MO. Therefore, is AC equal to the square on MO? (yes/no):`, hint: `If SQ is constructed as the square on MO, its area is MO².` },
+{ q: `So is MO the side of the area AC? (yes/no):`, hint: `“Side of an area” here means the side of a square equal to the area.` },
+
+{ q: `Our goal is to show that the side MO is not only the side of AC, but specifically the irrational straight line called binomial. Does that make sense? (yes/no):`, hint: `We already showed MO is the side; now we must show it has the binomial form.` },
+
+{ q: `Since AG is commensurable with GE, is AE commensurable with each of AG and GE? (yes/no):`, hint: `If a whole is divided into commensurable parts, it is commensurable with each part (X.15).` },
+{ q: `But AE is commensurable with AB. Therefore are AG and GE also commensurable with AB? (yes/no):`, hint: `Things commensurable with the same line are commensurable with each other (X.12 idea).` },
+{ q: `And since AB is rational, are AG and GE each rational? (yes/no):`, hint: `A line commensurable with a rational line is rational.` },
+{ q: `Therefore are the rectangles AH and GK rational, and is AH commensurable with GK? (yes/no):`, hint: `Rectangles on rational lines are rational, and commensurability transfers to the corresponding rectangles (X.19 type result).` },
+{ q: `Since AH = SN and GK = NQ, are SN and NQ (that is, the squares on MN and NO) rational and commensurable? (yes/no):`, hint: `Equal to rational commensurable rectangles implies the squares are rational and commensurable.` },
+
+{ q: `Now, AE is incommensurable in length with ED, while AE is commensurable with AG, and DE is commensurable with EF. Therefore is AG incommensurable with EF? (yes/no):`, hint: `If equals/commensurables are substituted, incommensurability transfers (X.13 type reasoning).` },
+{ q: `So is AH also incommensurable with EL? (yes/no):`, hint: `Incommensurability of corresponding sides transfers through the parallel-line ratio setup (VI.1 with X.11).` },
+{ q: `But AH = SN and EL = MR. Therefore is SN incommensurable with MR? (yes/no):`, hint: `Replace equals with equals.` },
+{ q: `And as SN : MR = PN : NR (from the same parallel-line proportionality), does it follow that PN is incommensurable with NR? (yes/no):`, hint: `Incommensurability transfers through proportionality (X.11).` },
+{ q: `But PN equals MN, and NR equals NO. Therefore is MN incommensurable with NO? (yes/no):`, hint: `Substitute the equal segments in the construction.` },
+
+{ q: `Yet the square on MN is commensurable with the square on NO, and each is rational. Do you see that? (yes/no):`, hint: `Their squares correspond to SN and NQ, which we already established are rational and commensurable.` },
+{ q: `Therefore are MN and NO rational straight lines commensurable in square only? (yes/no):`, hint: `Rational + incommensurable in length + commensurable in square gives “commensurable in square only.”` },
+{ q: `If MO is composed from MN and NO in the binomial way, do we conclude that MO is binomial (by X.36)? (yes/no):`, hint: `X.36 identifies the binomial from two rational terms commensurable in square only (with the correct arrangement).` },
+
+{ q: `Therefore is MO both (1) the side of the area AC and (2) the irrational straight line called binomial? (yes/no):`, hint: `This matches exactly what the proposition claims.` },
+{ q: `Therefore, if an area is contained by a rational straight line and the first binomial, the side of the area is the irrational straight line called binomial. Q.E.D. (yes/no):`, hint: `We showed MO is the side of AC and proved MO is binomial.` },
+]
+
+const conclusion = `Congratulations! You just proved that if an area is contained by a rational straight line and the first binomial, the side of the area is the irrational straight line called binomial.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Conics I.28</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+<h1>I.28 - Prove that a line through a point within one of two opposite hyperbolas, parallel to a tangent to the other, meets the section</h1>
+
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [{ q: `Welcome to Apollonius' Conics I.28 chatbot!
+
+We are given two opposite hyperbolas having the same diameter AB. Do you agree? (yes/no):`,
+hint: `“Opposite hyperbolas” share the same diameter but open in opposite directions.` },
+{ q: `A straight line CD touches one of the hyperbolas. Is this clear? (yes/no):`,
+hint: `CD is a tangent to one of the hyperbolas.` },
+{ q: `A point E is taken within the other hyperbola. Do you follow? (yes/no):`,
+hint: `The point E lies inside the opposite branch.` },
+{ q: `Through point E, a straight line EF is drawn parallel to the tangent CD. Is this construction allowed? (yes/no):`,
+hint: `A straight line can be drawn through a point parallel to a given straight line.` },
+{ q: `Our goal is to show that the straight line EF, continued both ways, will meet the section. Does that make sense? (yes/no):`,
+hint: `“The section” means the hyperbola under consideration.` },
+{ q: `It has been proved earlier (Proposition I.24) that the tangent CD, when continued, meets the diameter AB. Do you accept this result? (yes/no):`,
+hint: `This is a previously established property of tangents.` },
+{ q: `Since EF is parallel to CD, will EF also meet the diameter AB when continued? (yes/no):`,
+hint: `Parallel lines meeting a transversal behave the same way.` },
+{ q: `Let us take point G where EF meets the diameter AB. Is this point well defined? (yes/no):`,
+hint: `We have just shown EF must meet AB.` },
+{ q: `Let us take AH on the diameter of the opposite hyperbola be made equal to GB. Can this be done? (yes/no):`,
+hint: `A straight line segment can be laid off equal to another.` },
+{ q: `Through point H, draw HK parallel to EF, such that K lies on the section. Is this allowed? (yes/no):`,
+hint: `A line parallel to a given line can be drawn through a given point.` },
+{ q: `From K, drop KL as an ordinate to the diameter AB. Is this construction valid? (yes/no):`,
+hint: `An ordinate is drawn perpendicular to the diameter.` },
+{ q: `Let GM be made equal to LH. May we construct this equality? (yes/no):`,
+hint: `A segment equal to a given segment can be set off.` },
+{ q: `Through M, draw MN parallel to an ordinate, and continue GN in the same straight line such that GEN forms a straight line. Is this possible? (yes/no):`,
+hint: `Parallel lines and straight continuations are permitted constructions.` },
+{ q: `Since KL is parallel to MN, KH is parallel to GN, and LM lies along the diameter AB, are triangles KHL and GMN similar? (yes/no):`,
+hint: `Parallel corresponding sides give similar triangles.` },
+{ q: `Because LH equals GM, does it follow that KL equals MN? (yes/no):`,
+hint: `In similar triangles, equal corresponding sides imply equal remaining sides.` },
+{ q: `Does it then follow that the square on KL equals the square on MN? (yes/no):`,
+hint: `Equal lengths have equal squares.` },
+{ q: `Since LH equals GM, AH equals GB, and AB is common, can we conclude that BL equals AM? (yes/no):`,
+hint: `Subtract equals from equals; the remainders are equal.` },
+{ q: `If BL equals AM, are the rectangles BL,LA and AM,MB equal? (yes/no):`,
+hint: `Equal bases with equal complements give equal rectangles.` },
+{ q: `Is it true that as rectangle BL·LA is to square LK, so rectangle AM·MB is to square MN? (yes/no):`,
+hint: `This follows by substitution of equal quantities.` },
+{ q: `According to Proposition I.21, is rectangle BL,LA to square LK in the ratio of the latus transversum to the latus rectum? (yes/no):`,
+hint: `This is a defining property of the hyperbola.` },
+{ q: `Does it then follow that rectangle AM,MB to square MN is also in the ratio of the latus transversum to the latus rectum? (yes/no):`,
+hint: `Equal ratios transfer through equal magnitudes.` },
+{ q: `From this ratio, can we conclude that point N lies on the section? (yes/no):`,
+hint: `This ratio characterizes points on the hyperbola.` },
+{ q: `Therefore, does EF, when continued, meet the section at N? (yes/no):`,
+hint: `N lies on EF by construction.` },
+{ q: `Likewise, can it be shown that EF continued to the other side will also meet the section? (yes/no):`,
+hint: `The argument is symmetric.` },
+
+
+
+]
+
+const conclusion = `Congratulations! You just proved that a line through a point within one of two opposite hyperbolas, parallel to a tangent to the other, meets the section.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

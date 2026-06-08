@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements VIII.21</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>VIII.21 — Prove that if two mean proportionals lie between two numbers, those numbers are similar solid numbers</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements VIII.21 chatbot!
+
+We are given two numbers A and B, and between them two mean proportionals C and D. Do you agree? (yes/no):`,
+    hint:`This means A : C = C : D = D : B.` },
+
+  { q:`Our goal is to show that A and B are similar solid numbers. Does that make sense? (yes/no):`,
+    hint:`A solid number is a product of three numbers (three “sides”), and similar solid numbers have proportional corresponding sides.` },
+
+  { q:`Next, let us take E, F, G to be the least numbers having the same ratio as A, C, D. Can we do that? (yes/no):`,
+    hint:`Propositions VII.33 / VIII.2 allow selecting least numbers with the same ratios.` },
+
+  { q:`Do you see that the extremes E and G are prime to one another? (yes/no):`,
+    hint:`By VIII.3, the extremes of least proportional numbers are relatively prime.` },
+
+  { q:`Since one mean proportional F falls between E and G, can we say E and G are similar plane numbers? (yes/no):`,
+    hint:`Proposition VIII.20: if one mean proportional falls between two numbers, those numbers are similar plane numbers.` },
+
+  { q:`Let H, K be the sides of E, and L, M be the sides of G. Acceptable? (yes/no):`,
+    hint:`A plane number can be expressed as the product of two sides.` },
+
+  { q:`From the previous proposition, can we say E, F, G are in continuous proportion according to ratios H:L and K:M? (yes/no):`,
+    hint:`Similar plane numbers allow their mean proportional to follow the same side ratios.` },
+
+  { q:`Because E, F, G are the least numbers with the same ratio as A, C, D, and there are three of them, can we say E : G = A : D by “ex aequali”? (yes/no):`,
+    hint:`Proposition VII.14: equal-numbered chains of proportion give equal overall ratio.` },
+
+  { q:`Since E and G are prime, do you agree that they measure numbers in the same ratio the same number of times—antecedent measuring antecedent, and consequent measuring consequent? (yes/no):`,
+    hint:`This is Euclid VII.20–21: primes, being least, measure corresponding terms equally many times.` },
+
+  { q:`Therefore, does E measure A as many times as G measures D? (yes/no):`,
+    hint:`Because E:G = A:D and E, G are least.` },
+
+  { q:`Let the number of times E measures A be represented by the units in N. Acceptable? (yes/no):`,
+    hint:`We are defining N so that N×E = A.` },
+
+  { q:`Then, is A equal to N multiplying E? (yes/no):`,
+    hint:`N contains exactly the number of times E fits into A.` },
+
+  { q:`Since E equals H multiplying K, can we say A equals N multiplying (H multiplying K)? (yes/no):`,
+    hint:`Substitution: E is the product of sides H and K.` },
+
+  { q:`Therefore, is A a solid number with sides H, K, N? (yes/no):`,
+    hint:`A product of three numbers is a solid number.` },
+
+  { q:`Similarly, because E, F, G are also the least proportional to C, D, B, can we say E measures C as many times as G measures B? (yes/no):`,
+    hint:`Same reasoning as before: least numbers measure antecedent and consequent equally.` },
+
+  { q:`Let the number of times E measures C be represented by the units in O. Acceptable? (yes/no):`,
+    hint:`Then O×E = C, and equivalently O×G = B.` },
+
+  { q:`Since G is equal to L multiplying M, can we say B is equal to O multiplying (L multiplyingM)? (yes/no):`,
+    hint:`Replace G with its side factorization.` },
+
+  { q:`Therefore, is B a solid number with sides L, M, O? (yes/no):`,
+    hint:`Again, the product of three numbers is a solid number.` },
+
+  { q:`Now, since N and O, by multiplying E, produce A and C, do we have N to O as A to C? (yes/no):`,
+    hint:`Euclid VII.18: numbers that multiply the same number to give proportional results are themselves proportional.` },
+
+  { q:`And since A is to C as E is to F, do we have N is to O as E is to F? (yes/no):`,
+    hint:`A : C = E : F from the initial proportionality.` },
+
+  { q:`But E is to F as H is to L as K is to M, correct? (yes/no):`,
+    hint:`Continuous proportionality from earlier: sides follow the same ratios.` },
+
+  { q:`Therefore, can we conclude H is to L as K is to M as N is to O? (yes/no):`,
+    hint:`They all share the same ratio chain derived from E:F.` },
+
+  { q:`Since H, K, N are the sides of A, and L, M, O are the sides of B, and all corresponding sides are proportional, do you agree A and B are similar solid numbers? (yes/no):`,
+    hint:`Three pairs of proportional sides define similarity for solid numbers.` }
+]
+
+
+
+
+
+
+
+
+
+
+const conclusion = `Congratulations! You just proved that if two mean proportionals lie between two numbers, those numbers are similar solid numbers.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

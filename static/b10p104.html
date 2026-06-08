@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.104</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.104 – Prove that a straight line commensurable in length with an apotome of a medial straight line is itself an apotome of a medial straight line and of the same order.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+{ q: `Welcome to Elements X.104 chatbot!
+
+We are given a straight line AB, which is an apotome of a medial straight line, and a straight line CD commensurable with AB. Do you agree? (yes/no)`,
+  hint: `AB is an apotome (difference of two medial straight lines commensurable in square only), and CD is commensurable in length with AB.` },
+
+{ q: `Our goal is to prove that CD is also an apotome of a medial straight line and the same in order with AB. Does that make sense? (yes/no)`,
+  hint: `An apotome is characterized via its annex and the corresponding rational/medial rectangle properties that determine its order.` },
+
+{ q: `Let EB be the annex to AB. Do you see that we can define this? (yes/no)`,
+  hint: `By definition of an apotome, AB has an annex EB such that AE and EB are medial straight lines commensurable in square only.` },
+{ q: `AE and EB are medial straight lines commensurable in square only. Is that clear? (yes/no)`,
+  hint: `Reference: X.74–75. Medial lines commensurable in square only produce an apotome.` },
+
+{ q: `Let it be contrived that, as AB is to CD, so is BE to DF. Possible? (yes/no)`,
+  hint: `By proportion construction (VI.12), we can define DF so that BE:DF = AB:CD.` },
+
+{ q: `Therefore, AE is also commensurable with CF, and BE with DF. Do you agree? (yes/no)`,
+  hint: `If two ratios are equal and AB is commensurable with CD, then the corresponding parts are commensurable (V.12, X.11).` },
+
+{ q: `Since AE and EB are medial straight lines commensurable in square only, are CF and DF also medial straight lines commensurable in square only? (yes/no)`,
+  hint: `References: X.13 and related results—this “medial + commensurable in square only” structure is preserved under the proportional construction.` },
+
+{ q: `Therefore, is CD an apotome of a medial straight line? Do you see that? (yes/no)`,
+  hint: `By X.74–75: if a straight line is composed from medial parts commensurable in square only in the same way, it is an apotome of a medial straight line.` },
+
+{ q: `Next, we check the order: as AE is to EB, so is CF to DF. Correct? (yes/no)`,
+  hint: `From the proportional setup, corresponding parts preserve the internal ratio that determines the “order.”` },
+
+{ q: `Therefore, as the square on AE is to the rectangle AE·EB, so is the square on CF to the rectangle CF·DF. Do you agree? (yes/no)`,
+  hint: `Using alternation/proportionality of squares and rectangles (V.16, VI.1, X.11).` },
+
+{ q: `But the square on AE is commensurable with the square on CF. Does this follow? (yes/no)`,
+  hint: `Because AE is commensurable with CF, their squares are commensurable.` },
+
+{ q: `Therefore, is the rectangle AE·EB commensurable with the rectangle CF·DF? Agree? (yes/no)`,
+  hint: `From the established proportionalities, commensurability transfers to the corresponding rectangles.` },
+
+{ q: `If the rectangle AE·EB is rational, is the rectangle CF·DF also rational? And if AE·EB is medial, is CF·DF also medial? (yes/no)`,
+  hint: `Rationality or mediality is preserved through commensurability/equality of the corresponding rectangles (X.Definitions and X.23-type transfer results).` },
+
+{ q: `Therefore, is CD an apotome of a medial straight line and the same in order with AB? Do you see that conclusion? (yes/no)`,
+  hint: `CD shares the same medial-part structure and the same rectangle classification determining the order, so it is the same apotome “in order.” Q.E.D.` },
+]
+
+const conclusion = `Congratulations! You just proved that a straight line commensurable in length with an apotome of a medial straight line is itself an apotome of a medial straight line and of the same order.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

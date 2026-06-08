@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Template — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Google tag (gtag.js) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-G1REEDE83D"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-G1REEDE83D');
+  </script>
+  <style>
+    :root { --border:#ccc; }
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+      padding-bottom: 120px; /* Space for fixed mobile buttons */
+    }
+    header {
+      display:flex; align-items:center; justify-content:space-between; gap:12px;
+      margin-bottom:10px;
+    }
+    h1 { font-size: 24px; margin: 0; }
+    #sub { margin: 6px 0 14px; font-size:14px; }
+    #chat {
+      border: 1px solid var(--border);
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      background:#fff;
+    }
+    #diagramBox {
+      border: 2px solid var(--border);
+      height: 400px;
+      background: #fff;
+      position: relative;
+      cursor: default;
+      user-select: none;
+      touch-action: manipulation;
+      margin-top: 10px;
+      display: none; /* hidden in Pure mode */
+    }
+    #inputArea { margin-top: 10px; position: sticky; bottom: 0; }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      border: 1px solid var(--border);
+    }
+    .ghost-visible { stroke: black; stroke-width: 2; stroke-dasharray: 6 6; }
+    .ghost-hover { stroke-width: 3.5; stroke-dasharray: 2 4; }
+    .solid { stroke: black; stroke-width: 2; }
+    .label { font-family: inherit; font-size: 16px; }
+    .muted { color:#000; font-size:14px; }
+    .tick { stroke:black; stroke-width:2; pointer-events:none; }
+    .bar { display: flex; align-items: center; }
+    .toggle-btn {
+      padding: 4px 10px;
+      border: 1px solid #000;
+      background: #fff;
+      color: #000;
+      cursor: pointer;
+      font: inherit;
+      font-size: 12px;
+      line-height: 1.2;
+      border-radius: 0;
+      user-select: none;
+    }
+    .toggle-btn[aria-pressed="true"] {
+      background: #000;
+      color: #fff;
+    }
+    .toggle-btn:focus { outline: none; }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none; /* Hide text input on mobile */
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid var(--border);
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+        box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        border-radius: 0;
+        user-select: none;
+        transition: all 0.2s ease;
+        min-height: 50px;
+      }
+
+      .mobile-btn:hover {
+        background: #f0f0f0;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .mobile-btn:disabled:hover {
+        background: #fff;
+        color: #000;
+      }
+
+      /* Disable graph mode toggle on mobile */
+      #modeBtn {
+        display: none;
+      }
+
+      /* Ensure diagram box is visible but non-interactive on mobile */
+      #diagramBox {
+        display: block !important;
+        pointer-events: none;
+        touch-action: none;
+      }
+    }
+
+    /* Desktop styles */
+    @media (min-width: 769px) {
+      .mobile-buttons {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Template - Proposition Title</h1>
+  <div class="bar">
+    <button id="modeBtn" class="toggle-btn" title="Toggle between Pure chat and Graph mode">Graph mode</button>
+  </div>
+</header>
+<div id="sub" class="muted">Type your answer and press Enter.</div>
+
+<div id="chat"></div>
+<div id="diagramBox"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons (hidden on desktop) -->
+<div class="mobile-buttons">
+  <button id="mobileYes" class="mobile-btn">YES</button>
+  <button id="mobileNo" class="mobile-btn">NO</button>
+</div>
+
+<script>
+// === Steps for Proposition ===
+const steps = [
+{ q: `Welcome to the proposition chatbot!
+
+This is the first question. Do you agree? (yes/no):`,
+hint: `This is a hint for the first question.` },
+{ q: `This is the second question. Does that make sense? (yes/no):`,
+hint: `This is a hint for the second question.` },
+// Add more steps as needed
+];
+
+// --- App state ---
+let mode = 'pure'; // 'pure' | 'graph'
+let currentStep = 0;
+let inputEl, chatEl, diagramEl;
+let isMobile = false;
+
+// --- SVG + geometry state (graph mode) ---
+const svgNS = "http://www.w3.org/2000/svg";
+let svg = null;
+
+// State variables for interactive elements
+// Add your state variables here
+
+// --- Utilities ---
+function $(id){ return document.getElementById(id); }
+
+// Mobile detection
+function detectMobile() {
+  isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  return isMobile;
+}
+
+function refocusInput(){
+  if (!isMobile) {
+    try { inputEl.focus(); } catch(e){}
+  }
+}
+function addMessage(text, role='bot'){
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatEl.appendChild(div);
+  chatEl.scrollTop = chatEl.scrollHeight;
+}
+
+function resetGraphState(){
+  svg = null;
+  // Reset your state variables here
+}
+
+function resetState(){
+  currentStep = 0;
+  chatEl.textContent = '';
+  inputEl.disabled = false;
+  inputEl.value = '';
+  refocusInput();
+  diagramEl.innerHTML = '';
+  resetGraphState();
+
+  const isGraph = mode === 'graph';
+  const modeBtn = $('modeBtn');
+  modeBtn.textContent = isGraph ? 'Pure chat' : 'Graph mode';
+  modeBtn.setAttribute('aria-pressed', String(isGraph));
+
+  // Diagram visibility
+  if (isMobile) {
+    mode = 'graph'; // Force graph mode on mobile
+    diagramEl.style.display = 'block'; // Always show on mobile
+    initDiagram();
+  } else {
+    diagramEl.style.display = isGraph ? 'block' : 'none';
+    if(isGraph){ initDiagram(); }
+  }
+
+  showStep();
+}
+
+// --- Chat flow ---
+function showStep(){
+  if(currentStep < steps.length){
+    addMessage(steps[currentStep].q, 'bot');
+    
+    // Enable interactive elements based on current step
+    if(mode === 'graph' || isMobile){
+      // Add interactive element logic here based on currentStep
+    }
+  } else {
+    addMessage(`Congratulations! You have completed the proposition. Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`, 'bot');
+    inputEl.disabled = true;
+    if (isMobile) {
+      $('mobileYes').disabled = true;
+      $('mobileNo').disabled = true;
+    }
+  }
+}
+
+function processAnswer(ans){
+  addMessage(ans, 'user');
+  const a = ans.trim().toLowerCase();
+  if(a==='yes' || a==='y'){
+    if (canAdvance()) {
+      // Handle mobile solidification if needed
+      // Add mobile solidification logic here based on currentStep
+      currentStep++;
+      showStep();
+    }
+  } else if(a==='no' || a==='n'){
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+function canAdvance(){
+  if(mode !== 'graph' && !isMobile) return true;
+
+  // Check interactive elements for current step
+  // Add interactive step checks here based on currentStep
+
+  return true;
+}
+
+// === Basic SVG helpers ===
+function textLabel(x,y,txt){
+  const t=document.createElementNS(svgNS,'text');
+  t.setAttribute('x', x); t.setAttribute('y', y);
+  t.setAttribute('class','label');
+  t.textContent = txt;
+  svg.appendChild(t);
+  return t;
+}
+
+function point(x,y,labelText){
+  const g=document.createElementNS(svgNS,'g');
+  const dot=document.createElementNS(svgNS,'circle');
+  dot.setAttribute('cx', x); dot.setAttribute('cy', y);
+  dot.setAttribute('r','4'); dot.setAttribute('fill','black');
+  g.appendChild(dot);
+  svg.appendChild(g);
+  let label=null;
+  if(labelText){ label = textLabel(x+8, y-8, labelText); }
+  return {x,y,dot,label};
+}
+
+function solidLine(x1,y1,x2,y2){
+  const ln=document.createElementNS(svgNS,'line');
+  ln.setAttribute('x1', x1); ln.setAttribute('y1', y1);
+  ln.setAttribute('x2', x2); ln.setAttribute('y2', y2);
+  ln.setAttribute('class','solid');
+  ln.setAttribute('stroke-linecap','round');
+  svg.appendChild(ln);
+  return ln;
+}
+
+// --- Diagram init ---
+function initDiagram(){
+  // create svg
+  svg = document.createElementNS(svgNS, "svg");
+  svg.setAttribute("width", "100%");
+  svg.setAttribute("height", "100%");
+  diagramEl.appendChild(svg);
+
+  // keep focus on input during interactions (desktop only)
+  if (!isMobile) {
+    ['mousedown','mouseup','click','mousemove'].forEach(evt => {
+      svg.addEventListener(evt, refocusInput);
+      diagramEl.addEventListener(evt, refocusInput);
+    });
+  }
+
+  // Add your diagram initialization code here
+  // This is where you'll create the basic geometric elements
+}
+
+// --- Boot ---
+window.addEventListener('DOMContentLoaded', () => {
+  chatEl = $('chat');
+  diagramEl = $('diagramBox');
+  inputEl = $('userInput');
+
+  // Detect mobile on load and resize
+  detectMobile();
+  window.addEventListener('resize', detectMobile);
+
+  $('modeBtn').addEventListener('click', () => {
+    if (!isMobile) { // Only allow mode toggle on desktop
+      mode = (mode === 'graph') ? 'pure' : 'graph';
+      resetState();
+    }
+  });
+  inputEl.addEventListener('keydown', (e) => {
+    if(e.key === 'Enter'){
+      const ans = inputEl.value.trim();
+      if(ans){ processAnswer(ans); inputEl.value = ''; }
+    }
+  });
+
+  // Mobile button handlers
+  $('mobileYes').addEventListener('click', () => {
+    if (isMobile) {
+      processAnswer('yes');
+    }
+  });
+
+  $('mobileNo').addEventListener('click', () => {
+    if (isMobile) {
+      processAnswer('no');
+    }
+  });
+
+  resetState();
+});
+</script>
+
+</body>
+</html>

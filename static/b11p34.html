@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements XI.34</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>XI.34 – Prove that in equal parallelepipedal solids the bases are reciprocally proportional to the heights; and that parallelepipedal solids in which the bases are reciprocally proportional to the heights are equal to one another.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements XI.34 chatbot!
+
+We are given two equal parallelepipedal solids AB and CD. Do you agree? (yes/no):`,
+    hint: `The proposition begins by assuming AB = CD as solids.` },
+
+  { q: `Let the sides which stand up (AG, EF, LB, HK, CM, NO, PD, QR) be at right angles to their bases. Is this assumed? (yes/no):`,
+    hint: `This is the first case treated by Euclid.` },
+
+  { q: `Our goal is to show that, as the base EH is to the base NQ, so is the height of CD to the height of AB. Does that make sense? (yes/no):`,
+    hint: `“Reciprocally proportional” means base ratios equal height ratios in reverse order.` },
+
+  { q: `I say that, as base EH is to base NQ, so is CM to AG. Do you follow the claim? (yes/no):`,
+    hint: `CM and AG are the heights of CD and AB respectively.` },
+
+  { q: `If the base EH is equal to the base NQ, and the solid AB is equal to the solid CD, must CM be equal to AG? (yes/no):`,
+    hint: `Equal solids on equal bases must have equal heights in this right-angled case.` },
+
+  { q: `For parallelepipedal solids of the same height are to one another as their bases [XI.32]. Is this principle being used? (yes/no):`,
+    hint: `This relates ratios of solids to ratios of bases when heights are equal.` },
+
+  { q: `Therefore, is it manifest that, as EH is to NQ, so is CM to AG? (yes/no):`,
+    hint: `This completes the equal-base subcase.` },
+
+  { q: `Next, let the base EH not be equal to the base NQ, but let EH be greater. Do you accept this assumption? (yes/no):`,
+    hint: `Euclid now treats the unequal-base case.` },
+
+  { q: `Since the solid AB is equal to the solid CD, must CM be greater than AG? (yes/no):`,
+    hint: `With equal solids, the one on the smaller base must have the greater height, and conversely.` },
+
+  { q: `Let CT be made equal to AG. Can this be done? (yes/no):`,
+    hint: `A straight line equal to a given straight line can be constructed.` },
+
+  { q: `Let the parallelepipedal solid CV be completed on base NQ with height CT. Is this construction clear? (yes/no):`,
+    hint: `CV is an auxiliary solid on base NQ.` },
+
+  { q: `Since AB = CD, and CV is outside them, do equals have to the same the same ratio [V.7]? (yes/no):`,
+    hint: `Equal magnitudes have the same ratio to the same magnitude.` },
+
+  { q: `As AB is to CV, so is base EH to base NQ, because AB and CV have equal heights [XI.32]. Do you agree? (yes/no):`,
+    hint: `Equal heights give solid–base proportionality.` },
+
+  { q: `As CD is to CV, so is base MQ to base TQ [XI.25] and CM to CT [VI.1]. Is this applied correctly? (yes/no):`,
+    hint: `Ratios of solids correspond to ratios of bases and heights.` },
+
+  { q: `Therefore, as base EH is to base NQ, so is CM to CT. Do you see this? (yes/no):`,
+    hint: `This follows by combining the ratio steps.` },
+
+  { q: `But CT is equal to AG. So, as EH is to NQ, is CM to AG? (yes/no):`,
+    hint: `Substitute equals for equals.` },
+
+  { q: `Therefore, in the solids AB and CD, are the bases reciprocally proportional to the heights? (yes/no):`,
+    hint: `This completes the forward direction for right-angled solids.` },
+
+  { q: `Again, let the bases EH and NQ be reciprocally proportional to the heights of CD and AB. Is this the new assumption? (yes/no):`,
+    hint: `Euclid now proves the converse.` },
+
+  { q: `Let the sides which stand up again be at right angles to the bases. Is the configuration the same as before? (yes/no):`,
+    hint: `Same right-angle case.` },
+
+  { q: `If EH equals NQ, and the heights are reciprocally proportional, must the heights be equal? (yes/no):`,
+    hint: `Equal ratios with equal antecedents give equal consequents.` },
+
+  { q: `Are parallelepipedal solids on equal bases and of the same height equal [XI.31]? (yes/no):`,
+    hint: `This is the direct equality criterion.` },
+
+  { q: `Therefore, is solid AB equal to solid CD? (yes/no):`,
+    hint: `This completes the equal-base subcase of the converse.` },
+
+  { q: `Next, let EH be greater than NQ. Does reciprocal proportionality then imply CM > AG? (yes/no):`,
+    hint: `Reciprocal proportionality relates larger base to smaller height, and conversely.` },
+
+  { q: `Let CT again be made equal to AG, and let CV be completed. Is this the same auxiliary construction as before? (yes/no):`,
+    hint: `Yes—identical construction.` },
+
+  { q: `Since, as EH is to NQ, so is CM to AG, and AG = CT, do we have CM : CT = EH : NQ? (yes/no):`,
+    hint: `Replace equals in ratios.` },
+
+  { q: `As EH is to NQ, so is AB to CV, since AB and CV have equal heights [XI.32]. Is this correct? (yes/no):`,
+    hint: `Equal heights again give solid–base proportionality.` },
+
+  { q: `As CM is to CT, so is CD to CV [XI.25]. Do you agree? (yes/no):`,
+    hint: `Height ratios correspond to solid ratios in this setup.` },
+
+  { q: `Therefore, do AB and CD have the same ratio to CV? (yes/no):`,
+    hint: `Both are shown to be in the same ratio to CV.` },
+
+  { q: `Hence, is solid AB equal to solid CD? (yes/no):`,
+    hint: `Things which have the same ratio to the same magnitude are equal (V.9).` },
+
+  { q: `Now let the sides which stand up not be at right angles to their bases. Is this the final general case? (yes/no):`,
+    hint: `Euclid reduces oblique to right-angled solids.` },
+
+  { q: `Let perpendiculars be drawn from the standing edges to the planes of the bases, and let solids BT and DX be completed. Is this construction allowed? (yes/no):`,
+    hint: `Perpendiculars determine the true heights and allow completing right-angled solids.` },
+
+  { q: `Since AB = BT and CD = DX (same base and same height) [XI.29, XI.30], do we have BT = DX? (yes/no):`,
+    hint: `Each oblique solid equals its corresponding right-angled solid.` },
+
+  { q: `As base FK is to base OR, so is the height of DX to the height of BT (by the right-angle case). Do you accept this? (yes/no):`,
+    hint: `Apply the proven right-angled result to BT and DX.` },
+
+  { q: `But FK = EH and OR = NQ. So, as EH is to NQ, is the height of DX to the height of BT? (yes/no):`,
+    hint: `Substitute equal bases.` },
+
+  { q: `Since DX and DC, and BT and BA, have the same heights respectively, does the same ratio hold for CD and AB? (yes/no):`,
+    hint: `The heights correspond under the reduction.` },
+
+  { q: `Therefore, even in the oblique case, are the bases reciprocally proportional to the heights? (yes/no):`,
+    hint: `This completes the forward direction generally.` },
+
+  { q: `Again, let the bases be reciprocally proportional to the heights. Is this the assumption for the final converse? (yes/no):`,
+    hint: `Mirror of the previous argument.` },
+
+  { q: `With the same perpendicular construction, does reciprocal proportionality pass to BT and DX? (yes/no):`,
+    hint: `Reduction preserves the relevant ratios.` },
+
+  { q: `Therefore, is BT equal to DX (by the right-angled converse)? (yes/no):`,
+    hint: `Reciprocal proportionality implies equality in the right-angled case.` },
+
+  { q: `But BT = BA and DX = DC. Do you agree? (yes/no):`,
+    hint: `Each oblique solid equals its corresponding right-angled solid.` },
+
+  { q: `Therefore, is solid AB equal to solid CD? (yes/no):`,
+    hint: `Final conclusion.` }
+]
+
+const conclusion = `Congratulations! You just in equal parallelepipedal solids the bases are reciprocally proportional to the heights; and that parallelepipedal solids in which the bases are reciprocally proportional to the heights are equal to one another.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

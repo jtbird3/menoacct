@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>VI.31 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>VI.31 - Prove that in a right-angled triangle, the figure on the hypotenuse equals the similar figures on the other two sides</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements VI.31 chatbot!
+
+We are given a right-angled triangle ABC, where A is the right angle. Do you agree? (yes/no):`,
+    hint: `A right-angled triangle has one angle equal to a right angle; here ∠BAC is right.` },
+  { q: `Our goal is to show that the figure on BC is equal to the similar and similarly described figures on BA and AC. Does that make sense? (yes/no):`,
+    hint: `“Figure on a side” means a figure constructed on that side similar to a given one; we will compare three such similar figures.` },
+  { q: `First, draw AD from A perpendicular to BC. Can we do this? (yes/no):`,
+    hint: `From a point to a line a perpendicular can be drawn; this is standard Euclidean construction.` },
+  { q: `Since AD is perpendicular to BC in a right-angled triangle, are triangles ABD and ADC similar to triangle ABC? (yes/no):`,
+    hint: `Proposition VI.8: if from the right angle a perpendicular is dropped to the base, the two smaller triangles are each similar to the whole and to one another.` },
+  { q: `From similarity of ABC and ABD, is CB to BA as AB is to BD? (yes/no):`,
+    hint: `Similar triangles give equal ratios of corresponding sides.` },
+  { q: `When three straight lines are proportional, is the figure on the first line proportional to the similar figure on the second? (yes/no):`,
+    hint: `Proposition VI.19 (Porism): if a : b = b : c, then the figure on a is to the similar figure on b as a is to c.` },
+  { q: `Therefore, from CB : BA = AB : BD, is the figure on CB equal in ratio to the similar figure on BA? (yes/no):`,
+    hint: `Apply VI.19 to the side ratio just established.` },
+  { q: `Similarly, from BC : CA = CA : CD (from similarity of ABC and ADC), is the figure on BC equal in ratio to the similar figure on AC? (yes/no):`,
+    hint: `The same reasoning applies to triangle ADC.` },
+  { q: `If BC is to BD, DC as the figure on BC is to the figures on BA, AC, is that a valid combination of the two results? (yes/no):`,
+    hint: `Both ratios relate BC to BD and BC to DC, so they combine to relate the figure on BC to both figures.` },
+  { q: `But is BC equal to BD + DC? (yes/no):`,
+    hint: `Point D lies on BC; BD and DC are the two parts into which BC is divided.` },
+  { q: `If BC = BD + DC, and the figure on BC is to BD, DC in the same ratio as the figures on BA, AC, can we conclude the figure on BC equals the sum of the figures on BA and AC? (yes/no):`,
+    hint: `Equal wholes correspond to equal sums of their proportional counterparts.` },
+  { q: `Therefore, is the figure on BC equal to the similar and similarly described figures on BA and AC? (yes/no):`,
+    hint: `This completes the proportional reasoning.` }
+];
+
+const conclusion = `Congratulations! You just proved that in a right-angled triangle, the figure on the hypotenuse equals the similar figures on the other two sides.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

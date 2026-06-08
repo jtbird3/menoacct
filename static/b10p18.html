@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.18</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.18 – Prove that if, on the greater of two unequal straight lines, a parallelogram equal to one quarter of the square on the less and deficient by a square is applied so as to divide the greater into incommensurable parts, then the square on the greater exceeds the square on the less by the square on a straight line incommensurable with the greater.</h1><p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements X.18 chatbot!
+
+We are given two unequal straight lines A and BC, with BC the greater. Do you agree? (yes/no):`,
+hint: `The proposition states that BC is greater than A.` },
+{ q: `A parallelogram equal to the fourth part of the square on A is applied to BC, deficient by a square figure. Is that given? (yes/no):`,
+hint: `“Fourth part of the square on A” means the square on half of A.` },
+{ q: `Let this applied figure be the rectangle BD, DC. Is that acceptable? (yes/no):`,
+hint: `Euclid names the applied parallelogram as rectangle BD, DC.` },
+{ q: `We are also given that BD is commensurable in length with DC. Do you agree? (yes/no):`,
+hint: `This is an explicit condition in the proposition.` },
+{ q: `Our goal is to prove that the square on BC is greater than the square on A by the square on a straight line commensurable with BC. Does that make sense? (yes/no):`,
+hint: `We want to identify a line whose square measures the excess.` },
+
+{ q: `Let BC be bisected at point E. Can we do this? (yes/no):`,
+hint: `Any straight line can be bisected.` },
+{ q: `Let EF be made equal to DE. Is this construction possible? (yes/no):`,
+hint: `A straight line equal to a given straight line can be constructed.` },
+{ q: `Since EF equals DE, is the remainder BF equal to DC? (yes/no):`,
+hint: `Subtract equals from equals; the remainders are equal.` },
+{ q: `Now, BC has been cut into equal parts at E and into unequal parts at D. Do you see that? (yes/no):`,
+hint: `E is the midpoint, D is not.` },
+{ q: `By Proposition II.5, is the rectangle contained by BD and DC, together with the square on ED, equal to the square on EC? (yes/no):`,
+hint: `This is exactly the statement of II.5.` },
+{ q: `Is the same equality true if we take quadruples of these magnitudes? (yes/no):`,
+hint: `Equal magnitudes remain equal when multiplied by the same number.` },
+{ q: `Is four times the rectangle BD, DC together with four times the square on DE equal to four times the square on EC? (yes/no):`,
+hint: `This follows directly from the previous step.` },
+{ q: `Is the square on A equal to four times the rectangle BD, DC? (yes/no):`,
+hint: `The rectangle equals the square on half of A.` },
+{ q: `Is the square on DF equal to four times the square on DE? (yes/no):`,
+hint: `DF is double of DE, and squares scale with the square of the length.` },
+{ q: `Is the square on BC equal to four times the square on EC? (yes/no):`,
+hint: `BC is double of CE.` },
+{ q: `Therefore, are the squares on A and DF together equal to the square on BC? (yes/no):`,
+hint: `Substitute the equal quadruples into the earlier equality.` },
+{ q: `Does it follow that the square on BC is greater than the square on A by the square on DF? (yes/no):`,
+hint: `The square on DF measures the excess.` },
+
+{ q: `It remains to prove that DF is commensurable with BC. Do you see that this is required? (yes/no):`,
+hint: `The proposition requires the excess square to be on a line commensurable with BC.` },
+{ q: `Since BD is commensurable with DC, is BC also commensurable with DC? (yes/no):`,
+hint: `A whole is commensurable with a part if the parts are commensurable (Book X).` },
+{ q: `Is DC equal to BF? (yes/no):`,
+hint: `This was shown earlier using equal remainders.` },
+{ q: `Is DC commensurable with BF? (yes/no):`,
+hint: `Equal straight lines are commensurable.` },
+{ q: `Therefore, is BC commensurable with BF and DC together? (yes/no):`,
+hint: `Commensurability extends to sums.` },
+{ q: `Does it follow that BC is commensurable with the remainder FD? (yes/no):`,
+hint: `Subtracting commensurable magnitudes preserves commensurability.` },
+{ q: `Therefore, have we shown that the square on BC exceeds the square on A by the square on a straight line commensurable with BC? (yes/no):`,
+hint: `This completes the first part.` },
+
+{ q: `Now suppose the square on BC is greater than the square on A by the square on a straight line commensurable with BC. Is this the converse hypothesis? (yes/no):`,
+hint: `This reverses the original assumption.` },
+{ q: `Let a parallelogram equal to the fourth part of the square on A and deficient by a square figure be applied to BC, forming rectangle BD, DC. Is that allowed? (yes/no):`,
+hint: `This mirrors the original construction.` },
+{ q: `Our new goal is to prove that BD is commensurable in length with DC. Does that make sense? (yes/no):`,
+hint: `This is the converse conclusion.` },
+{ q: `With the same construction, can we again show that the square on BC exceeds the square on A by the square on FD? (yes/no):`,
+hint: `The earlier argument applies symmetrically.` },
+{ q: `But the excess square is on a line commensurable with BC. Do you agree? (yes/no):`,
+hint: `This is the given condition.` },
+{ q: `Therefore, is BC commensurable with FD? (yes/no):`,
+hint: `The excess line is assumed commensurable.` },
+{ q: `Does it follow that BC is commensurable with the sum BF and DC? (yes/no):`,
+hint: `FD is composed of BF and DC.` },
+{ q: `Is the sum BF and DC commensurable with DC? (yes/no):`,
+hint: `BF equals DC, so their sum is commensurable with DC.` },
+{ q: `Therefore, is BC commensurable with DC? (yes/no):`,
+hint: `Commensurability passes through equal magnitudes.` },
+{ q: `Finally, by separation, is BD commensurable in length with DC? (yes/no):`,
+hint: `Subtract commensurable magnitudes from commensurable magnitudes.` }
+]
+
+
+
+
+
+const conclusion = `Congratulations! You just proved that if, on the greater of two unequal straight lines, a parallelogram equal to one quarter of the square on the less and deficient by a square is applied so as to divide the greater into commensurable parts, then the square on the greater exceeds the square on the less by the square on a straight line commensurable with the greater.
+Q.E.F. (Quod Erat Faciendum — which was to be done)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

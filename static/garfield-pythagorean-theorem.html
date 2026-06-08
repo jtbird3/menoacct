@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Garfield's Pythagorean Theorem — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>Garfield's Pythagorean Theorem - Prove that a² + b² = c² in a right triangle by creating a trapezoid</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to President Garfield's proof of the Pythagorean theorem!
+
+We are given a right triangle, which we will call △ABC, with a right angle at C. Do you agree? (yes/no):`,
+    hint: `A right triangle has one ninety degree angle; here angle C is ninety degrees.` },
+  { q: `Our goal is to prove that a² + b² = c², where AC = a, BC = b, and AB = c. Does that make sense? (yes/no):`,
+    hint: `This is the Pythagorean theorem.` },
+  { q: `Let us place a copy of △ABC along base BC to form a trapezoid. The long side of the trapezoid will be a + b, the bases will be a and b, and we'll add another line to form the new right triangle made by both hypotenuses. Can we do this? (yes/no):`,
+    hint: `Hint: Position one triangle upright and the other rotated, so their hypotenuses angles touch. By drawing a new line, we can form a trapezoid.` },
+  { q: `Now, we know that the formula to calculate the area of a trapezoid is (base1 + base2)/2 x height. Do you agree? (yes/no):`,
+    hint: `This is the formula for the area of a trapezoid.` },
+  { q: `Now, do you see that we can also calculate the area of the trapezoid as the sum of three triangles: the two original right triangles plus the third one that has length c for both sides? (yes/no):`,
+    hint: `Area of trapezoid = area of Δ + Δ + Δ.` },
+  { q: `Since the area of a triangle is 1/2(base x height), do you see that the two right triangles have total area ab? (yes/no):`,
+    hint: `Each right triangle has area ½ab, so two of them give ab.` },
+  { q: `Does the third triangle with sides c have area ½c²? (yes/no):`,
+    hint: `Since it has length c for both sides, its area is ½c² when we apply the formula.` },
+  { q: `So, is the area of the trapezoid equal to ab + ½c²? (yes/no):`,
+    hint: `Add the areas of the three triangles.` },
+  { q: `Therefore, using the formula for the area of the trapezoid, we have the equation ab + ½c² = ½ (a + b) x (a + b). Do you see that? (yes/no):`,
+    hint: `The area of the trapezoid is (a + b)/2 x (a + b), and the sum of the areas of the three triangles is ab + ½c². Both expressions describe the same area, so they are equal.` },
+  { q: `Now, if we multiply both sides by 2 and distribute (a + b)(a + b), do we have 2ab + c² = a² + 2ab + b²? (yes/no):`,
+    hint: `We multiply both sides by 2 to get rid of the fractions, and distribute (a + b)(a + b) to get a² + 2ab + b².` },
+  { q: `Then, if we subtract 2ab from both sides, do we have c² = a² + b²? (yes/no):`,
+    hint: `Subtract 2ab from both sides to get c² = a² + b².` },
+  { q: `Therefore, does a² + b² = c²? (yes/no):`,
+    hint: `Yes, we have shown it.` },
+  { q: `So, have we proven the Pythagorean theorem by creating a trapezoid? (yes/no):`,
+    hint: `Yes, we have shown it.` }
+];
+
+const conclusion = `Congratulations! You just proved President Garfield's Pythagorean theorem.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

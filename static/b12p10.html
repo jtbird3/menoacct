@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements XII.10</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>XII.10 – Prove that any cone is one third of the cylinder having the same base and equal height.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements XII.10 chatbot!
+
+We are given a cone and a cylinder which have the same base, namely the circle ABCD, and equal height. Do you agree? (yes/no):`,
+    hint: `“Same base” means both solids stand on the same circle ABCD, and “equal height” means they rise the same perpendicular distance.` },
+
+  { q: `Our goal is to prove that the cone is a third part of the cylinder, that is, the cylinder is triple of the cone. Does that make sense? (yes/no):`,
+    hint: `“Cone = (1/3) cylinder” is the same as “cylinder = 3 × cone.”` },
+
+  { q: `Assume the cylinder is not triple of the cone. Do you accept that this means it is either greater than triple or less than triple? (yes/no):`,
+    hint: `If two magnitudes are unequal, one must exceed the other.` },
+
+  { q: `Part A: The cylinder is not greater than triple of the cone`,
+    hint: `` },
+
+  { q: `First, suppose the cylinder is greater than triple of the cone. Do you accept this assumption for contradiction? (yes/no):`,
+    hint: `We will show this leads to an impossibility.` },
+
+  { q: `Let the square ABCD be inscribed in the circle ABCD. Can we do this? (yes/no):`,
+    hint: `Euclid allows an inscribed square in a circle (as referenced in the text).` },
+
+  { q: `Is the inscribed square ABCD greater than half of the circle ABCD? (yes/no):`,
+    hint: `This is stated as a known result in the proof.` },
+
+  { q: `From the square ABCD, let a prism be set up of equal height with the cylinder. Is this construction allowed? (yes/no):`,
+    hint: `A prism can be erected on a plane figure with a given height.` },
+
+  { q: `Is this prism greater than the half of the cylinder? (yes/no):`,
+    hint: `The proof compares solids of equal height by comparing their bases.` },
+
+  { q: `If parallelepipedal solids are of the same height, are they to one another as their bases? (yes/no):`,
+    hint: `This is used to justify transferring “half” relationships from bases to solids.` },
+
+  { q: `Now bisect the circumferences AB, BC, CD, DA at points E, F, G, H, and join AE, EB, BF, FC, CG, GD, DH, HA. Can we do this? (yes/no):`,
+    hint: `We can bisect arcs and join points by straight lines.` },
+
+  { q: `Is each of the triangles AEB, BFC, CGD, DHA greater than half of the corresponding circular segment about it? (yes/no):`,
+    hint: `This is cited as previously proved in the text.` },
+
+  { q: `On each of the triangles AEB, BFC, CGD, DHA, let prisms be set up of equal height with the cylinder. Is that possible? (yes/no):`,
+    hint: `Again, we can erect prisms of a given height on plane triangles.` },
+
+  { q: `Is each such prism greater than half of the corresponding segment of the cylinder about it? (yes/no):`,
+    hint: `The proof argues each triangle-prism is half of a related parallelepipedal solid, while the cylinder-segment is less than that solid.` },
+
+  { q: `If we keep bisecting the remaining arcs, joining straight lines, and erecting prisms on the new triangles, do we get smaller and smaller leftover segments of the cylinder? (yes/no):`,
+    hint: `This is the iterative “continually” step.` },
+
+  { q: `Can we make the leftover segments of the cylinder less than any given excess, in particular less than the excess by which the cylinder (supposedly) exceeds triple the cone? (yes/no):`,
+    hint: `The text appeals to a result like: by repeated bisection we can leave a remainder smaller than a given magnitude.` },
+
+  { q: `Let such leftover cylinder-segments be left. Then is the remaining inscribed prism (with base polygon AEBFCGDH and the cylinder’s height) greater than triple of the cone? (yes/no):`,
+    hint: `If you remove less than the “excess,” what remains must still be above the lower bound.` },
+
+  { q: `Is the prism on base polygon AEBFCGDH and the same height triple of the pyramid having the same base polygon and the same vertex as the cone? (yes/no):`,
+    hint: `This uses the fact that a pyramid is a third part of the corresponding prism with the same base and height.` },
+
+  { q: `Therefore, is that pyramid greater than the cone? (yes/no):`,
+    hint: `If prism > 3(cone) and prism = 3(pyramid), then pyramid > cone.` },
+
+  { q: `But is that pyramid also less than the cone, because it is enclosed by the cone? (yes/no):`,
+    hint: `A pyramid with an inscribed polygonal base lies inside the cone.` },
+
+  { q: `Is it impossible for the same solid to be both greater than and less than the cone? (yes/no):`,
+    hint: `This is the contradiction.` },
+
+  { q: `So, does it follow that the cylinder is not greater than triple of the cone? (yes/no):`,
+    hint: `We have contradicted the assumption “greater than triple.”` },
+
+  { q: `Part B: The cylinder is not less than triple of the cone`,
+    hint: `` },
+
+  { q: `Next, suppose the cylinder is less than triple of the cone. Do you accept this assumption for contradiction? (yes/no):`,
+    hint: `This is the other remaining case.` },
+
+  { q: `Does “cylinder less than triple of cone” imply “cone greater than one third part of cylinder”? (yes/no):`,
+    hint: `Divide the inequality by 3.` },
+
+  { q: `Again, let the square ABCD be inscribed in the circle ABCD. Agreed? (yes/no):`,
+    hint: `Same starting polygon as before.` },
+
+  { q: `Is the square ABCD greater than half of the circle ABCD? (yes/no):`,
+    hint: `This is used again.` },
+
+  { q: `Now set up from the square ABCD a pyramid having the same vertex as the cone. Can we do this? (yes/no):`,
+    hint: `A pyramid can be erected on a base polygon with a chosen vertex.` },
+
+  { q: `Is this pyramid greater than the half part of the cone? (yes/no):`,
+    hint: `The proof compares pyramids and cones by comparing related prisms and a circumscribed square.` },
+
+  { q: `If we circumscribe a square about the circle, is the inscribed square half of the circumscribed square (as used in the proof)? (yes/no):`,
+    hint: `This relation is cited in the text to compare the corresponding solids.` },
+
+  { q: `If we set up prisms of equal height from these squares, are the prisms to one another as their bases? (yes/no):`,
+    hint: `Equal height solids are compared by base area.` },
+
+  { q: `Then is the prism on the inscribed square half of the prism on the circumscribed square? (yes/no):`,
+    hint: `“As bases, so the solids” gives the half relation.` },
+
+  { q: `And is the pyramid on the inscribed square half of the pyramid on the circumscribed square? (yes/no):`,
+    hint: `Taking “third parts” preserves the ratio used in the text.` },
+
+  { q: `Is the pyramid on the circumscribed square greater than the cone because it encloses it? (yes/no):`,
+    hint: `A circumscribed-base pyramid contains the cone.` },
+
+  { q: `Therefore, is the pyramid on the inscribed square greater than half of the cone? (yes/no):`,
+    hint: `Half of something greater than the cone still exceeds half of the cone.` },
+
+  { q: `Now bisect arcs AB, BC, CD, DA at E, F, G, H and join the chords as before. Is this doable? (yes/no):`,
+    hint: `Same bisection-and-join step.` },
+
+  { q: `Is each triangle AEB, BFC, CGD, DHA greater than half of its circular segment? (yes/no):`,
+    hint: `Same cited result as earlier.` },
+
+  { q: `On each of these triangles, set up pyramids with the same vertex as the cone. Can we do that? (yes/no):`,
+    hint: `Erect pyramids on triangular bases with the chosen vertex.` },
+
+  { q: `Is each such pyramid greater than half of the corresponding segment of the cone about it? (yes/no):`,
+    hint: `The proof says “in the same manner” as before.` },
+
+  { q: `If we continue bisecting the remaining arcs and setting up pyramids, can we leave leftover cone-segments less than the excess by which the cone (supposedly) exceeds one third of the cylinder? (yes/no):`,
+    hint: `This is the same “make the remainder small” idea, now applied to the cone.` },
+
+  { q: `Let such cone-segments be left. Then is the remaining inscribed pyramid (base polygon AEBFCGDH, vertex the cone’s vertex) greater than one third part of the cylinder? (yes/no):`,
+    hint: `Removing less than the “excess” leaves a remainder above the target.` },
+
+  { q: `Is that pyramid a third part of the prism with the same base polygon AEBFCGDH and the same height as the cylinder? (yes/no):`,
+    hint: `A pyramid is one third of the corresponding prism with same base and height.` },
+
+  { q: `Therefore, is that prism greater than the cylinder with base circle ABCD? (yes/no):`,
+    hint: `If (1/3)prism > (1/3)cylinder, then prism > cylinder.` },
+
+  { q: `But is that prism also less than the cylinder, because it is enclosed by the cylinder? (yes/no):`,
+    hint: `A prism with an inscribed polygonal base lies inside the cylinder.` },
+
+  { q: `Is that a contradiction (greater than and less than the cylinder)? (yes/no):`,
+    hint: `This is impossible.` },
+
+  { q: `So, does it follow that the cylinder is not less than triple of the cone? (yes/no):`,
+    hint: `We have contradicted the assumption “less than triple.”` },
+
+  { q: `Since the cylinder is neither greater than triple of the cone nor less than triple of the cone, must it be exactly triple of the cone? (yes/no):`,
+    hint: `If it is not greater and not less, it must be equal.` },
+
+  { q: `Therefore, is the cone a third part of the cylinder with the same base and equal height? (yes/no):`,
+    hint: `This is the proposition’s claim.` }
+]
+
+const conclusion = `Congratulations! You just proved that any cone is one third of the cylinder having the same base and equal height.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

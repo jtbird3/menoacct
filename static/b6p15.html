@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>VI.15 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>VI.15 - Prove that in equal triangles having one angle equal, the sides about the equal angles are reciprocally proportional; and conversely, if the sides about equal angles are reciprocally proportional, the triangles are equal</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements VI.15 chatbot!
+
+We are given two triangles ABC and ADE that are equal in area, and that have one angle equal to one angle, namely ∠BAC = ∠DAE. Do you agree? (yes/no):`,
+    hint: `Each triangle has the same area, and their included angles at A are equal.` },
+  { q: `Our goal is to show that the sides about those equal angles are reciprocally proportional, that is, CA : AD = EA : AB. Does that make sense? (yes/no):`,
+    hint: `“Reciprocally proportional” means one ratio is the inverse of the other between the corresponding sides.` },
+  { q: `Let us place the triangles so that CA is in a straight line with AD. Can we do that? (yes/no):`,
+    hint: `From I.14, if a straight line stands on another, the adjacent angles make two right angles, so this alignment is valid.` },
+  { q: `If CA and AD are in one straight line, must EA also be in a straight line with AB? (yes/no):`,
+    hint: `The equal angles at A force the other sides to align straight when placed at the common vertex.` },
+  { q: `Now, join BD. Can we do that? (yes/no):`,
+    hint: `Postulate 1 allows a straight line to be drawn from any point to any point.` },
+  { q: `Since triangles ABC and ADE are equal, and BAD is a common figure formed by BD, do we have triangle CAB : triangle BAD = triangle EAD : triangle BAD? (yes/no):`,
+    hint: `By V.7, equal magnitudes have equal ratios to the same third.` },
+  { q: `By VI.1, is it true that triangle CAB : triangle BAD equals CA : AD? (yes/no):`,
+    hint: `With equal angles, the ratio of triangle areas equals the ratio of the sides about those angles.` },
+  { q: `Similarly, is triangle EAD : triangle BAD equal to EA : AB? (yes/no):`,
+    hint: `Again by VI.1, area ratio corresponds to the side ratio around the equal angle.` },
+  { q: `If CA : AD = (triangle CAB : triangle BAD) and EA : AB = (triangle EAD : triangle BAD), can we conclude CA : AD = EA : AB? (yes/no):`,
+    hint: `By V.11 (Common Notion on equal ratios), magnitudes with equal ratios to the same are equal in ratio.` },
+  { q: `Therefore, do the sides about the equal angles stand in reciprocal proportion? (yes/no):`,
+    hint: `Yes—CA : AD = EA : AB expresses that proportionality.` },
+  { q: `Now for the converse: suppose in triangles ABC and ADE the sides about equal angles are reciprocally proportional, that is, EA : AB = CA : AD. Is that our new given condition? (yes/no):`,
+    hint: `We now assume reciprocal proportionality to prove the triangles equal.` },
+  { q: `Again, let BD be joined. Can we do that? (yes/no):`,
+    hint: `Same as before, by Postulate 1.` },
+  { q: `By VI.1, as CA : AD, so is triangle ABC : triangle BAD. Agreed? (yes/no):`,
+    hint: `Ratio of corresponding sides about equal angles equals ratio of the contained triangles.` },
+  { q: `Also, as EA : AB, so is triangle EAD : triangle BAD. Do you see that? (yes/no):`,
+    hint: `From the same proposition applied to the other pair of sides.` },
+  { q: `Given that CA : AD = EA : AB, do we have triangle ABC : triangle BAD = triangle EAD : triangle BAD? (yes/no):`,
+    hint: `Substituting equal side ratios gives equal ratios of areas.` },
+  { q: `If two triangles have the same ratio to a common triangle, are they equal in area? (yes/no):`,
+    hint: `By V.9, magnitudes with the same ratio to the same magnitude are equal.` },
+  { q: `Therefore, is triangle ABC equal to triangle EAD? (yes/no):`,
+    hint: `Yes—each has the same ratio to triangle BAD, so they are equal.` },
+  { q: `So we have shown both directions: equality of triangles implies reciprocal proportionality of sides, and reciprocal proportionality implies equality of triangles. Is that clear? (yes/no):`,
+    hint: `The proposition states this double implication explicitly.` }
+];
+
+const conclusion = `Congratulations! You just proved that in equal triangles having one angle equal, the sides about the equal angles are reciprocally proportional; and conversely, if the sides about equal angles are reciprocally proportional, the triangles are equal.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

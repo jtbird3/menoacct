@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements XII.4</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>XII.4 – Prove that if two pyramids of equal height with triangular bases are each divided into two equal pyramids similar to the whole and into two equal prisms, then the total prisms in one pyramid are to the total prisms in the other as the base of the first pyramid is to the base of the second.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements XII.4 chatbot!
+
+We are given two pyramids ABCG and DEFH of equal height, with triangular bases ABC and DEF. Do you agree? (yes/no):`,
+    hint: `The bases are triangles ABC and DEF, and the vertices are G and H.` },
+
+  { q: `Each pyramid is divided into two pyramids equal to one another and similar to the whole, and into two equal prisms. Do you agree? (yes/no):`,
+    hint: `This division is given by hypothesis.` },
+
+  { q: `Our goal is to show that, as the base ABC is to the base DEF, so are all the prisms in pyramid ABCG to all the prisms, equal in number, in pyramid DEFH. Does that make sense? (yes/no):`,
+    hint: `We want a ratio of total prisms to match the ratio of the bases.` },
+
+  { q: `Since BO equals OC and AL equals LC, is LO parallel to AB? (yes/no):`,
+    hint: `Straight lines joining midpoints in a triangle are parallel to the base.` },
+
+  { q: `Is triangle ABC similar to triangle LOC? (yes/no):`,
+    hint: `Parallel lines give equal angles, so the triangles are similar.` },
+
+  { q: `For the same reason, is triangle DEF similar to triangle RVF? (yes/no):`,
+    hint: `The construction in the second pyramid mirrors the first.` },
+
+  { q: `Since BC is double of CO, and EF is double of FV, is it true that as BC is to CO, so EF is to FV? (yes/no):`,
+    hint: `Doubles preserve ratios.` },
+
+  { q: `On BC and CO are described similar and similarly situated triangles ABC and LOC, and on EF and FV the similar triangles DEF and RVF. Do you agree? (yes/no):`,
+    hint: `The figures are constructed to be similar in form and orientation.` },
+
+  { q: `Therefore, as triangle ABC is to triangle LOC, is triangle DEF to triangle RVF? (yes/no):`,
+    hint: `Proposition VI.22: similar figures on proportional bases are proportional.` },
+
+  { q: `Then, alternately, as triangle ABC is to triangle DEF, is triangle LOC to triangle RVF? (yes/no):`,
+    hint: `Alternation of ratios (Book V).` },
+
+  { q: `As triangle LOC is to triangle RVF, is the prism with base LOC and opposite face PMN to the prism with base RVF and opposite face STU? (yes/no):`,
+    hint: `This follows from the Lemma proved below.` },
+
+  { q: `Therefore, as triangle ABC is to triangle DEF, is the prism on LOC to the prism on RVF? (yes/no):`,
+    hint: `Substitute equal ratios.` },
+
+  { q: `As these prisms are to one another, is the prism with base KBOL and opposite PM to the prism with base QEVR and opposite ST? (yes/no):`,
+    hint: `Corresponding prisms between the same parallel planes have the same ratio.` },
+
+  { q: `Therefore, are the two prisms in pyramid ABCG proportional to the two prisms in pyramid DEFH in the same ratio? (yes/no):`,
+    hint: `Add ratios of equals (Book V).` },
+
+  { q: `So, as base ABC is to base DEF, are the first two prisms to the first two prisms? (yes/no):`,
+    hint: `The base ratio governs the prism ratio.` },
+
+  { q: `If the pyramids PMNG and STUH are also divided into two prisms and two pyramids, does the same reasoning apply? (yes/no):`,
+    hint: `The construction is repeated at the next level.` },
+
+  { q: `As base PMN is to base STU, are the two prisms in PMNG to the two prisms in STUH? (yes/no):`,
+    hint: `Same argument as before.` },
+
+  { q: `But are triangles PMN and LOC equal, and triangles STU and RVF equal? (yes/no):`,
+    hint: `They are corresponding sections of the same constructions.` },
+
+  { q: `Therefore, as base ABC is to base DEF, are the four prisms to the four prisms? (yes/no):`,
+    hint: `Equal bases imply equal ratios.` },
+
+  { q: `By continuing this process through all remaining pyramids, do we conclude that, as base ABC is to base DEF, so are all the prisms in ABCG to all the prisms, equal in multitude, in DEFH? (yes/no):`,
+    hint: `The argument repeats uniformly at every division.` },
+
+  { q: `Therefore, the ratio of the bases equals the ratio of all the prisms in the pyramids. Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`,
+    hint: `` },
+
+  { q: `Lemma (used above) We must prove that, as triangle LOC is to triangle RVF, so is the prism with base LOC to the prism with base RVF. Do you agree? (yes/no):`,
+    hint: `This connects plane ratios to solid ratios.` },
+
+  { q: `Let perpendiculars be drawn from G and H to the planes ABC and DEF. Are these perpendiculars equal? (yes/no):`,
+    hint: `The pyramids are given to be of equal height.` },
+
+  { q: `Are the straight line GC and the perpendicular from G cut in the same ratios by the parallel planes ABC and PMN? (yes/no):`,
+    hint: `Parallel planes cut transversals proportionally (XI.17).` },
+
+  { q: `Since GC is bisected by plane PMN, is the perpendicular from G to ABC also bisected? (yes/no):`,
+    hint: `Equal ratios imply equal division.` },
+
+  { q: `For the same reason, is the perpendicular from H to DEF bisected by plane STU? (yes/no):`,
+    hint: `The constructions are symmetric.` },
+
+  { q: `Are the perpendiculars from triangles PMN and STU to the planes ABC and DEF equal? (yes/no):`,
+    hint: `They come from equal original heights.` },
+
+  { q: `Therefore, are the prisms on LOC and RVF of equal height? (yes/no):`,
+    hint: `Equal perpendicular distances give equal prism heights.` },
+
+  { q: `Hence, are the prisms to one another as their bases LOC and RVF? (yes/no):`,
+    hint: `Solids of equal height are proportional to their bases.` },
+
+  { q: `Thus, the prism on LOC is to the prism on RVF as triangle LOC is to triangle RVF. Q.E.D.`,
+    hint: `` }
+]
+
+const conclusion = `Congratulations! You just proved that if two pyramids of equal height with triangular bases are each divided into two equal pyramids similar to the whole and into two equal prisms, then the total prisms in one pyramid are to the total prisms in the other as the base of the first pyramid is to the base of the second.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

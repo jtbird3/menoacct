@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>VI.24 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>VI.24 - Prove that in any parallelogram, the parallelograms about the diameter are similar both to the whole and to one another</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements VI.24 chatbot!
+
+We are given a parallelogram ABCD, with AC as its diameter. Do you agree? (yes/no):`,
+    hint: `The diameter of a parallelogram is a line drawn through its opposite corners, dividing it into two equal triangles.` },
+  { q: `Our goal is to show that the parallelograms drawn about the diameter AC are similar both to the whole parallelogram ABCD and to each other. Does that make sense? (yes/no):`,
+    hint: `“About the diameter” means that EG and HK will share the diagonal AC as a common line between them and the whole figure.` },
+  { q: `Now, EF is drawn parallel to BC, one side of triangle ABC. Do you see that? (yes/no):`,
+    hint: `EF being parallel to BC makes triangles ABE and AFC proportional in sides according to Proposition VI.2.` },
+  { q: `Since EF is parallel to BC, is it true that as BE is to EA, so is CF to FA? (yes/no):`,
+    hint: `When a line is drawn parallel to one side of a triangle, it divides the other two sides proportionally (Prop. VI.2).` },
+  { q: `Next, FG is drawn parallel to CD, one side of triangle ACD. Do you agree? (yes/no):`,
+    hint: `FG being parallel to CD gives another proportional relationship between sides of triangle ACD.` },
+  { q: `Then, as CF is to FA, so is DG to GA. Is that correct? (yes/no):`,
+    hint: `This again follows from VI.2, since the parallels cut proportional segments.` },
+  { q: `Now we have as BE is to EA, so is DG to GA. Can you see why? (yes/no):`,
+    hint: `Both ratios equal CF: BE : EA = CF : FA and CF : FA = DG : GA, hence BE : EA = DG : GA.` },
+  { q: `By componendo, as BA is to AE, so is DA to AG. Do you follow? (yes/no):`,
+    hint: `By Proposition V.18, adding equal ratios (componendo) gives a new proportionality.` },
+  { q: `And by alternando, as BA is to AD, so is EA to AG. Does that seem right? (yes/no):`,
+    hint: `Proposition V.16 allows interchange of means and extremes in a proportion.` },
+  { q: `Therefore, in parallelograms ABCD and EG, are the sides about the common angle BAD proportional? (yes/no):`,
+    hint: `Both have angle BAD in common and adjacent sides proportional.` },
+  { q: `Now, since GF is parallel to DC, is angle AFG equal to angle DCA? (yes/no):`,
+    hint: `Alternate angles are equal when lines are parallel.` },
+  { q: `Also, the angle DAC is common to both triangles ADC and AGF, yes? (yes/no):`,
+    hint: `They share vertex A and side AD.` },
+  { q: `Therefore, are triangles ADC and AGF equiangular? (yes/no):`,
+    hint: `Two pairs of equal angles make the triangles equiangular.` },
+  { q: `By the same reasoning, are triangles ACB and AFE equiangular? (yes/no):`,
+    hint: `EF is parallel to BC, giving equal corresponding angles.` },
+  { q: `So is the whole parallelogram ABCD equiangular with the parallelogram EG? (yes/no):`,
+    hint: `If all corresponding angles are equal, the parallelograms are equiangular.` },
+  { q: `Now, proportionally, as AD is to DC, so is AG to GF; as DC is to CA, so is GF to FA; as AC is to CB, so is AF to FE; and as CB is to BA, so is FE to EA. Is that consistent? (yes/no):`,
+    hint: `Each step follows from corresponding sides of equiangular triangles being proportional.` },
+  { q: `From these, as DC is to CB, so is GF to FE. Do you see how that follows? (yes/no):`,
+    hint: `By ex aequali (Prop. V.22), combining equal ratios in series yields this relation.` },
+  { q: `Therefore, are the sides about equal angles in ABCD and EG proportional? (yes/no):`,
+    hint: `Equal angles and proportional sides imply similarity.` },
+  { q: `Hence, is parallelogram ABCD similar to parallelogram EG? (yes/no):`,
+    hint: `Definition VI.1 — similar rectilineal figures have equal angles and proportional sides.` },
+  { q: `By the same reasoning, is ABCD also similar to KH? (yes/no):`,
+    hint: `The same relationships hold for the parallelogram on the other side of the diameter.` },
+  { q: `Then, if each is similar to ABCD, are EG and HK also similar to one another? (yes/no):`,
+    hint: `Proposition VI.21 — figures similar to the same rectilineal figure are also similar to one another.` }
+];
+
+const conclusion = `Congratulations! You just proved that in any parallelogram, the parallelograms about the diameter are similar both to the whole and to one another.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

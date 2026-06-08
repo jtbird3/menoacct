@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements XIII.14</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>XIII.14 – Construct an octahedron inscribed in a given sphere, and prove that the square on the diameter of the sphere is double the square on the side of the octahedron.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements XIII.14 chatbot!
+
+We are given a sphere with diameter AB. Do you agree? (yes/no):`,
+    hint: `The proposition begins by setting out the diameter AB of the given sphere.` },
+
+  { q: `Let AB be bisected at point C. Is this possible? (yes/no):`,
+    hint: `A straight line can be bisected by known constructions from earlier propositions.` },
+
+  { q: `On AB, let the semicircle ADB be described. Can we do this? (yes/no):`,
+    hint: `A semicircle is determined by a diameter.` },
+
+  { q: `From point C, let CD be drawn at right angles to AB. Is this allowed? (yes/no):`,
+    hint: `A perpendicular can be drawn from a point to a straight line.` },
+
+  { q: `Let DB be joined. Can we join these points? (yes/no):`,
+    hint: `Postulate 1 allows a straight line to be drawn between any two points.` },
+
+  { q: `Now let the square EFGH be set out, having each side equal to DB. Is this construction possible? (yes/no):`,
+    hint: `A square can be constructed on a given straight line.` },
+
+  { q: `Let HF and EG be joined. Can we draw these diagonals? (yes/no):`,
+    hint: `Any two points in a plane may be joined by a straight line.` },
+
+  { q: `From point K, let a straight line KL be set up at right angles to the plane of the square EFGH. Is this possible? (yes/no):`,
+    hint: `Proposition XI.12 allows a perpendicular to be erected to a plane from a point.` },
+
+  { q: `Let this straight line be produced through the plane to the other side as KM. Is this allowed? (yes/no):`,
+    hint: `A straight line may be produced continuously in a straight line.` },
+
+  { q: `From KL and KM, let straight lines be cut off equal to one of EK, FK, GK, HK respectively. Can this be done? (yes/no):`,
+    hint: `Equal straight lines can be laid off from a given point.` },
+
+  { q: `Now let LE, LF, LG, LH, ME, MF, MG, MH be joined. Is this possible? (yes/no):`,
+    hint: `Again, Postulate 1 allows joining any two points.` },
+
+  { q: `Our goal is to construct an octahedron, to comprehend it in a sphere, and to prove that the square on the diameter of the sphere is double of the square on the side of the octahedron. Does that make sense? (yes/no):`,
+    hint: `There is both a construction goal and a proportional proof goal.` },
+
+  { q: `Since KE equals KH and angle EKH is right, does it follow that the square on HE is double the square on EK? (yes/no):`,
+    hint: `This follows from Proposition I.47 (Pythagoras).` },
+
+  { q: `Again, since LK equals KE and angle LKE is right, does the square on EL equal twice the square on EK? (yes/no):`,
+    hint: `This is the same reasoning by I.47.` },
+
+  { q: `Since both the square on HE and the square on EL are double of the square on EK, are the squares on HE and EL equal? (yes/no):`,
+    hint: `Things equal to the same thing are equal to one another.` },
+
+  { q: `Therefore, is LE equal to EH? (yes/no):`,
+    hint: `Equal squares imply equal straight lines.` },
+
+  { q: `By the same reasoning, is LH also equal to HE? (yes/no):`,
+    hint: `The same construction applies symmetrically.` },
+
+  { q: `Therefore, is triangle LEH equilateral? (yes/no):`,
+    hint: `All three sides have been shown equal.` },
+
+  { q: `Can we similarly prove that all the remaining triangles with bases on the sides of square EFGH and vertices at L and M are equilateral? (yes/no):`,
+    hint: `The same argument applies to each face.` },
+
+  { q: `Therefore, has an octahedron been constructed, contained by eight equilateral triangles? (yes/no):`,
+    hint: `An octahedron has exactly eight triangular faces.` },
+
+  { q: `Since LK, KM, and KE are all equal, does the semicircle described on LM pass through point E? (yes/no):`,
+    hint: `Equal distances from the midpoint imply concyclicity.` },
+
+  { q: `If the semicircle on LM is carried around the axis LM, will it also pass through points F, G, and H? (yes/no):`,
+    hint: `Symmetry ensures the same distance condition holds.` },
+
+  { q: `Therefore, is the octahedron comprehended in a sphere? (yes/no):`,
+    hint: `All vertices lie on the same spherical surface.` },
+
+  { q: `Since LK equals KM, KE is common, and the included angles are right, does it follow that LE equals EM? (yes/no):`,
+    hint: `This follows from Proposition I.4 (SAS).` },
+
+  { q: `Since angle LEM is right, because it lies in a semicircle, is the square on LM double the square on LE? (yes/no):`,
+    hint: `Angle in a semicircle is right (III.31), then apply I.47.` },
+
+  { q: `Since AC equals CB, is AB double of BC? (yes/no):`,
+    hint: `C is the midpoint of AB.` },
+
+  { q: `As AB is to BC, so is the square on AB to the square on BD; does it follow that the square on AB is double the square on BD? (yes/no):`,
+    hint: `This is a standard proportional property of squares.` },
+
+  { q: `Since the square on LM is double the square on LE, and the square on DB equals the square on LE, is the square on AB equal to the square on LM? (yes/no):`,
+    hint: `Substitute equals for equals.` },
+
+  { q: `Therefore, is AB equal to LM? (yes/no):`,
+    hint: `Equal squares imply equal straight lines.` },
+
+  { q: `Since AB is the diameter of the given sphere, is LM also equal to the diameter of the given sphere? (yes/no):`,
+    hint: `LM has been shown equal to AB.` },
+
+  { q: `Therefore, has the octahedron been comprehended in the given sphere, and has it been demonstrated that the square on the diameter of the sphere is double of the square on the side of the octahedron? (yes/no):`,
+    hint: `Both the construction and the proportional claim are complete.` }
+]
+
+const conclusion = `Congratulations! You just constructed an octahedron inscribed in a given sphere, and proved that the square on the diameter of the sphere is double the square on the side of the octahedron.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

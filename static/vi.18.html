@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>VI.18 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>VI.18 - Construct on a given straight line a rectilinear figure similar and similarly oriented to a given rectilinear figure</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements VI.18 chatbot!
+
+We are given a straight line AB and a rectilineal figure CE. Do you agree? (yes/no):`,
+    hint: `AB is the base to build on; CE is the reference figure.` },
+  { q: `Our goal is to describe on AB a rectilineal figure similar and similarly situated to CE. Does that make sense? (yes/no):`,
+    hint: `“Similar and similarly situated” = same angles and proportional sides in the same order.` },
+  { q: `Shall we begin by joining the line DF in the given figure CE? (yes/no):`,
+    hint: `Joining DF prepares triangle comparisons inside CE.` },
+  { q: `At A on AB, can we construct the angle GAB equal to the angle at C of CE? (yes/no):`,
+    hint: `By I.23, we can copy a given angle at a given point.` },
+  { q: `At B on AB, can we construct the angle ABG equal to the angle CDF? (yes/no):`,
+    hint: `Again by I.23, copy the angle at the other endpoint.` },
+  { q: `Since ∠CDF = ∠ABG and ∠C = ∠GAB, is the remaining angle CFD equal to the remaining angle AGB? (yes/no):`,
+    hint: `By I.32, if two angles match, the third matches too.` },
+  { q: `Are the triangles FCD and GAB equiangular? (yes/no):`,
+    hint: `All three corresponding angles are equal.` },
+  { q: `If triangles FCD and GAB are equiangular, are their sides proportional? (yes/no):`,
+    hint: `By VI.4, equiangular triangles have proportional sides about equal angles.` },
+  { q: `Thus, as FD is to GB, so is FC to GA, and CD to AB. Do you see that? (yes/no):`,
+    hint: `These are the corresponding side ratios from VI.4.` },
+  { q: `On BG, shall we construct at B and G the angles BGH equal to DFE and GBH equal to FDE? (yes/no):`,
+    hint: `By I.23, construct the equal angles at B and G.` },
+  { q: `Then is the remaining angle at E equal to the remaining angle at H? (yes/no):`,
+    hint: `By I.32, the third angles are equal.` },
+  { q: `So are triangles FDE and GBH equiangular? (yes/no):`,
+    hint: `Yes—each pair of corresponding angles is equal.` },
+  { q: `And are their sides proportional? (yes/no):`,
+    hint: `By VI.4 again, sides about equal angles are proportional.` },
+  { q: `Therefore, as FD is to GB, so is FE to GH, and ED to HB. Do you follow? (yes/no):`,
+    hint: `These are the corresponding side ratios for FDE and GBH.` },
+  { q: `But we also had FD : GB = FC : GA and CD : AB. Can we combine these proportions? (yes/no):`,
+    hint: `Equal ratios can be chained by substitution.` },
+  { q: `Therefore, as FC is to GA, so is CD to AB, FE to GH, and ED to HB. Do you agree? (yes/no):`,
+    hint: `Transitivity of proportion links all four ratios.` },
+  { q: `Since ∠CFD = ∠AGB and ∠DFE = ∠BGH, is the whole angle CFE equal to the whole angle AGH? (yes/no):`,
+    hint: `Equal adjacent angles yield equal totals.` },
+  { q: `And for the same reason, is the angle CDE equal to the angle ABH? (yes/no):`,
+    hint: `Again, equal adjacent angles give equal sums.` },
+  { q: `The angle at C equals the angle at A, and the angle at E equals the angle at H — correct? (yes/no):`,
+    hint: `These follow from the earlier constructions.` },
+  { q: `Therefore, are the rectilineal figures AH and CE equiangular, with sides about the equal angles proportional? (yes/no):`,
+    hint: `Equiangular figures with proportional sides are similar (Def. VI.1).` },
+  { q: `So is the rectilineal figure AH similar and similarly situated to the rectilineal figure CE? (yes/no):`,
+    hint: `Yes—AH matches CE in angle equality, side ratios, order, and orientation.` }
+];
+
+const conclusion = `Congratulations! You have completed the proposition. Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements VIII.11</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>VII.11 — Prove that between two square numbers there is one mean proportional, and that squares have the duplicate ratio of their sides</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements VIII.11 chatbot!
+
+We are given two square numbers A and B. Do you agree? (yes/no):`,
+    hint: `A and B are perfect squares.` },
+
+  { q: `We are also given C as the side of A, and D as the side of B. Is that clear? (yes/no):`,
+    hint: `C·C = A and D·D = B.` },
+
+  { q: `Our goal is twofold: (1) to show there is one mean proportional between A and B, and (2) to show A is to B is the duplicate ratio of C to D. Does that make sense? (yes/no):`,
+    hint: `Duplicate ratio means “the square of the ratio.” Mean proportional means a number E such that A is to E as E is to B.` },
+
+  { q: `First, multiply C by D to make a new number E. Can we do that? (yes/no):`,
+    hint: `This is ordinary number multiplication.` },
+
+  { q: `Since A is a square and C is its side, is it true that C multiplied by itself makes A? (yes/no):`,
+    hint: `C·C = A.` },
+
+  { q: `Likewise, since B is a square and D is its side, does D multiplied by itself make B? (yes/no):`,
+    hint: `D·D = B.` },
+
+  { q: `Now, C has multiplied C and D to produce A and E. Do you see that? (yes/no):`,
+    hint: `C·C = A and C·D = E.` },
+
+  { q: `From this, can we say that as C is to D, so A is to E? (yes/no):`,
+    hint: `This follows Euclid VII.17.` },
+
+  { q: `For the same reason, is C to D as E to B? (yes/no):`,
+    hint: `D·D = B and C·D = E give VII.18.` },
+
+  { q: `If A is to E as E is to B, does that show that E is the mean proportional between A and B? (yes/no):`,
+    hint: `A, E, B are in continued proportion.` },
+
+  { q: `So, have we shown there is one mean proportional between the two square numbers A and B? (yes/no):`,
+    hint: `A : E = E : B is the definition.` },
+
+  { q: `Next, we want to show that A to B is the duplicate of C to D. Shall we proceed? (yes/no):`,
+    hint: `Duplicate means (C : D)².` },
+
+  { q: `Since A, E, B are in proportion, does A to B equal the duplicate of A to E? (yes/no):`,
+    hint: `This uses Book V, Definition 9.` },
+
+  { q: `But earlier, did we show A is to E as C is to D? (yes/no):`,
+    hint: `From the first proportion: C : D = A : E.` },
+
+  { q: `If A to B is the duplicate of A to E, and A is to E as C is to D, do we conclude that A is to B is the duplicate of C is to D? (yes/no):`,
+    hint: `Replace A : E with C : D.` },
+
+  { q: `Therefore, have we shown that (1) E is the mean proportional between A and B, and (2) A to B is the duplicate ratio of C to D, both of which we set out to prove? (yes/no):`,
+    hint: `Both parts follow from the proportional steps.` }
+]
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const conclusion = `Congratulations! You just proved that between two square numbers there is one mean proportional, and that squares have the duplicate ratio of their sides.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

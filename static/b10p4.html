@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.4</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.4 – Find the greatest common measure of three commensurable magnitudes.</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements X.4 chatbot!
+
+We are given three magnitudes A, B, and C, and they are commensurable. Do you agree? (yes/no):`,
+hint: `Commensurable magnitudes have some common measure.` },
+{ q: `Our goal is to find the greatest common measure of A, B, and C. Does that make sense? (yes/no):`,
+hint: `“Greatest” means that no larger magnitude can measure all three.` },
+{ q: `First, let us take the greatest common measure of the two magnitudes A and B, and call it D. Is this allowed? (yes/no):`,
+hint: `Proposition X.3 gives the greatest common measure of two commensurable magnitudes.` },
+{ q: `Now, either D measures C, or it does not. Do you agree that these are the only two possibilities? (yes/no):`,
+hint: `Any magnitude either measures another or fails to measure it.` },
+{ q: `Suppose first that D does measure C. Do you follow? (yes/no):`,
+hint: `We are considering the first of the two possible cases.` },
+{ q: `If D measures C, and D also measures A and B, is D a common measure of A, B, and C? (yes/no):`,
+hint: `A common measure measures all the given magnitudes.` },
+{ q: `Is it clear that D is also the greatest common measure of A, B, and C? (yes/no):`,
+hint: `No magnitude greater than D can measure A and B, since D is already their greatest common measure.` },
+{ q: `Next, suppose that D does not measure C. Do you agree we now consider this second case? (yes/no):`,
+hint: `The proof proceeds by exhaustion of cases.` },
+{ q: `I say first that C and D are commensurable. Do you see why this must be so? (yes/no):`,
+hint: `Since A, B, and C are commensurable, some magnitude measures all three.` },
+{ q: `Does that same magnitude also measure A and B? (yes/no):`,
+hint: `If it measures all three, it certainly measures any two of them.` },
+{ q: `If it measures A and B, does it also measure their greatest common measure D? (yes/no):`,
+hint: `By the Porism of Proposition X.3, any common measure of A and B measures their greatest common measure.` },
+{ q: `Since that magnitude also measures C, does it therefore measure both C and D? (yes/no):`,
+hint: `It measures each of them separately.` },
+{ q: `Therefore, are C and D commensurable? (yes/no):`,
+hint: `A magnitude that measures both shows them to be commensurable.` },
+{ q: `Now let the greatest common measure of C and D be taken, and let it be E. Is this construction valid? (yes/no):`,
+hint: `Again, Proposition X.3 applies to two commensurable magnitudes.` },
+{ q: `Since E measures D, and D measures A and B, does E also measure A and B? (yes/no):`,
+hint: `A measure of a measure is a measure of what that measure measures.` },
+{ q: `Does E also measure C? (yes/no):`,
+hint: `E was defined as a common measure of C and D.` },
+{ q: `Therefore, is E a common measure of A, B, and C? (yes/no):`,
+hint: `It measures each of the three magnitudes.` },
+{ q: `I say next that E is the greatest common measure of A, B, and C. Do you agree this must be shown? (yes/no):`,
+hint: `Being a common measure is not enough; it must be the greatest.` },
+{ q: `Suppose, if possible, that there exists a magnitude F greater than E which measures A, B, and C. Do you follow this assumption? (yes/no):`,
+hint: `This is a proof by contradiction.` },
+{ q: `If F measures A and B, does it also measure their greatest common measure D? (yes/no):`,
+hint: `By the Porism of Proposition X.3 again.` },
+{ q: `Since F measures D and also measures C, does it measure both C and D? (yes/no):`,
+hint: `It measures each individually.` },
+{ q: `If F measures both C and D, does it then measure their greatest common measure E? (yes/no):`,
+hint: `Any common measure measures the greatest common measure.` },
+{ q: `Would this imply that the greater magnitude F measures the lesser magnitude E? (yes/no):`,
+hint: `F was assumed greater than E.` },
+{ q: `Is this impossible according to Euclid’s principles? (yes/no):`,
+hint: `A greater magnitude cannot measure a lesser one exactly.` },
+{ q: `Therefore, can no magnitude greater than E measure A, B, and C? (yes/no):`,
+hint: `The contradiction eliminates the assumption.` },
+{ q: `So, if D does not measure C, is E the greatest common measure of A, B, and C? (yes/no):`,
+hint: `This completes the second case.` },
+{ q: `Have we now shown that if D measures C, then D is the greatest common measure, and if it does not, then E is? (yes/no):`,
+hint: `Both cases have been fully resolved.` },
+{ q: `Therefore, has the greatest common measure of the three given commensurable magnitudes been found? (yes/no):`,
+hint: `This is exactly what was required.` },
+{ q: `PORISM: Is it manifest from the proof that, if a magnitude measures three magnitudes, it will also measure their greatest common measure? (yes/no):`,
+hint: `This was used repeatedly in the argument.` },
+{ q: `Can the same method be extended to more than three magnitudes? (yes/no):`,
+hint: `Euclid states that the reasoning generalizes.` }
+]
+
+
+
+
+
+
+const conclusion = `Congratulations! You just found the greatest common measure of three commensurable magnitudes.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

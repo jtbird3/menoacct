@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Conics I.30</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+<h1>I.30 - Prove that in an ellipse or in opposite hyperbolas, any straight line drawn through the center and meeting the section is bisected at the center</h1>
+
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [{ q: `Welcome to Apollonius' Conics I.30 chatbot!
+
+We are given an ellipse or a pair of opposite hyperbolas. Do you agree? (yes/no):`,
+hint: `The proposition applies to either of these conic sections.` },
+{ q: `We are given a diameter AB of the section, with center C. Agreed? (yes/no):`,
+hint: `A diameter passes through the center of the section.` },
+{ q: `Through the center C, a straight line DCE is drawn, meeting the section on both sides. Is this clear? (yes/no):`,
+hint: `The line passes through C and intersects the curve at D and E.` },
+{ q: `Our goal is to show that CD is equal to CE. Does that make sense? (yes/no):`,
+hint: `This means the line through the center is bisected at the center.` },
+{ q: `Let DF and EG be drawn as ordinates to the diameter AB. Is this construction possible? (yes/no):`,
+hint: `Ordinates are drawn from points on the curve perpendicular to the diameter.` },
+{ q: `According to Proposition I.21 of Apollonius, is rect. BF, FA to sq. FD as the latus transversum is to the latus rectum? (yes/no):`,
+hint: `This is a known proportional property of the conic.` },
+{ q: `Similarly, is rect. AG, GB to sq. GE as the latus transversum is to the latus rectum? (yes/no):`,
+hint: `The same property applies symmetrically on the other side.` },
+{ q: `Since both ratios equal the same thing, can we say that rect. BF, FA is to sq. FD as rect. AG, GB is to sq. GE? (yes/no):`,
+hint: `Things equal to the same thing are equal to one another (Euclid V.11).` },
+{ q: `From this proportion, can we alternate to get rect. BF, FA is to rect. AG, GB as sq. FD is to sq. GE? (yes/no):`,
+hint: `This follows by alternation of ratios.` },
+{ q: `From the ratio of sq. FD to sq. GE, can we infer that sq. FC is to sq. CG? (yes/no):`,
+hint: `This follows from Euclid V.16, VI.4, and VI.22.` },
+{ q: `Then alternately, is rect. BF, FA to sq. FC as rect. AG, GB is to sq. CG? (yes/no):`,
+hint: `This is another alternation of the established proportions.` },
+{ q: `Using composition (for the ellipse) or inverse conversion (for opposite hyperbolas), do we get that sq. AC is to sq. CF as sq. BC is to sq. CG? (yes/no):`,
+hint: `This uses Euclid II.5 and II.6.` },
+{ q: `Alternately, does this give sq. AC is to sq. BC as sq. CF is to sq. CG? (yes/no):`,
+hint: `The ratio is now between the squares about the center.` },
+{ q: `But since AC equals BC, are sq. AC and sq. BC equal? (yes/no):`,
+hint: `Equal line segments have equal squares.` },
+{ q: `Therefore, can we conclude that sq. CF equals sq. CG? (yes/no):`,
+hint: `Equal ratios with equal antecedents give equal consequents.` },
+{ q: `From this, does it follow that CF equals CG? (yes/no):`,
+hint: `If the squares are equal, the magnitudes are equal.` },
+{ q: `Since DF and GE are parallel ordinates, does this imply that CD equals CE? (yes/no):`,
+hint: `Equal perpendicular distances from parallel lines imply equal segments from the center.` },
+
+
+
+
+]
+
+const conclusion = `Congratulations! You just proved that in an ellipse or in opposite hyperbolas, any straight line drawn through the center and meeting the section is bisected at the center.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

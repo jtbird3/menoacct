@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>VI.1 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>VI.1 - Prove that triangles and parallelograms of the same height are proportional to their bases</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements VI.1 chatbot!
+
+We are given two triangles, ABC and ACD, and two parallelograms, EC and CF, all standing on the same height. Do you agree? (yes/no):`,
+    hint: `“Under the same height” means they share the same perpendicular distance between their bases and the opposite vertex or side.` },
+  { q: `Our goal is to show that as the base BC is to the base CD, so the triangle ABC is to the triangle ACD, and likewise the parallelogram EC is to the parallelogram CF. Does that make sense? (yes/no):`,
+    hint: `We are trying to prove: BC : CD :: ABC : ACD :: EC : FC` },
+  { q: `Let the line BD be produced in both directions to points H and L. Can we do that? (yes/no):`,
+    hint: `By Postulate 2, a finite straight line may be produced continuously in a straight line.` },
+  { q: `Now, make any number of equal parts along the extension — BG and GH equal to base BC, and DK and KL equal to base CD. Possible? (yes/no):`,
+    hint: `Equal divisions can be marked off along a line by construction.` },
+  { q: `Join AG, AH, AK, and AL. Can we draw these straight lines? (yes/no):`,
+    hint: `Postulate 1 allows us to draw a straight line from any point to any point.` },
+  { q: `Since CB, BG, and GH are equal to one another, do we have triangles ABC, AGB, and AHG equal in area? (yes/no):`,
+    hint: `By Proposition I.38, triangles on the same base and between the same parallels are equal in area.` },
+  { q: `Then, if the base HC is a multiple of the base BC, is the triangle AHC the same multiple of triangle ABC? (yes/no):`,
+    hint: `Equal bases and equal heights make the areas directly proportional.` },
+  { q: `Similarly, if the base LC is a multiple of base CD, is the triangle ALC the same multiple of triangle ACD? (yes/no):`,
+    hint: `By the same reasoning — equal heights imply equal ratios of bases and triangles.` },
+  { q: `If HC equals CL, are triangles AHC and ACL equal? (yes/no):`,
+    hint: `Equal bases with equal height produce equal areas (I.38).` },
+  { q: `If HC is greater than CL, is triangle AHC also greater than triangle ACL? (yes/no):`,
+    hint: `Larger base under the same height gives larger area.` },
+  { q: `And if HC is less than CL, is triangle AHC less than triangle ACL? (yes/no):`,
+    hint: `Smaller base → smaller area under equal height.` },
+  { q: `Therefore, as base BC is to base CD, so triangle ABC is to triangle ACD. Agreed? (yes/no):`,
+    hint: `This follows from the general definition of proportionality (Book V, Definition 5).` },
+  { q: `Now, since parallelogram EC is double of triangle ABC, and parallelogram FC is double of triangle ACD, do they have the same ratio as the triangles? (yes/no):`,
+    hint: `Proposition I.41 states that a parallelogram on the same base and height is double the triangle on that base and height.` },
+  { q: `Then, as triangle ABC is to triangle ACD, is parallelogram EC to parallelogram FC? (yes/no):`,
+    hint: `Equal multiples preserve the same ratio (Book V, Proposition 15).` },
+  { q: `Since we have shown both that as BC : CD :: ABC : ACD and that ABC : ACD :: EC : FC, can we conclude BC : CD :: EC : FC? (yes/no):`,
+    hint: `Equal ratios in sequence are equal (Book V, Proposition 11).` }
+];
+
+const conclusion = `Congratulations! You just proved that triangles and parallelograms of the same height are proportional to their bases. 
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

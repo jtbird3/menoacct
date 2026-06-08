@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>V.15 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>V.15 - Parts have the same ratio as equal multiples of them taken in the same order</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements V.15 chatbot!
+
+We are given that AB is the same multiple of C that DE is of F. Do you agree? (yes/no):`,
+    hint: `This means AB contains C a certain number of times, and DE contains F the same number of times.` },
+  { q: `Our goal is to show that as C is to F, so is AB to DE. Does that make sense? (yes/no):`,
+    hint: `We want to prove that the ratio of C to F is the same as the ratio of AB to DE.` },
+  { q: `Since AB is the same multiple of C that DE is of F, are there equal numbers of magnitudes in AB equal to C and in DE equal to F? (yes/no):`,
+    hint: `Equal multiples mean the same number of equal parts are taken from each magnitude.` },
+  { q: `Let AB be divided into parts AG, GH, HB each equal to C, and DE into parts DK, KL, LE each equal to F. Is this clear? (yes/no):`,
+    hint: `We are matching equal segments on AB and DE, each corresponding to the smaller magnitudes C and F.` },
+  { q: `Are AG, GH, and HB all equal to one another? (yes/no):`,
+    hint: `Yes—each was constructed to be equal to C.` },
+  { q: `And are DK, KL, and LE all equal to one another? (yes/no):`,
+    hint: `Yes—each was constructed to be equal to F.` },
+  { q: `Then, as AG is to DK, so is GH to KL, and HB to LE. Do you agree? (yes/no):`,
+    hint: `Equal magnitudes taken in the same order have equal ratios (Proposition V.7).` },
+  { q: `If each pair of equal magnitudes has the same ratio, does it follow that all the antecedents together are to all the consequents together in the same ratio? (yes/no):`,
+    hint: `When equal ratios are taken in the same order, the whole ratios are equal (Proposition V.12).` },
+  { q: `Therefore, as AG is to DK, so is AB to DE. Is that right? (yes/no):`,
+    hint: `The combined magnitudes AB and DE stand in the same ratio as their equal parts.` },
+  { q: `But AG equals C and DK equals F, correct? (yes/no):`,
+    hint: `Each part was made equal to its respective magnitude, C or F.` },
+  { q: `Then, can we conclude that as C is to F, so is AB to DE? (yes/no):`,
+    hint: `Substituting equal magnitudes preserves the equality of ratios.` }
+];
+
+const conclusion = `Congratulations! You just proved that parts have the same ratio as equal multiples of them taken in corresponding order. Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

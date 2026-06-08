@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>VI.22 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>V.22 - Prove that if four straight lines are proportional, the similar and similarly described rectilinear figures on them are also proportional; and conversely, if the similar figures are proportional, the straight lines themselves are proportional</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements VI.22 chatbot!
+
+We are given four straight lines AB, CD, EF, and GH, which are proportional. Similar rectilinear figures KAB and LCD are described on AB and CD, and similar rectilinear figures MF and NH are described on EF and GH. Do you agree? (yes/no):`,
+    hint: `This means the ratio AB : CD is equal to the ratio EF : GH.` },
+  { q: `Our goal is to show that the similar rectilinear figures described on these lines are also proportional — and conversely, that if the figures are proportional, then the lines are proportional. Does that make sense? (yes/no):`,
+    hint: `The goal has two parts — (1) proportional lines → proportional figures, and (2) proportional figures → proportional lines.` },
+  { q: `Now, since AB : CD = EF : GH, can we take a third proportional O to AB and CD, and a third proportional P to EF and GH? (yes/no):`,
+    hint: `Proposition VI.11 allows the construction of a third proportional to any two given lines.` },
+  { q: `Then, as AB : O = EF : P. Does that follow by the property of equal ratios taken ex aequali? (yes/no):`,
+    hint: `Yes — by Proposition V.22, from AB : CD = EF : GH and CD : O = GH : P, it follows that AB : O = EF : P.` },
+  { q: `Now, since as AB : O, so KAB : LCD, is this true? (yes/no):`,
+    hint: `Proposition VI.19 (Porism) gives that similar figures on proportional sides are proportional to the ratio of the sides themselves.` },
+  { q: `And since as EF : P, so MF : NH, can we conclude that as KAB : LCD, so MF : NH? (yes/no):`,
+    hint: `By the transitivity of ratios (Proposition V.11), if AB : O = EF : P and KAB : LCD = AB : O, then KAB : LCD = MF : NH.` },
+  { q: `Therefore, from proportional lines, we have proportional figures. Agreed? (yes/no):`,
+    hint: `The first part of the theorem is proved.` },
+  { q: `Now, for the converse, suppose the figures MF : NH = KAB : LCD. Can we take this as our new hypothesis? (yes/no):`,
+    hint: `We now assume the proportionality of the figures and aim to show proportionality of the sides.` },
+  { q: `Assume, if possible, that EF : GH is not equal to AB : CD. Can we introduce another line QR such that EF : QR = AB : CD? (yes/no):`,
+    hint: `Proposition VI.12 allows a construction of a fourth proportional QR to EF and AB, CD.` },
+  { q: `On QR, describe the figure SR similar and similarly situated to MF (or NH). Can we do this? (yes/no):`,
+    hint: `By Proposition VI.18, a figure similar and similarly placed can be described on a given line.` },
+  { q: `Since AB : CD = EF : QR, and similar figures are on these lines, do we then have KAB : LCD = MF : SR? (yes/no):`,
+    hint: `From Proposition VI.19, similar figures on proportional sides are proportional.` },
+  { q: `But we also have, by hypothesis, KAB : LCD = MF : NH. Does that imply MF : SR = MF : NH? (yes/no):`,
+    hint: `By Proposition V.11, equal ratios imply that the ratios MF : SR and MF : NH are identical.` },
+  { q: `If MF has the same ratio to both NH and SR, does that mean NH = SR? (yes/no):`,
+    hint: `By Proposition V.9, if a magnitude has the same ratio to two others, those two are equal.` },
+  { q: `Since NH is equal and similar to SR, can we conclude that GH = QR? (yes/no):`,
+    hint: `Equal and similarly situated figures imply their corresponding sides are equal in length.` },
+  { q: `But we already have EF : QR = AB : CD, and QR = GH. Does it follow that EF : GH = AB : CD? (yes/no):`,
+    hint: `Substituting equals for equals gives EF : GH = AB : CD.` },
+  { q: `Therefore, if the figures are proportional, the straight lines themselves are also proportional. Does that complete the proof? (yes/no):`,
+    hint: `Yes — this establishes both directions of the proposition.` },
+  { q: `Congratulations! You have shown that proportional lines yield proportional similar figures, and proportional figures yield proportional lines. Q.E.D. (Quod Erat Demonstrandum).`,
+    hint: `The theorem is reciprocal — proportionality passes between sides and the similar figures constructed upon them.` }
+];
+
+const conclusion = `Congratulations! You just proved that if four straight lines are proportional, the similar and similarly described rectilinear figures on them are also proportional; and conversely, if the similar figures are proportional, the straight lines themselves are proportional.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

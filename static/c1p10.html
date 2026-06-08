@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Conics I.10</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>I.10 - Prove that the line between two points on a conic section lies within the section, but its extension falls outside</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Conics I.10 chatbot!
+
+We are given a cone with vertex at point A and base the circle BC, axial triangle ABC. Do you agree? (yes/no):`,
+hint: `A cone is formed by a vertex and all the straight lines drawn from it to the circumference of its circular base. A plane cuts it through the axis, forming the axial triangle ABC.` },
+{ q: `Now, let the cone be cut again by another plane, not through the vertex, forming section DEF on the cone's surface. Do you follow so far? (yes/no):`,
+hint: `The second plane intersects the conical surface in a curve; here Euclid treats that curve's trace as the line DEF.` },
+{ q: `Our goal is to show that if two points, G and H, are taken on this line DEF, then the straight line joining them will fall within the section DEF, but if it is continued in a straight line, it will fall outside. Does that make sense? (yes/no):`,
+hint: `The proposition expresses the fundamental property of a conic section—that a chord between two points of the curve lies within the surface region, but its prolongation goes beyond it.` },
+{ q: `Let us take two points, G and H, on the line DEF such that neither lies on a side of the axial triangle ABC. Can we do that? (yes/no):`,
+hint: `Any two points on a given curve or line can be chosen.` },
+{ q: `Now, let usjoin the points G and H by a straight line GH. Does it fail to pass through the vertex A? (yes/no):`,
+hint: `The proposition specifies that the line GH does not “verge” toward the vertex A.` },
+{ q: `Since GH does not pass through A, and both points lie on the conical surface, must the line GH fall within the cone? (yes/no):`,
+hint: `By I.2 of Conics, a straight line joining two points on a conical surface that does not meet the vertex lies entirely within the cone.` },
+{ q: `If the line GH is continued in a straight line, will it pass outside the cone? (yes/no):`,
+hint: `The same earlier result states that the continuation of the joining line will pass beyond the conical surface, lying outside it.` },
+{ q: `Since the section DEF lies on the cone's surface, must the continued line also pass outside the section DEF? (yes/no):`,
+hint: `Anything outside the cone is necessarily outside its sectional curve.` },
+
+
+
+
+
+
+
+];
+
+const conclusion = `Congratulations! You just proved that the line between two points on a conic section lies within the section, but its extension falls outside.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

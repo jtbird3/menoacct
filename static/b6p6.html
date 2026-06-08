@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>VI.6 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>VI.6 - Prove that if two triangles have one angle equal and the sides about the equal angles proportional, then the triangles are equiangular and have their corresponding angles equal</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements VI.6 chatbot!
+
+We are given two triangles ABC and DEF having one angle equal — ∠BAC = ∠EDF. Do you agree? (yes/no):`,
+    hint: `The condition states that the angle at A in triangle ABC equals the angle at D in triangle DEF.` },
+  { q: `Also, the sides about these equal angles are proportional, so that as BA : AC :: ED : DF. Is this clear? (yes/no):`,
+    hint: `“Proportional” means the ratios of the sides about the equal angles are equal.` },
+  { q: `Our goal is to prove that the triangles ABC and DEF are equiangular. Does that make sense? (yes/no):`,
+    hint: `“Equiangular” means all their corresponding angles are equal.` },
+  { q: `On the straight line DF, at the points D and F, let us construct triangle DGF such that ∠FDG equals one of the equal angles (either ∠BAC or ∠EDF). Can we do that? (yes/no):`,
+    hint: `By Proposition I.23, we can construct an angle equal to a given angle at a given point on a line.` },
+  { q: `Let the other angle ∠DFG be made equal to ∠ACB. Possible? (yes/no):`,
+    hint: `Again, Proposition I.23 allows us to construct an angle equal to any given angle at a point on a line.` },
+  { q: `Then, are the remaining angles at B and G equal? (yes/no):`,
+    hint: `By Proposition I.32, if two angles of triangles are equal, their third angles are also equal.` },
+  { q: `Hence, is triangle ABC equiangular with triangle DGF? (yes/no):`,
+    hint: `Triangles having all three angles equal are equiangular.` },
+  { q: `From this, do we have the proportion BA : AC :: GD : DF? (yes/no):`,
+    hint: `By Proposition VI.4, equiangular triangles have corresponding sides proportional.` },
+  { q: `But by the given, BA : AC :: ED : DF. Do you see that? (yes/no):`,
+    hint: `This was given at the start of the proposition.` },
+  { q: `Therefore, is ED : DF :: GD : DF? (yes/no):`,
+    hint: `Substituting from the two proportions gives this new ratio.` },
+  { q: `Can we then conclude ED = DG? (yes/no):`,
+    hint: `If two ratios have a common second term and are equal, the first terms are equal (Book V, Prop. 9).` },
+  { q: `And DF is common to both triangles, correct? (yes/no):`,
+    hint: `DF is a side in both triangles DEF and DGF.` },
+  { q: `Then, do we have two sides equal — ED = DG and DF common — and the included angle ∠EDF = ∠GDF equal? (yes/no):`,
+    hint: `The constructed and given angles correspond.` },
+  { q: `By Proposition I.4 (SAS), can we conclude triangle DEF = triangle DGF? (yes/no):`,
+    hint: `Two sides and the included angle equal give equal triangles.` },
+  { q: `Thus, is EF = GF and are the remaining angles equal respectively? (yes/no):`,
+    hint: `Equal triangles have equal corresponding sides and angles.` },
+  { q: `Therefore, ∠DFG = ∠DFE and ∠DGF = ∠DEF, correct? (yes/no):`,
+    hint: `These are the corresponding equal angles.` },
+  { q: `Since ∠DFG = ∠ACB, do we also have ∠ACB = ∠DFE? (yes/no):`,
+    hint: `Substituting the equal angles gives this.` },
+  { q: `And since ∠BAC = ∠EDF (given), does it follow that the remaining angles ∠ABC = ∠DEF? (yes/no):`,
+    hint: `By Proposition I.32, the remaining angles are equal.` },
+  { q: `Therefore, are the triangles ABC and DEF equiangular? (yes/no):`,
+    hint: `All three corresponding angles are now shown equal.` }
+];
+
+const conclusion = `Congratulations! You just proved that if two triangles have one angle equal and the sides about the equal angles proportional, then the triangles are equiangular and have their corresponding angles equal.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

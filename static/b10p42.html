@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.42</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.42 – Prove that a binomial straight line is divided into its terms at one point only.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+{ q: `Welcome to Elements X.42 chatbot!
+
+We are given a binomial straight line AB, divided into its terms at point C. Do you agree? (yes/no):`,
+    hint: `By definition, a binomial straight line is composed of two rational straight lines commensurable in square only.` },
+    { q: `So AC and CB are rational straight lines commensurable in square only. Do you agree? (yes/no):`,
+    hint: `This follows from the definition of a binomial straight line and Proposition X.36.` },
+    { q: `Our goal is to show that AB is not divided at another point into two rational straight lines commensurable in square only. Does that make sense? (yes/no):`,
+    hint: `We want to prove the division point is unique.` },
+    
+    { q: `Suppose, if possible, that AB is also divided at another point D, so that AD and DB are rational straight lines commensurable in square only. Is this the assumption for contradiction? (yes/no):`,
+    hint: `Euclid proceeds by indirect proof.` },
+    { q: `Is it clear that AC is not equal to DB? (yes/no):`,
+    hint: `If they were equal, consequences would follow.` },
+    { q: `Suppose, if possible, that AC is equal to DB. Are we continuing the contradiction? (yes/no):`,
+    hint: `This is a secondary assumption.` },
+    { q: `If AC equals DB, does it follow that AD equals CB? (yes/no):`,
+    hint: `Equal subtraction from the same whole gives equal remainders.` },
+    { q: `If AC is to CB as BD is to DA, does that mean AB is divided at D in the same way as at C? (yes/no):`,
+    hint: `Equal ratios imply the same kind of division.` },
+    { q: `But is this contrary to the hypothesis that C is the point dividing AB into its terms? (yes/no):`,
+    hint: `The hypothesis allows only one such division.` },
+    { q: `Therefore, must AC be unequal to DB? (yes/no):`,
+    hint: `The assumption led to a contradiction.` },
+    
+    { q: `For this reason, are points C and D not equidistant from the midpoint of AB? (yes/no):`,
+    hint: `Unequal segments imply unequal distances from the midpoint.` },
+    { q: `Now, are the squares on AC and CB together with twice the rectangle AC, CB equal to the square on AB? (yes/no):`,
+    hint: `This follows from Proposition II.4.` },
+    { q: `Similarly, are the squares on AD and DB together with twice the rectangle AD, DB also equal to the square on AB? (yes/no):`,
+    hint: `The same identity applies.` },
+    { q: `Therefore, does the difference between the squares on AC, CB and the squares on AD, DB equal the difference between twice rectangle AD, DB and twice rectangle AC, CB? (yes/no):`,
+    hint: `Equals subtracted from equals leave equal remainders.` },
+    
+    { q: `Do the squares on AC and CB differ from the squares on AD and DB by a rational area? (yes/no):`,
+    hint: `All four straight lines involved are rational.` },
+    { q: `Then does twice the rectangle AD, DB differ from twice the rectangle AC, CB by a rational area? (yes/no):`,
+    hint: `This follows from the previous step.` },
+    { q: `But are the rectangles AD, DB and AC, CB medial areas? (yes/no):`,
+    hint: `Rectangles formed from rational lines commensurable in square only are medial (Proposition X.21).` },
+    { q: `Is it absurd for a medial area to exceed another medial area by a rational area? (yes/no):`,
+    hint: `This is denied by Proposition X.26.` },
+    
+    { q: `Therefore, must our assumption that AB is divided at another point D be false? (yes/no):`,
+    hint: `The assumption led to an impossibility.` },
+    { q: `Hence, is a binomial straight line divided into its terms at one point only? (yes/no):`,
+    hint: `This is exactly what was to be demonstrated.` }
+]
+
+const conclusion = `Congratulations! You just proved that a binomial straight line is divided into its terms at one point only.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

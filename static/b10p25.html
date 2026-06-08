@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.25</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.25 - Prove that the rectangle contained by medial straight lines commensurable in square only is either rational or medial.</h1><div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements X.25 chatbot!
+
+We are given a rectangle AC contained by the medial straight lines AB and BC, and AB and BC are commensurable in square only. Do you agree? (yes/no):`,
+hint: `“Contained by AB, BC” means AC is the rectangle with sides AB and BC. “Commensurable in square only” means their squares are commensurable, but the lines themselves are not.` },
+{ q: `Our goal is to prove that AC is either rational or medial. Does that make sense? (yes/no):`,
+hint: `Those are the two cases the proposition claims.` },
+{ q: `On AB and BC, let the squares AD and BE be described. Can we do this? (yes/no):`,
+hint: `We can construct squares on given straight lines.` },
+{ q: `Since AB and BC are medial, are the squares AD and BE medial? (yes/no):`,
+hint: `A square on a medial straight line is medial; the text states that each of AD and BE is medial.` },
+{ q: `Let a rational straight line FG be set out. Is this allowed? (yes/no):`,
+hint: `We may take a rational straight line as a reference.` },
+{ q: `To FG let there be applied the rectangular parallelogram GH equal to AD, producing FH as breadth. Can we do this? (yes/no):`,
+hint: `Apply a rectangle equal to a given figure to a given straight line, producing a breadth.` },
+{ q: `To HM let there be applied the rectangular parallelogram MK equal to AC, producing HK as breadth. Can we do this? (yes/no):`,
+hint: `This applies a rectangle equal to AC using HM as base, with breadth HK.` },
+{ q: `Further, to KN let there be similarly applied NL equal to BE, producing KL as breadth. Can we do this? (yes/no):`,
+hint: `This applies a rectangle equal to BE using KN as base, with breadth KL.` },
+{ q: `From these applications, do we have FH, HK, and KL lying on one straight line? (yes/no):`,
+hint: `The construction yields FH, HK, KL in a straight line.` },
+{ q: `Since AD and BE are medial, and AD = GH and BE = NL, are the rectangles GH and NL medial? (yes/no):`,
+hint: `Equal figures share the same classification; equals to medial areas are medial.` },
+{ q: `GH and NL are applied to the rational straight line FG. Therefore is each of the straight lines FH and KL rational and incommensurable in length with FG? (yes/no):`,
+hint: `This follows from Book X, Proposition 22.` },
+{ q: `Since AD is commensurable with BE, is GH commensurable with NL? (yes/no):`,
+hint: `AD = GH and BE = NL, so commensurability transfers through equality.` },
+{ q: `As GH is to NL, so is FH to KL. Do you accept this proportion? (yes/no):`,
+hint: `By Book VI, Proposition 1.` },
+{ q: `Therefore, is FH commensurable in length with KL? (yes/no):`,
+hint: `By Book X, Proposition 11.` },
+{ q: `Since FH and KL are rational straight lines commensurable in length, is the rectangle contained by FH and KL rational? (yes/no):`,
+hint: `By Book X, Proposition 19.` },
+{ q: `Since DB = BA, and OB = BC, do we have the proportion DB : BC = AB : BO? (yes/no):`,
+hint: `Substituting equals into a ratio preserves the ratio.` },
+{ q: `But as DB is to BC, so is DA to AC. Do you accept this? (yes/no):`,
+hint: `By Book VI, Proposition 1.` },
+{ q: `And as AB is to BO, so is AC to CO. Do you accept this? (yes/no):`,
+hint: `By the same proposition.` },
+{ q: `Therefore, as DA is to AC, so is AC to CO. Do you see this follows? (yes/no):`,
+hint: `Ratios equal to the same ratio are equal.` },
+{ q: `But AD = GH, AC = MK, and CO = NL. Therefore, as GH is to MK, so is MK to NL. Do you agree? (yes/no):`,
+hint: `Replace equals by equals in the established proportion.` },
+{ q: `Therefore also, as FH is to HK, so is HK to KL. Do you accept this step? (yes/no):`,
+hint: `By Book VI, Proposition 1 and Book V, Proposition 11.` },
+{ q: `Therefore, is the rectangle contained by FH and KL equal to the square on HK? (yes/no):`,
+hint: `By Book VI, Proposition 17.` },
+{ q: `But the rectangle FH, KL is rational. Therefore is the square on HK also rational? (yes/no):`,
+hint: `Equals to the same thing share the same classification.` },
+{ q: `Therefore, is HK rational? (yes/no):`,
+hint: `If the square on a straight line is rational, the line itself is rational.` },
+{ q: `If HK is commensurable in length with FG, is HN rational? (yes/no):`,
+hint: `By Book X, Proposition 19.` },
+{ q: `But if HK is incommensurable in length with FG, are KH and HM rational straight lines commensurable in square only? (yes/no):`,
+hint: `This is the stated alternative in the text.` },
+{ q: `And therefore in that case is HN medial? (yes/no):`,
+hint: `By Book X, Proposition 21.` },
+{ q: `Therefore, is HN either rational or medial? (yes/no):`,
+hint: `It is rational in the first case, medial in the second.` },
+{ q: `But HN is equal to AC. Therefore is AC either rational or medial? (yes/no):`,
+hint: `Equality allows the conclusion to transfer from HN to AC.` },
+{ q: `Therefore, the rectangle contained by medial straight lines commensurable in square only is either rational or medial. Does that complete the proof? (yes/no):`,
+hint: `This is exactly what was to be shown.` }
+
+]
+
+
+
+
+
+const conclusion = `Congratulations! You just proved that the rectangle contained by medial straight lines commensurable in square only is either rational or medial.
+Q.E.F. (Quod Erat Faciendum — which was to be done)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements IX.14</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>IX.15 — Prove that if three numbers in continued proportion are the least having that ratio, then any two of them taken together are prime to the remaining one</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements IX.15 chatbot!
+
+We are given three numbers A, B, C in continued proportion, and they are the least of those which have the same ratio with them. Do you agree? (yes/no):`,
+    hint: `A, B, C are proportional, and no smaller numbers share this same ratio.` },
+
+  { q: `Our goal is to show that any two of A, B, C added together are prime to the remaining number. Does that make sense? (yes/no):`,
+    hint: `We must prove: A + B is prime to C; B + C is prime to A; and A + C is prime to B.` },
+
+  { q: `Let two numbers DE and EF be taken, the least of those which have the same ratio with A, B, C. Is this allowed? (yes/no):`,
+    hint: `By Book VIII, Proposition 2, proportional numbers can be represented by least numbers.` },
+
+  { q: `Is it clear that DE multiplied by itself makes A? (yes/no):`,
+    hint: `Since A corresponds to DE in the ratio, A is the square on DE.` },
+
+  { q: `Is it clear that DE multiplied by EF makes B? (yes/no):`,
+    hint: `B is the mean proportional between A and C.` },
+
+  { q: `Is it also clear that EF multiplied by itself makes C? (yes/no):`,
+    hint: `C corresponds to EF in the same way A corresponds to DE.` },
+
+  { q: `Since DE and EF are least, are they prime to one another? (yes/no):`,
+    hint: `By Book VII, Proposition 22, least numbers in a ratio are prime to one another.` },
+
+  { q: `If two numbers are prime to one another, is their sum also prime to each of them? (yes/no):`,
+    hint: `This follows from Book VII, Proposition 28.` },
+
+  { q: `Let DF be the sum of DE and EF. Is DF prime to DE and to EF? (yes/no):`,
+    hint: `DF = DE + EF, and each part is prime to the other.` },
+
+  { q: `If two numbers are prime to a third number, is their product also prime to that number? (yes/no):`,
+    hint: `By Book VII, Proposition 24.` },
+
+  { q: `Is the product of DF and DE therefore prime to EF? (yes/no):`,
+    hint: `Both DF and DE are prime to EF.` },
+
+  { q: `Is a number which is prime to EF also prime to the square on EF? (yes/no):`,
+    hint: `By Book VII, Proposition 25.` },
+
+  { q: `Is the product of DF and DE equal to the square on DE together with the product of DE and EF? (yes/no):`,
+    hint: `This follows from Book II, Proposition 3.` },
+
+  { q: `Is the square on DE together with the product of DE and EF therefore prime to the square on EF? (yes/no):`,
+    hint: `Equals may replace equals without changing the conclusion.` },
+
+  { q: `Since the square on DE is A, the product of DE and EF is B, and the square on EF is C, do we conclude that A and B added together are prime to C? (yes/no):`,
+    hint: `Substitute A, B, C for their constructions.` },
+
+  { q: `Similarly, can we conclude that B and C added together are prime to A? (yes/no):`,
+    hint: `The same reasoning applies by symmetry.` },
+
+  { q: `Now we aim to show that A and C added together are prime to B. Does that make sense? (yes/no):`,
+    hint: `This is the remaining case.` },
+
+  { q: `Since DF is prime to each of DE and EF, is the square on DF prime to the product of DE and EF? (yes/no):`,
+    hint: `Use Book VII, Propositions 24 and 25.` },
+
+  { q: `Are the squares on DE and EF together with twice the product of DE and EF equal to the square on DF? (yes/no):`,
+    hint: `This follows from Book II, Proposition 4.` },
+
+  { q: `Is this whole sum therefore prime to the product of DE and EF? (yes/no):`,
+    hint: `It equals the square on DF, which is prime to that product.` },
+
+  { q: `By separating once, are the squares on DE and EF together with once the product of DE and EF prime to the product of DE and EF? (yes/no):`,
+    hint: `Removing equals from equals preserves primality.` },
+
+  { q: `By separating again, are the squares on DE and EF alone prime to the product of DE and EF? (yes/no):`,
+    hint: `This is the second separation.` },
+
+  { q: `Since the square on DE is A, the product of DE and EF is B, and the square on EF is C, do we conclude that A and C added together are prime to B? (yes/no):`,
+    hint: `Substitute again the original magnitudes.` },
+
+  { q: `Therefore, have we shown that any two of the three numbers A, B, C added together are prime to the remaining one? (yes/no):`,
+    hint: `All three required cases have now been proved.` }
+]
+
+
+
+
+
+
+
+
+const conclusion = `Congratulations! You just proved that if three numbers in continued proportion are the least having that ratio, then any two of them taken together are prime to the remaining one.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

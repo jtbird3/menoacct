@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.63</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.63 – Prove that if the square on the major straight line is applied to a rational straight line, the breadth produced is the fourth binomial straight line.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+{ q: `Welcome to Elements X.63 chatbot!
+
+We are given a major straight line AB, divided at point C, such that AC is greater than CB. Do you agree? (yes/no):`, hint: `A major straight line is defined earlier in Book X and is here divided into unequal parts.` },
+{ q: `We are also given a rational straight line DE. Do you agree? (yes/no):`, hint: `DE is assumed rational by hypothesis.` },
+{ q: `To the straight line DE, a parallelogram DF is applied equal to the square on AB, producing DG as its breadth. Is this construction understood? (yes/no):`, hint: `A parallelogram equal to a given square can be applied to a given straight line, producing a breadth.` },
+{ q: `Our goal is to show that DG is a fourth binomial straight line. Does that make sense? (yes/no):`, hint: `“Fourth binomial” is defined earlier in Book X (Definition II.4).` },
+
+{ q: `Since AB is a major straight line divided at C, are AC and CB straight lines incommensurable in square? (yes/no):`, hint: `This follows from the definition of a major straight line.` },
+{ q: `Do AC and CB make the sum of the squares on them rational, while the rectangle contained by them is medial? (yes/no):`, hint: `This is Proposition X.39.` },
+
+{ q: `Since the sum of the squares on AC and CB is rational, is DL therefore rational? (yes/no):`, hint: `A rational sum of squares corresponds to a rational straight line.` },
+{ q: `Is DM also rational and commensurable in length with DE? (yes/no):`, hint: `This follows from Proposition X.20.` },
+
+{ q: `Since twice the rectangle contained by AC and CB is medial, and this rectangle is MF, do you agree that MF is medial? (yes/no):`, hint: `The rectangle from incommensurable-in-square lines is medial.` },
+{ q: `Since MF is applied to the rational straight line ML, is MG rational and incommensurable in length with DE? (yes/no):`, hint: `This follows from Proposition X.22.` },
+{ q: `Therefore, is DM also incommensurable in length with MG? (yes/no):`, hint: `If one line is commensurable with DE and the other is not, they are incommensurable with each other (X.13).` },
+
+{ q: `Since DM and MG are rational straight lines commensurable in square only, do we conclude that DG is a binomial straight line? (yes/no):`, hint: `This is the definition of a binomial straight line (X.36).` },
+{ q: `It remains to prove that DG is a fourth binomial straight line. Do you agree? (yes/no):`, hint: `Not every binomial is of the fourth kind.` },
+
+{ q: `In a manner similar to earlier propositions, can we show that DM is greater than MG? (yes/no):`, hint: `The construction parallels earlier arguments in Book X.` },
+{ q: `Can we also show that the rectangle DK, KM is equal to the square on MN? (yes/no):`, hint: `This follows from the applied parallelogram construction.` },
+
+{ q: `Since the square on AC is incommensurable with the square on CB, is DH also incommensurable with KL? (yes/no):`, hint: `Incommensurability of squares transfers through proportional constructions (VI.1, X.11).` },
+{ q: `Therefore, is DK incommensurable with KM? (yes/no):`, hint: `These correspond to DH and KL respectively.` },
+
+{ q: `If two unequal straight lines have applied to the greater a parallelogram equal to one fourth of the square on the lesser, deficient by a square, and dividing it into incommensurable parts, does the square on the greater exceed the square on the lesser by the square on a line incommensurable with the greater? (yes/no):`, hint: `This is Proposition X.18.` },
+{ q: `Therefore, is the square on DM greater than the square on MG by the square on a straight line incommensurable in length with DM? (yes/no):`, hint: `This applies X.18 to the present case.` },
+
+{ q: `Since DM and MG are rational straight lines commensurable in square only, and DM is commensurable in length with the rational straight line DE set out, do we conclude that DG is a fourth binomial straight line? (yes/no):`, hint: `This matches Definition II.4 of Book X.` },
+]
+
+const conclusion = `Congratulations! You just proved that if the square on the major straight line is applied to a rational straight line, the breadth produced is the fourth binomial straight line.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

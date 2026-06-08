@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>I.11 — MenoChat (Toggle: Pure ↔ Graph)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>I.11 — Draw a straight line at right angles to a given straight line from a given point on it</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Euclid's Elements I.11 chatbot!
+
+We are given a straight line AB, and a point C on it. Do you agree? (yes/no):`,
+    hint: `A point on a line means C lies somewhere along AB.` },
+  { q: `Our goal is to draw a straight line from C at right angles to AB. Does that make sense? (yes/no):`,
+    hint: `A right angle is when two equal adjacent angles are formed (Defintion 10) like an upside down letter T.` },
+  { q: `Let us choose a point D on the line AC. Can we do this? (yes/no):`,
+    hint: `Postulate 1 allows taking any point on a line.` },
+  { q: `Now, on the other side of C, cut off CE equal to CD. Possible? (yes/no):`,
+    hint: `By Proposition I.3, we can cut off from a greater line a segment equal to a lesser.` },
+  { q: `Next, construct an equilateral triangle FDE on the line DE. Can we do this? (yes/no):`,
+    hint: `Proposition I.1 allows us to construct an equilateral triangle on any line.` },
+  { q: `Join the line FC. Possible? (yes/no):`,
+    hint: `Postulate 1 allows joining any two points by a straight line.` },
+  { q: `Now, is DC equal to CE? (yes/no):`,
+    hint: `That was how CE was cut off, to be equal to CD.` },
+  { q: `Is CF common to both triangles DCF and ECF? (yes/no):`,
+    hint: `Yes, CF is shared by both.` },
+  { q: `And is DF equal to FE? (yes/no):`,
+    hint: `They are sides of the equilateral triangle FDE.` },
+  { q: `Since we know DF = FE, CF = CF, and DC = EC, can we say that ΔDCF and ΔECF are equal? (yes/no):`,
+    hint: `Yes, this means triangles DCF and ECF are equal by Proposition I.8.` },
+  { q: `Therefore, are ∠DCF and ∠ECF equal? (yes/no):`,
+    hint: `Proposition I.8 states equal triangles have equal angles opposite equal sides.` },
+  { q: `Since ∠DCF and ∠ECF are equal and adjacent, are they each right angles? (yes/no):`,
+    hint: `Definition I.10 says when a straight line on another makes equal adjacent angles, each is a right angle, like the letter T.` },
+  { q: `Thus, is CF drawn at right angles to AB from point C? (yes/no):`,
+    hint: `That is exactly what we required to do.` }
+];
+
+const conclusion = `Congratulations! You have constructed the perpendicular CF to line AB at point C.
+Q.E.F. (Quod Erat Faciendum — which was to be done)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

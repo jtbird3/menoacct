@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements XI.22</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>XI.22 – Prove that if there be three plane angles, of which two, taken together in any manner, are greater than the remaining one, and they are contained by equal straight lines, it is possible to construct a triangle out of the straight lines joining the extremities of the equal straight lines.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements XI.22 chatbot!
+
+We are given three plane angles ABC, DEF, and GHK. Do you agree? (yes/no):`,
+    hint: `These are the three angles mentioned at the start of the proposition.` },
+
+  { q: `Each pair of these angles, taken together, is greater than the remaining one. Is that correct? (yes/no):`,
+    hint: `The text states this condition explicitly for all three possible pairs.` },
+
+  { q: `The straight lines AB, BC, DE, EF, GH, and HK are all equal to one another. Do you agree? (yes/no):`,
+    hint: `These are the equal straight lines containing the given angles.` },
+
+  { q: `We also join AC, DF, and GK. Is this what the construction assumes? (yes/no):`,
+    hint: `These are the bases opposite the given angles.` },
+
+  { q: `Our goal is to show that it is possible to construct a triangle out of straight lines equal to AC, DF, and GK. Does that make sense? (yes/no):`,
+    hint: `This means any two of AC, DF, and GK must be greater than the remaining one.` },
+
+  { q: `If the angles ABC, DEF, and GHK are all equal, then AC, DF, and GK are also equal. Is this clear? (yes/no):`,
+    hint: `Equal sides with equal included angles give equal bases (Proposition I.4).` },
+
+  { q: `In that case, is it obvious that a triangle can be constructed from AC, DF, and GK? (yes/no):`,
+    hint: `Three equal straight lines always satisfy the triangle condition.` },
+
+  { q: `Now suppose the angles are not all equal. Is this the case we now consider? (yes/no):`,
+    hint: `The proof proceeds to the unequal-angle case.` },
+
+  { q: `On the straight line HK, at point H, construct an angle KHL equal to angle ABC. Is this allowed? (yes/no):`,
+    hint: `An angle equal to a given angle can be constructed at a given point.` },
+
+  { q: `Let HL be made equal to one of the straight lines AB, BC, DE, EF, GH, or HK. Can we do this? (yes/no):`,
+    hint: `All these straight lines are given equal in length.` },
+
+  { q: `Join KL and GL. Is this construction possible? (yes/no):`,
+    hint: `Postulate 1 allows a straight line to be drawn from any point to any point.` },
+
+  { q: `Since AB = BC and KH = HL, and the angle at B equals angle KHL, do the bases AC and KL become equal? (yes/no):`,
+    hint: `This follows from Proposition I.4 (two sides and the included angle).` },
+
+  { q: `The angles ABC and GHK together are greater than angle DEF. Is this given? (yes/no):`,
+    hint: `This is one of the stated conditions of the proposition.` },
+
+  { q: `Since angle ABC equals angle KHL, is angle GHL greater than angle DEF? (yes/no):`,
+    hint: `Substituting equal angles preserves inequality.` },
+
+  { q: `Since GH = HL and DE = EF, and angle GHL is greater than angle DEF, is GL greater than DF? (yes/no):`,
+    hint: `This follows from Proposition I.24: the greater angle is subtended by the greater side.` },
+
+  { q: `Are GK and KL together greater than GL? (yes/no):`,
+    hint: `Any two sides of a triangle are greater than the remaining one.` },
+
+  { q: `Since GL is greater than DF, are GK and KL together greater than DF? (yes/no):`,
+    hint: `Adding a greater quantity increases the inequality.` },
+
+  { q: `But KL equals AC. Is that correct? (yes/no):`,
+    hint: `This was shown earlier using Proposition I.4.` },
+
+  { q: `Therefore, are AC and GK together greater than DF? (yes/no):`,
+    hint: `Substitute equals for equals.` },
+
+  { q: `Can we argue similarly that AC and DF are greater than GK? (yes/no):`,
+    hint: `The proof states this follows by the same reasoning.` },
+
+  { q: `Can we also show that DF and GK are greater than AC? (yes/no):`,
+    hint: `All three pairwise inequalities can be proved in the same way.` },
+
+  { q: `Therefore, is it possible to construct a triangle out of straight lines equal to AC, DF, and GK? (yes/no):`,
+    hint: `Since any two of AC, DF, and GK are greater than the remaining one, the triangle condition holds.` }
+]
+
+const conclusion = `Congratulations! You just if there be three plane angles, of which two, taken together in any manner, are greater than the remaining one, and they are contained by equal straight lines, it is possible to construct a triangle out of the straight lines joining the extremities of the equal straight lines.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

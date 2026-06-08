@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Conics I.33</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+<h1>I.33 - Prove that in a parabola, if from a point on the section an ordinate is drawn to the diameter, and a straight line equal to the segment cut off from the vertex is laid off on the diameter, then the straight line joining the resulting point to the given point touches the section</h1>
+
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [{ q: `Welcome to Apollonius' Conics I.33 chatbot!
+
+We are given a parabola with diameter AB and vertex E, where A is outside the section. Do you agree? (yes/no):`, hint: `A diameter of a parabola passes through the vertex.` },
+{ q: `Let us take a point C on the parabola. Can we do this? (yes/no):`, hint: `The proposition begins by choosing an arbitrary point on the section.` },
+{ q: `From point C, an ordinate CD is drawn to the diameter AB. Is this clear? (yes/no):`, hint: `An ordinate is drawn parallel to the axis and meets the diameter.` },
+{ q: `On the diameter AB, the straight line AE is made equal to ED. Is this construction allowed? (yes/no):`, hint: `A straight line equal to a given straight line can be constructed on the same line.` },
+{ q: `Now join the straight line AC. Can we do this? (yes/no):`, hint: `A straight line may be drawn from any point to any point.` },
+{ q: `Our goal is to show that the straight line AC, when continued, touches the parabola and does not cut it. Does that make sense? (yes/no):`, hint: `“Touches” means it meets the section at only one point.` },
+{ q: `Assume, for the sake of contradiction, that AC continued falls within the section at a point F. Is this assumption clear? (yes/no):`, hint: `We assume the opposite of what we want to prove.` },
+{ q: `From point F, let an ordinate GB be drawn to the diameter. Is this possible? (yes/no):`, hint: `Any point on the parabola determines an ordinate to the diameter.` },
+{ q: `Is the ratio of the square on BG to the square on CD greater than the ratio of the square on FB to the square on CD? (yes/no):`, hint: `Ordinates farther from the vertex correspond to larger squares.` },
+{ q: `But is the ratio of the square on FB to the square on CD equal to the ratio of the square on BA to the square on AD? (yes/no):`, hint: `This follows from the property of the parabola relating ordinates to distances on the diameter.` },
+{ q: `And is the ratio of the square on BG to the square on CD equal to the ratio of BE to DE? (yes/no):`, hint: `This follows from the same property, applied to point B.` },
+{ q: `Therefore, is the ratio BE to DE greater than the ratio of the square on BA to the square on AD? (yes/no):`, hint: `Things equal to greater things are greater than those equal to lesser things.` },
+{ q: `Now, BE is to DE as the quadruple rectangle BE, EA is to the quadruple rectangle DE, EA, is this true? (yes/no):`, hint: `Multiplying both terms of a ratio by the same magnitude preserves the ratio.` },
+{ q: `Therefore, is the ratio of quadruple rectangle BE, EA to quadruple rectangle DE, EA greater than the ratio of the square on AB to the square on AD? (yes/no):`, hint: `This follows directly from the previous inequality.` },
+{ q: `But since AE is equal to DE, is the quadruple rectangle BE, EA less than the square on AB? (yes/no):`, hint: `By Euclid II.5, when a point is not the midpoint, the rectangle is less than the square.` },
+{ q: `And since E is not the midpoint of AB, does this give a contradiction? (yes/no):`, hint: `The same quantity cannot be both greater than and less than the same magnitude.` },
+{ q: `Therefore, does the assumption that AC falls within the section lead to an impossibility? (yes/no):`, hint: `The contradiction shows the assumption is false.` },
+{ q: `Hence, does the straight line AC not fall within the parabola? (yes/no):`, hint: `What does not fall within must lie outside or touch.` },
+{ q: `Therefore, does the straight line AC touch the parabola at point C? (yes/no):`, hint: `A line that meets a section at one point only is a tangent.` },
+
+
+
+]
+
+const conclusion = `Congratulations! You just proved that in a parabola, if from a point on the section an ordinate is drawn to the diameter, and a straight line equal to the segment cut off from the vertex is laid off on the diameter, then the straight line joining the resulting point to the given point touches the section.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

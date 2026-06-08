@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.95</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.95 – Prove that if an area is contained by a rational straight line and a fifth apotome, the side of the area is a straight line which produces with a rational area a medial whole.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+{ q: `Welcome to Elements X.95 chatbot!
+
+We are given an area AB contained by a rational straight line AC and a fifth apotome AD. Do you agree? (yes/no):`,
+  hint: `The containment means AB is a rectangle with sides AC (rational) and AD (a fifth apotome).` },
+{ q: `Our goal is to show that the side of area AB is a straight line which produces with a rational area a medial whole. Does that make sense? (yes/no):`,
+  hint: `This names the specific irrational straight line described in Book X.` },
+
+{ q: `Let DG be the annex to AD. Is this allowed? (yes/no):`,
+  hint: `By definition of a fifth apotome, an annex straight line exists.` },
+{ q: `Are AG and GD rational straight lines commensurable in square only? (yes/no):`,
+  hint: `This follows from the definition of a fifth apotome (Definitions X.III.5).` },
+{ q: `Is the annex GD commensurable in length with the rational straight line AC set out? (yes/no):`,
+  hint: `This is part of the defining property of the fifth apotome.` },
+{ q: `Is the square on the whole AG greater than the square on the annex DG by the square on a straight line incommensurable with AG? (yes/no):`,
+  hint: `This is exactly what Definition X.III.5 states.` },
+
+{ q: `If a parallelogram equal to the fourth part of the square on DG is applied to AG and is deficient by a square figure, will it divide AG into incommensurable parts? (yes/no):`,
+  hint: `This follows from Proposition X.18.` },
+{ q: `Let DG be bisected at E. Is this possible? (yes/no):`,
+  hint: `Any straight line can be bisected.` },
+{ q: `Is the square on EG equal to the fourth part of the square on DG? (yes/no):`,
+  hint: `EG is half of DG, so its square is one quarter.` },
+{ q: `Let a parallelogram equal to the square on EG and deficient by a square figure be applied to AG, forming rectangle AF, FG. Can we do this? (yes/no):`,
+  hint: `This is the application described in X.18.` },
+{ q: `Is AF incommensurable in length with FG? (yes/no):`,
+  hint: `The parallelogram construction divides AG into incommensurable parts.` },
+
+{ q: `Since AG is incommensurable in length with CA, and both are rational, is AK medial? (yes/no):`,
+  hint: `A rational line incommensurable in length with a rational line gives a medial line (X.21).` },
+{ q: `Since DG is rational and commensurable in length with AC, is DK rational? (yes/no):`,
+  hint: `This follows from Proposition X.19.` },
+
+{ q: `Let the square LM be constructed equal to AI. Can we do this? (yes/no):`,
+  hint: `A square can be constructed on any straight line.` },
+{ q: `Let the square NO be constructed equal to FK and about the same angle LPM, and then be subtracted. Is this allowed? (yes/no):`,
+  hint: `This uses Proposition VI.26.` },
+{ q: `Are the squares LM and NO about the same diameter PR? (yes/no):`,
+  hint: `Squares about the same angle share a common diameter.` },
+{ q: `Let PR be drawn as their diameter, and the figure completed. Is this acceptable? (yes/no):`,
+  hint: `This is a standard geometrical construction.` },
+
+{ q: `Can we now similarly prove that LN is the side of the area AB? (yes/no):`,
+  hint: `The construction mirrors earlier steps.` },
+
+{ q: `Since AK is medial and equals the sum of the squares on LP and PN, is that sum medial? (yes/no):`,
+  hint: `Equals taken of medial magnitudes remain medial.` },
+{ q: `Since DK is rational and equals twice the rectangle contained by LP and PN, is that rectangle rational? (yes/no):`,
+  hint: `Twice a rational area is rational.` },
+{ q: `Since AI is incommensurable with FK, is the square on LP incommensurable with the square on PN? (yes/no):`,
+  hint: `Incommensurable sides yield incommensurable squares.` },
+{ q: `Are LP and PN straight lines incommensurable in square, whose squares sum to a medial area, while twice their rectangle is rational? (yes/no):`,
+  hint: `This matches the defining conditions of a known irrational.` },
+
+{ q: `Is the remainder LN therefore the irrational straight line called that which produces with a rational area a medial whole? (yes/no):`,
+  hint: `This is Definition X.77.` },
+{ q: `Is LN the side of the given area AB? (yes/no):`,
+  hint: `LN was constructed to correspond to the area AB.` },
+
+{ q: `Therefore, is the side of the area AB a straight line which produces with a rational area a medial whole? (yes/no):`,
+  hint: `This is exactly what was to be demonstrated.` },
+]
+
+const conclusion = `Congratulations! You just proved that if an area is contained by a rational straight line and a fifth apotome, the side of the area is a straight line which produces with a rational area a medial whole.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

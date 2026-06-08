@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Continuity and Irrational Numbers - Preface</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>Preface - Replacing geometric intuition with an arithmetic definition of continuity.</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Dedekind's Continuity and Irrational Numbers Preface chatbot!
+
+We are considering Dedekind’s discussion of the foundations of differential calculus and continuity. Do you agree? (yes/no):`,
+    hint: `The passage reflects on the lack of a rigorous arithmetic basis for calculus.` },
+
+  { q: `Our goal is to understand why Dedekind seeks a purely arithmetic definition of continuity. Does that make sense? (yes/no):`,
+    hint: `He is dissatisfied with geometric intuition and wants rigor.` },
+
+  { q: `Dedekind was lecturing on differential calculus and noticed a lack of scientific foundation for arithmetic. Is that correct? (yes/no):`,
+    hint: `He explicitly says he “felt more keenly than ever before the lack.”` },
+
+  { q: `In explaining limits, did he rely on geometric intuition rather than arithmetic reasoning? (yes/no):`,
+    hint: `He mentions using “geometric evidences” when discussing limits.` },
+
+  { q: `Does Dedekind believe geometric intuition is useful for teaching but not fully rigorous? (yes/no):`,
+    hint: `He calls it “useful” but denies it is “scientific.”` },
+
+  { q: `Did this dissatisfaction lead him to seek a purely arithmetic and rigorous foundation? (yes/no):`,
+    hint: `He made a “fixed resolve” to find such a foundation.` },
+
+  { q: `Is the concept of continuity often used in calculus without being properly defined? (yes/no):`,
+    hint: `He says continuity is invoked but “nowhere given” an explanation.` },
+
+  { q: `Do many existing proofs depend on geometry or unproven assumptions instead of arithmetic? (yes/no):`,
+    hint: `He criticizes reliance on geometric notions or unestablished theorems.` },
+
+  { q: `Is the theorem about a bounded increasing magnitude approaching a limit central to his investigation? (yes/no):`,
+    hint: `He highlights this theorem as foundational.` },
+
+  { q: `Did Dedekind come to believe that such a theorem could serve as a basis for infinitesimal analysis? (yes/no):`,
+    hint: `He says it can be regarded as “a sufficient basis.”` },
+
+  { q: `Was his next step to find the origin of this idea within arithmetic itself? (yes/no):`,
+    hint: `He aimed to locate its “true origin in the elements of arithmetic.”` },
+
+  { q: `Would this also provide a true definition of continuity? (yes/no):`,
+    hint: `He connects this step directly to defining continuity.` },
+
+  { q: `Did Dedekind succeed in this task in 1858? (yes/no):`,
+    hint: `He gives the exact date: Nov. 24, 1858.` },
+
+  { q: `Did he initially hesitate to publish because the presentation was not simple and the theory seemed unpromising? (yes/no):`,
+    hint: `He mentions both concerns explicitly.` },
+
+  { q: `Was he later encouraged by the work of Heine? (yes/no):`,
+    hint: `He says Heine’s paper confirmed his decision.` },
+
+  { q: `Did Dedekind believe his own presentation was simpler and clearer? (yes/no):`,
+    hint: `He states this directly.` },
+
+  { q: `Did Cantor’s work contain an axiom similar to Dedekind’s idea of continuity? (yes/no):`,
+    hint: `He notes agreement in essence despite differences in form.` },
+
+  { q: `Finally, does Dedekind view the system of real numbers as complete in itself? (yes/no):`,
+    hint: `He explicitly says he conceives it as “complete in itself.”` },
+
+  { q: `Therefore, Dedekind’s project is to replace geometric intuition with a rigorous arithmetic foundation, culminating in a precise definition of continuity. Does that make sense? (yes/no):`,
+    hint: `This is the central philosophical and mathematical aim of the text.` }
+]
+
+const conclusion = `Congratulations! You have explored the idea of a rigorous arithmetic foundation for calculus.
+Q.E.F. (Quod Erat Faciendum - which was to be done.)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

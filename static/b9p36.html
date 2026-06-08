@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements IX.36</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>IX.36 — Prove that if numbers beginning from a unit are set out in double proportion until their sum is prime, then the sum multiplied by the last produces a perfect number</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to Elements IX.36 chatbot!
+
+We are given numbers A, B, C, D beginning from a unit A, set out continuously in double proportion. Do you agree? (yes/no):`,
+    hint: `Beginning from a unit means A = 1, and each following number is double the previous.` },
+
+  { q: `Let E be equal to the sum of all the numbers A, B, C, D. Agreed? (yes/no):`,
+    hint: `E = A + B + C + D.` },
+
+  { q: `We are given that this sum E is prime. Do you accept this hypothesis? (yes/no):`,
+    hint: `This is stated directly in the proposition.` },
+
+  { q: `Let E, by multiplying D, make the number FG. Do you follow this construction? (yes/no):`,
+    hint: `FG is the product of E and D.` },
+
+  { q: `Our goal is to show that FG is a perfect number equal to the sum of its proper parts. Does that make sense? (yes/no):`,
+    hint: `A perfect number is equal to the sum of its proper parts.` },
+
+  { q: `However many numbers A, B, C, D there are, let so many numbers E, HK, L, M be taken in double proportion beginning from E. Is this possible? (yes/no):`,
+    hint: `We repeat the same doubling pattern starting from E.` },
+
+  { q: `Do E, HK, L, M stand in the same double proportion as A, B, C, D? (yes/no):`,
+    hint: `They are constructed to mirror the same ratios.` },
+
+  { q: `From this, is it true that as A is to D, so E is to M? (yes/no):`,
+    hint: `This follows by ex aequali proportion (VII.14).` },
+
+  { q: `If as A is to D, so E is to M, then is the product of E and D equal to the product of A and M? (yes/no):`,
+    hint: `Proportion implies equality of cross-products (VII.19).` },
+
+  { q: `But the product of E and D is FG. Do you agree? (yes/no):`,
+    hint: `FG was defined as E × D.` },
+
+  { q: `Therefore, is the product of A and M also equal to FG? (yes/no):`,
+    hint: `Substitution of equals.` },
+
+  { q: `Since A multiplies M to make FG, does M measure FG according to the units in A? (yes/no):`,
+    hint: `Measuring according to units means counting by ones.` },
+
+  { q: `And is A a dyad (two units)? (yes/no):`,
+    hint: `A begins from the unit and doubles.` },
+
+  { q: `Therefore, is FG double of M? (yes/no):`,
+    hint: `If A = 2, then A × M = 2M.` },
+
+  { q: `Since M, L, HK, E are continuously double of each other, do E, HK, L, M, FG form a continuous double proportion? (yes/no):`,
+    hint: `Each term is twice the one before it.` },
+
+  { q: `Now let numbers HN and FO be subtracted from HK and FG respectively, each equal to E. Is this construction allowed? (yes/no):`,
+    hint: `Equal numbers may be subtracted from given numbers.` },
+
+  { q: `From this subtraction, does the excess of HK over E correspond to the excess of FG over all preceding numbers? (yes/no):`,
+    hint: `This uses Proposition IX.35.` },
+
+  { q: `Therefore, as NK is to E, so is OG to M, L, HK, E. Do you see this proportion? (yes/no):`,
+    hint: `The excesses preserve the ratio.` },
+
+  { q: `But NK is equal to E. Do you agree? (yes/no):`,
+    hint: `NK was defined as the remainder after subtracting E from HK.` },
+
+  { q: `Therefore, is OG equal to M, L, HK, E taken together? (yes/no):`,
+    hint: `Equal ratios with equal antecedents give equal consequents.` },
+
+  { q: `FO is also equal to E. Agreed? (yes/no):`,
+    hint: `FO was constructed equal to E.` },
+
+  { q: `And is E equal to A, B, C, D and the unit taken together? (yes/no):`,
+    hint: `E is defined as their sum.` },
+
+  { q: `Therefore, is the whole FG equal to E, HK, L, M and also to A, B, C, D and the unit? (yes/no):`,
+    hint: `FG has been shown equal to the sum of all these parts.` },
+
+  { q: `Thus, is FG measured by all these numbers? (yes/no):`,
+    hint: `Being equal to the sum of parts means it is measured by them.` },
+
+  { q: `Now suppose some number P measures FG, and P is not the same as any of A, B, C, D, E, HK, L, M. Is this assumption clear? (yes/no):`,
+    hint: `This is a proof by contradiction.` },
+
+  { q: `As many times as P measures FG, let there be that many units in Q. Is this construction acceptable? (yes/no):`,
+    hint: `Q is defined by the number of times P measures FG.` },
+
+  { q: `Then does Q by multiplying P make FG? (yes/no):`,
+    hint: `This is the definition of measuring.` },
+
+  { q: `But E by multiplying D also makes FG. Do you agree? (yes/no):`,
+    hint: `This was given earlier.` },
+
+  { q: `Therefore, as E is to Q, so is P to D. Does this follow? (yes/no):`,
+    hint: `Equal products imply proportional factors (VII.19).` },
+
+  { q: `Since A, B, C, D are continuously proportional beginning from a unit, is D measured only by A, B, or C? (yes/no):`,
+    hint: `Proposition IX.13.` },
+
+  { q: `And P is not equal to A, B, or C. Correct? (yes/no):`,
+    hint: `This was assumed.` },
+
+  { q: `Therefore, does P fail to measure D? (yes/no):`,
+    hint: `Only those numbers may measure D.` },
+
+  { q: `But if as P is to D, so E is to Q, and P does not measure D, does E fail to measure Q? (yes/no):`,
+    hint: `By the definition of ratio (VII.Def.20).` },
+
+  { q: `And since E is prime, and does not measure Q, are E and Q prime to one another? (yes/no):`,
+    hint: `VII.29: a prime is prime to what it does not measure.` },
+
+  { q: `Since primes are least numbers, do they measure proportional numbers the same number of times? (yes/no):`,
+    hint: `VII.21 and VII.20.` },
+
+  { q: `And since as E is to Q, so P is to D, does E measure P the same number of times that Q measures D? (yes/no):`,
+    hint: `Corresponding terms in equal ratios.` },
+
+  { q: `But D is measured only by A, B, or C. Do you recall this? (yes/no):`,
+    hint: `From earlier.` },
+
+  { q: `Therefore, must Q be equal to one of A, B, or C? (yes/no):`,
+    hint: `Otherwise it could not measure D.` },
+
+  { q: `Let Q be the same as B. Is this assumption clear? (yes/no):`,
+    hint: `We take one representative case.` },
+
+  { q: `Now, however many B, C, D there are, let so many E, HK, L be taken beginning from E. Is this possible? (yes/no):`,
+    hint: `Same construction as before.` },
+
+  { q: `Are E, HK, L in the same ratio as B, C, D? (yes/no):`,
+    hint: `Both sequences are in double proportion.` },
+
+  { q: `Therefore, as B is to D, so is E to L. Do you agree? (yes/no):`,
+    hint: `Ex aequali again (VII.14).` },
+
+  { q: `Thus, is the product of B and L equal to the product of D and E? (yes/no):`,
+    hint: `VII.19.` },
+
+  { q: `But D multiplying E equals Q multiplying P. Correct? (yes/no):`,
+    hint: `From earlier substitution.` },
+
+  { q: `Therefore, is Q multiplying P equal to B multiplying L? (yes/no):`,
+    hint: `Equality of equals.` },
+
+  { q: `Hence, as Q is to B, so is L to P. Do you see this? (yes/no):`,
+    hint: `Proportional division of equal products.` },
+
+  { q: `But Q is the same as B. Agreed? (yes/no):`,
+    hint: `By assumption.` },
+
+  { q: `Therefore, must L be the same as P? (yes/no):`,
+    hint: `Equal ratios with equal antecedents.` },
+
+  { q: `But this contradicts the hypothesis that P is distinct from all the constructed numbers. Do you agree? (yes/no):`,
+    hint: `This contradiction eliminates the assumption.` },
+
+  { q: `Therefore, is it true that no number measures FG except A, B, C, D, E, HK, L, M and the unit? (yes/no):`,
+    hint: `The contradiction eliminates all others.` },
+
+  { q: `And was FG proved equal to all these parts taken together? (yes/no):`,
+    hint: `This was shown earlier.` },
+
+  { q: `Since a perfect number is one equal to its own parts, does it follow that FG is perfect? (yes/no):`,
+    hint: `Definition VII.22.` }
+]
+
+
+
+
+
+
+const conclusion = `Congratulations! You just proved that if numbers beginning from a unit are set out in double proportion until their sum is prime, then the sum multiplied by the last produces a perfect number.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
+

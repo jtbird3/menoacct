@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Conics I.14</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>I.14 — Prove that the sections of vertically opposite conic surfaces are opposite hyperbolas.</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  {
+    q: `Welcome to Conics I.14 chatbot!
+
+We are given vertically opposite conic surfaces with a common vertex A. Do you agree? (yes/no):`,
+hint: `Vertically opposite surfaces share the same vertex.` },
+{ q: `Let a plane cut these surfaces (on the left side), and it does not pass through the vertex A. Is this clear? (yes/no):`,
+hint: `The hypothesis explicitly excludes planes through the vertex.` },
+{ q: `The sections made on the two surfaces are the curves DEF (bottom) and GHK (top). Do you accept this setup? (yes/no):`,
+hint: `These are the named sections in the proposition.` },
+
+{ q: `Our goal is to show that DEF and GHK are hyperbolas, that they have the same diameter, equal applied rectangles, and a common latus transversum. Does that make sense? (yes/no):`,
+hint: `This restates exactly what is claimed.` },
+
+{ q: `Let there be a circle BDCF along which the generating line of the surface moves. Is this allowed? (yes/no):`,
+hint: `This describes the generation of the conic surface.` },
+{ q: `Let a plane making circle XGOK be drawn parallel to the plane of this circle. Can such a plane be drawn? (yes/no):`,
+hint: `A plane may be drawn parallel to a given plane.` },
+{ q: `Let lines FD and GK be drawn; these are common sections of the planes of the curves and of the circles. Do you see this? (yes/no):`,
+hint: `Each lies in both the cutting plane and the circular plane.` },
+{ q: `From this, are FD and GK parallel? (yes/no):`,
+hint: `By Euclid XI.16, common sections of parallel planes are parallel.` },
+
+{ q: `Let the axis of the conic surface be the straight line LAU, and the centers of the circles be L (bottom) and U (top). Is this assignment acceptable? (yes/no):`,
+hint: `This fixes the axis and symmetry.` },
+{ q: `From L draw a straight line perpendicular to FD, meeting B and C. This line meets FD at a point M. Can we do this? (yes/no):`,
+hint: `A perpendicular may be drawn from a point to a line.` },
+{ q: `Let a plane be drawn through BC and the axis LAU, creating line XAO. This line meets GK at a point N. Is this possible? (yes/no):`,
+hint: `A plane is determined by a line and a point not on it.` },
+{ q: `Does this plane cut the circular planes in parallel straight lines XO and BC? (yes/no):`,
+hint: `By Euclid XI.16 again.` },
+{ q: `Does it also cut the conic surface in the straight lines BAO and CAX? (yes/no):`,
+hint: `By construction on the surface.` },
+
+{ q: `If BC is perpendicular to FD, is XO also perpendicular to GK? (yes/no):`,
+hint: `Parallels preserve perpendicularity (Euclid XI.10).` },
+{ q: `The plane through the axis meets the sections at points M (bottom) and N (top) where each curve meets the diameter of the base circles (BC and XO). Do you see that? (yes/no):`,
+hint: `The plane intersects both curves internally.` },
+{ q: `Now, the same plane cuts the curves at points E and H. Is this clear? (yes/no):`,
+hint: `These are the intersection points named.` },
+{ q: `Since M, E, H, and N lie in both planes, is MEHN a straight line? (yes/no):`,
+hint: `By Euclid XI.3, intersection of two planes is a straight line.` },
+
+{ q: `Are the points X, H, A, C collinear, and likewise B, E, A, O collinear? (yes/no):`,
+hint: `Each set lies both on the surface and in the axial plane.` },
+{ q: `From H and E, draw HR and EP perpendicular to HE. Can this be done? (yes/no):`,
+hint: `Perpendiculars may be drawn from points to a line.` },
+{ q: `Through A draw the line SAT parallel to MEHN, where point S is on the bottom section and point T is on the top section. Is this allowed? (yes/no):`,
+hint: `A parallel through a given point may be drawn.` },
+
+{ q: `Let it be arranged that: as HE is to EP, so the square on AS is to the rectangle BS, SC; and as EH is to HR, so the square on AT is to the rectangle OT, TX. Do you accept this proportional setup? (yes/no):`,
+hint: `This matches the construction used to define the conic section.` },
+
+{ q: `Since the cone with vertex A and base circle BC is cut by a plane through the axis making triangle ABC, and by another plane perpendicular to BC making section DEF, and since the diameter EM meets the axial triangle beyond the vertex, are the conditions for a hyperbola satisfied, giving us hyperbola DEF? (yes/no):`,
+hint: `This matches Euclid I.12 for the hyperbola.` },
+{ q: `Therefore, is DEF a hyperbola, with EP as the latus rectum of its eidos and HE as its latus transversum? (yes/no):`,
+hint: `This follows directly from the definition.` },
+{ q: `Likewise, for the same reason as DEF, is GHK also a hyperbola, with diameter HN and the same latus transversum HE? (yes/no):`,
+hint: `The construction is symmetric on the opposite surface.` },
+
+{ q: `Our next goal is to show that HR equals EP. Does that make sense? (yes/no):`,
+hint: `This establishes equality of the applied lines.` },
+
+{ q: `Since BC is parallel to XO, do the ratios AS:SC and AT:TX match? (yes/no):`,
+hint: `Corresponding segments between parallels are proportional.` },
+{ q: `And do the ratios AS:SB and AT:TO also match? (yes/no):`,
+hint: `Same reasoning with the other sides.` },
+{ q: `Is the ratio of the square on AS : rectangle BS, SC compounded of AS:SB and AS:SC? (yes/no):`,
+hint: `By Euclid VI.23.` },
+{ q: `Likewise, is the ratio of the square on AT : rectangle XT, TO compounded of AT:TX and AT:TO? (yes/no):`,
+hint: `Same proposition applies.` },
+{ q: `Therefore, are the ratios sq(AS) : rect(BS,SC) and sq(AT) : rect(XT,TO) equal? (yes/no):`,
+hint: `Equal compounded ratios are equal.` },
+
+{ q: `Since sq(AS) : rect(BS,SC) :: HE : EP, and sq(AT) : rect(XT,TO) :: HE : HR, do we have HE : EP :: HE : HR? (yes/no):`,
+hint: `Both equal the same ratio.` },
+{ q: `From this, does it follow that EP = HR? (yes/no):`,
+hint: `By Euclid V.9 and V.11, equal ratios with equal antecedents give equal consequents.` },
+
+{ q: `Therefore, are the straight lines applied in square to the common diameter equal on the two opposite hyperbolas? (yes/no):`,
+hint: `This is exactly what was to be shown.` },
+
+
+
+
+
+
+
+
+];
+
+const conclusion = `Congratulations! You just proved that the sections of vertically opposite conic surfaces are opposite hyperbolas.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

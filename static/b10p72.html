@@ -1,0 +1,261 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Elements X.72</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>X.72 – Prove that if two medial areas incommensurable with one another are added together, there arise the remaining two irrational straight lines, namely either a second bimedial or the side of the sum of two medial areas.</h1>
+<p>Type your answer and press enter.</p>
+<div id="chat"></div>
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+{ q: `Welcome to Elements X.72 chatbot!
+
+We are given two medial areas AB and CD, which are incommensurable with one another. Do you agree? (yes/no):`,
+  hint: `Both AB and CD are medial areas, and they are stated to be incommensurable.` },
+{ q: `Our goal is to determine the nature of the side of the area AD formed by adding AB and CD. Does that make sense? (yes/no):`,
+  hint: `We want to classify the side of the sum of the two areas.` },
+{ q: `Is AB either greater than CD or less than CD? (yes/no):`,
+  hint: `Of two unequal magnitudes, one must be greater.` },
+
+{ q: `First, let AB be greater than CD. Is this an acceptable assumption? (yes/no):`,
+  hint: `Euclid proceeds by considering this case first.` },
+{ q: `Let a rational straight line EF be set out. Can we do this? (yes/no):`,
+  hint: `A rational straight line may be assumed.` },
+{ q: `To EF let there be applied the rectangle EG equal to AB, producing EH as breadth. Is this possible? (yes/no):`,
+  hint: `A rectangle equal to a given area can be applied to a given straight line.` },
+{ q: `To EF let there also be applied the rectangle HI equal to CD, producing HK as breadth. Can this be done? (yes/no):`,
+  hint: `The same construction applies for CD.` },
+
+{ q: `Since AB is medial, is EG also medial? (yes/no):`,
+  hint: `Equal areas have the same character.` },
+{ q: `Since CD is medial, is HI also medial? (yes/no):`,
+  hint: `CD equals HI by construction.` },
+{ q: `Are both rectangles EG and HI applied to the rational straight line EF? (yes/no):`,
+  hint: `Both were constructed on EF.` },
+{ q: `Do they produce EH and HK as breadths? (yes/no):`,
+  hint: `Each rectangle has its own breadth.` },
+{ q: `Are EH and HK rational straight lines incommensurable in length with EF? (yes/no):`,
+  hint: `By X.22, a medial area applied to a rational line produces such a breadth.` },
+
+{ q: `Since AB is incommensurable with CD, and AB = EG and CD = HI, is EG incommensurable with HI? (yes/no):`,
+  hint: `Equals substituted for equals preserve incommensurability.` },
+{ q: `As EG is to HI, so is EH to HK. Do you agree? (yes/no):`,
+  hint: `This follows from VI.1, relating areas and their corresponding sides.` },
+{ q: `If EG is incommensurable with HI, does it follow that EH is incommensurable in length with HK? (yes/no):`,
+  hint: `By X.11, proportional magnitudes preserve incommensurability.` },
+
+{ q: `Are EH and HK rational straight lines commensurable in square only? (yes/no):`,
+  hint: `They are rational, but incommensurable in length.` },
+{ q: `Does this imply that EK is binomial? (yes/no):`,
+  hint: `By X.36, such a sum forms a binomial.` },
+
+{ q: `Is the square on EH greater than the square on HK? (yes/no):`,
+  hint: `AB was assumed greater than CD.` },
+{ q: `Is this excess either the square on a straight line commensurable with EH or incommensurable with it? (yes/no):`,
+  hint: `These are the two possible cases.` },
+
+{ q: `First, let the excess be the square on a straight line commensurable in length with EH. Do you accept this case? (yes/no):`,
+  hint: `Euclid treats this case first.` },
+{ q: `Are neither EH nor HK commensurable in length with EF? (yes/no):`,
+  hint: `This was shown earlier.` },
+{ q: `Does it follow that EK is a third binomial? (yes/no):`,
+  hint: `By Definition II.3 of Book X.` },
+{ q: `Is EF a rational straight line? (yes/no):`,
+  hint: `EF was set out as rational.` },
+{ q: `If an area is contained by a rational straight line and a third binomial, is the side of the area a second bimedial? (yes/no):`,
+  hint: `This follows from X.56.` },
+{ q: `Is EI the side of the area AD? (yes/no):`,
+  hint: `EI corresponds to the side of the composed area.` },
+{ q: `Therefore, is the side of AD a second bimedial in this case? (yes/no):`,
+  hint: `This completes the first case.` },
+
+{ q: `Next, let the square on EH be greater than the square on HK by the square on a straight line incommensurable in length with EH. Do you agree to consider this case? (yes/no):`,
+  hint: `This is the remaining possibility.` },
+{ q: `Are EH and HK still each incommensurable in length with EF? (yes/no):`,
+  hint: `Their relation to EF has not changed.` },
+{ q: `Does it follow that EK is a sixth binomial? (yes/no):`,
+  hint: `By Definition II.6 of Book X.` },
+{ q: `If an area is contained by a rational straight line and a sixth binomial, is the side of the area the side of the sum of two medial areas? (yes/no):`,
+  hint: `This follows from X.59.` },
+{ q: `Therefore, is the side of the area AD the side of the sum of two medial areas in this case? (yes/no):`,
+  hint: `This completes the second case.` },
+
+{ q: `Since one of these two cases must occur, have we shown that the side of AD is either a second bimedial or the side of the sum of two medial areas? (yes/no):`,
+  hint: `The proof covers all possibilities.` },
+]
+
+const conclusion = `Congratulations! You just proved that if two medial areas incommensurable with one another are added together, there arise the remaining two irrational straight lines, namely either a second bimedial or the side of the sum of two medial areas.
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>

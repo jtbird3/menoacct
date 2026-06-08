@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>III.15 — MenoChat</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background: #ffffff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      padding: 20px;
+      max-width: 800px;
+      margin: auto;
+    }
+    h1 { font-size: 24px; margin-bottom: 10px; }
+    #chat {
+      border: 1px solid #ccc;
+      padding: 10px;
+      min-height: 200px;
+      white-space: pre-wrap;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    #inputArea {
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    /* Mobile-specific styles */
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+        padding-bottom: 100px;
+      }
+
+      h1 { font-size: 20px; }
+
+      #inputArea {
+        display: none;
+      }
+
+      .mobile-buttons {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        border-top: 1px solid #ccc;
+        padding: 15px;
+        display: flex;
+        gap: 15px;
+        justify-content: center;
+        z-index: 1000;
+      }
+
+      .mobile-btn {
+        flex: 1;
+        max-width: 120px;
+        padding: 15px 20px;
+        font-size: 18px;
+        font-weight: bold;
+        border: 2px solid #000;
+        background: #fff;
+        color: #000;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 0;
+        user-select: none;
+        text-align: center;
+      }
+
+      .mobile-btn:active {
+        background: #000;
+        color: #fff;
+      }
+
+      .mobile-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Hide mobile buttons on desktop */
+    .mobile-buttons {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      .mobile-buttons {
+        display: flex;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<h1>III.15 - Prove that in a circle, the diameter is the longest line, and among the other chords, the one closer to the center is always longer than the one farther away.</h1>
+<p>Type your answer and press enter.</p>
+
+<div id="chat"></div>
+
+<div id="inputArea">
+  <input id="userInput" type="text" placeholder="Type 'yes' or 'no'..." autofocus>
+</div>
+
+<!-- Mobile buttons -->
+<div class="mobile-buttons">
+  <button class="mobile-btn" id="mobileYes">YES</button>
+  <button class="mobile-btn" id="mobileNo">NO</button>
+</div>
+
+<script>
+const steps = [
+  { q: `Welcome to the Euclid's Elements III.15 chatbot!
+
+We are given a circle ABCD with center E, and AD as a diameter. Do you agree? (yes/no):`,
+    hint: `A diameter passes through the center and touches the circle at both ends.` },
+  { q: `We also have two chords, BC and FG on two different sides of the diameter. BC is closer to the center than FG. Does that make sense? (yes/no):`,
+    hint: `Nearness is measured by the distance from the center to the chord (the perpendicular).` },
+  { q: `Our goal is to prove that AD is greatest, and that BC is greater than FG. Does that make sense? (yes/no):`,
+    hint: `We want to compare diameter vs. chords, and nearer vs. further chords.` },
+  { q: `From the center E, draw perpendiculars EH to BC and EK to FG. Can we do this? (yes/no):`,
+    hint: `A perpendicular from the center to a chord can always be drawn.` },
+  { q: `Since we drew BC closer to AD and FG farther, is EK greater than EH? (yes/no):`,
+    hint: `Definition III.5 states that the nearer chord has the smaller perpendicular distance from the centre.` },
+  { q: `Now make EL on the FG side equal to EH. Possible? (yes/no):`,
+    hint: `A straight line segment equal to another can be set off (Prop. I.3).` },
+  { q: `Through L draw ML at right angles to EK, and extend it to meet the circle at N. Can we do this? (yes/no):`,
+    hint: `By Prop. I.11, we can draw a line through a point at right angles to a given line.` },
+  { q: `Join ME, EN, FE, and EG. Clear? (yes/no):`,
+    hint: `We are connecting points to form auxiliary triangles.` },
+  { q: `Since EH = EL, do we have BC equal to MN? (yes/no):`,
+    hint: `Prop. III.14 states that equal distances from the center correspond to equal chords.` },
+  { q: `Now, is AE equal to EM, and ED equal to EN? (yes/no):`,
+    hint: `Radii of the same circle are equal.` },
+  { q: `Therefore, is AD equal to ME + EN? (yes/no):`,
+    hint: `AD is a straight line through the center, split into two radii.` },
+  { q: `But are ME and EN together greater than MN? (yes/no):`,
+    hint: `By Prop. I.20, in a triangle the sum of two sides is greater than the third side.` },
+  { q: `And is MN equal to BC? (yes/no):`,
+    hint: `Yes, this was shown earlier (III.14).` },
+  { q: `So can we conclude AD is greater than BC? (yes/no):`,
+    hint: `AD = ME + EN > MN = BC.` },
+  { q: `Now, consider triangles MEN and FEG. Do ME = FE and EN = EG? (yes/no):`,
+    hint: `All are radii of the circle, hence equal.` },
+  { q: `But is ∠MEN greater than ∠FEG? (yes/no):`,
+    hint: `MEN is a right or obtuse angle, FEG is smaller; by construction MEN > FEG.` },
+  { q: `Therefore, by Prop. I.24, is base MN greater than base FG? (yes/no):`,
+    hint: `In two triangles with equal sides, the one with the larger included angle has the larger base.` },
+  { q: `But MN was shown equal to BC. So can we conclude BC > FG? (yes/no):`,
+    hint: `Yes, since MN = BC and MN > FG.` },
+  { q: `Therefore, have we proved that the diameter AD is greatest, and that of the other chords, BC (nearer) is greater than FG (more remote)? (yes/no):`,
+    hint: `This completes the proposition.` }
+];
+
+const conclusion = `Congratulations! You just proved that the diameter is the greatest line in a circle, and among other chords, the one nearer the centre is always greater than the one more remote. 
+Q.E.D. (Quod Erat Demonstrandum — which was to be demonstrated)`;
+
+let currentStep = 0;
+const chatDiv = document.getElementById('chat');
+const inputField = document.getElementById('userInput');
+
+let isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+function addMessage(text, role = 'bot') {
+  const div = document.createElement('div');
+  div.className = `msg ${role}`;
+  div.textContent = text;
+  chatDiv.appendChild(div);
+  chatDiv.scrollTop = chatDiv.scrollHeight;
+}
+
+function showStep() {
+  if (currentStep < steps.length) {
+    addMessage(steps[currentStep].q, 'bot');
+  } else {
+    addMessage(conclusion, 'bot');
+    inputField.disabled = true;
+    document.getElementById('mobileYes').disabled = true;
+    document.getElementById('mobileNo').disabled = true;
+  }
+}
+
+function processAnswer(answer) {
+  addMessage(answer, 'user');
+  if (answer.toLowerCase() === 'yes' || answer.toLowerCase() === 'y') {
+    currentStep++;
+    showStep();
+  } else if (answer.toLowerCase() === 'no' || answer.toLowerCase() === 'n') {
+    addMessage(`Hint: ${steps[currentStep].hint}`, 'bot');
+  } else {
+    addMessage(`Please answer 'yes' or 'no'.`, 'bot');
+  }
+}
+
+inputField.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') {
+    const answer = inputField.value.trim();
+    if (answer) {
+      processAnswer(answer);
+      inputField.value = '';
+    }
+  }
+});
+
+document.getElementById('mobileYes').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('yes');
+  }
+});
+
+document.getElementById('mobileNo').addEventListener('click', function() {
+  if (isMobile) {
+    processAnswer('no');
+  }
+});
+
+showStep();
+</script>
+
+</body>
+</html>
