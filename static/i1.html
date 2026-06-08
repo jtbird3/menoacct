@@ -719,7 +719,17 @@ function showStep(){
   if(step>=STEPS.length){
     addMsg(CONCLUSION,'bot'); setMode('done');
     fetch('/api/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({proposition:1})})
-      .then(r=>{ if(r.ok) addMsg('✓ Your completion has been recorded.','bot'); else addMsg('(Could not record completion — are you logged in via /i1?)','bot'); })
+      .then(r=>{
+        if(r.ok){
+          addMsg('✓ Your completion has been recorded.','bot');
+          const d=document.createElement('div');
+          d.className='msg-bot';
+          d.innerHTML='<a href="/survey" style="color:#7c3aed;text-decoration:underline;">Share your experience →</a>';
+          chatEl.appendChild(d); chatEl.scrollTop=chatEl.scrollHeight;
+        } else {
+          addMsg('(Could not record completion — are you logged in via /i1?)','bot');
+        }
+      })
       .catch(()=>addMsg('(Network error recording completion.)','bot'));
     return;
   }

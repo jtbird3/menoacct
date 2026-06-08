@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <title>Feedback — Menochat Masters</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      background: #fff; color: #000;
+      display: flex; flex-direction: column;
+      min-height: 100vh; min-height: 100dvh;
+      padding: 36px 32px 0;
+      max-width: 540px; margin: 0 auto;
+    }
+
+    #site-name {
+      font-size: 11px; opacity: 0.35;
+      flex-shrink: 0; margin-bottom: 56px;
+    }
+
+    #main {
+      flex: 1; min-height: 0;
+      display: flex; flex-direction: column;
+      justify-content: center;
+      padding-bottom: 48px;
+    }
+
+    #progress { font-size: 11px; opacity: 0.35; margin-bottom: 18px; }
+
+    #question { font-size: 26px; line-height: 1.45; margin-bottom: 36px; }
+
+    #input-row { display: flex; gap: 10px; align-items: flex-end; flex-shrink: 0; }
+
+    #text-input {
+      flex: 1; font-family: inherit; font-size: 16px;
+      border: none; border-bottom: 2px solid #000;
+      padding: 6px 0; outline: none; background: transparent;
+      caret-color: #000;
+    }
+
+    #send-btn {
+      font-family: inherit; font-size: 13px;
+      padding: 8px 18px;
+      border: 1px solid #000; background: #000; color: #fff;
+      cursor: pointer; flex-shrink: 0;
+    }
+    #send-btn:disabled { opacity: 0.3; cursor: default; }
+
+    #thankyou {
+      display: none; flex: 1;
+      flex-direction: column; justify-content: center;
+      padding-bottom: 48px;
+    }
+    #thankyou p { font-size: 22px; line-height: 1.55; }
+
+    /* ── Custom keyboard ── */
+    #kb-bar {
+      display: none;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #f0f0f0; border-top: 1px solid #ccc;
+      padding: 8px 6px 14px;
+      flex-direction: column; gap: 6px; z-index: 100;
+    }
+    .kb-row { display: flex; justify-content: center; gap: 5px; width: 100%; }
+    #kb-alpha, #kb-num { display: flex; flex-direction: column; gap: 6px; }
+    .kb-key {
+      font-family: inherit; font-size: 15px; font-weight: bold;
+      height: 42px; flex: 1;
+      border: none; border-radius: 4px;
+      background: #fff; color: #000;
+      box-shadow: 0 1px 2px rgba(0,0,0,.25);
+      cursor: pointer; padding: 0;
+      touch-action: manipulation;
+    }
+    .kb-key:active { background: #ccc; }
+    .kb-key.kb-wide  { flex: 1.4; font-size: 12px; }
+    .kb-key.kb-space { flex: 5; }
+    .kb-key.kb-enter { flex: 2; font-size: 13px; }
+
+    @media (max-width: 600px) {
+      html { overflow: hidden; }
+      body {
+        height: 100vh; height: 100dvh;
+        min-height: unset; overflow: hidden;
+        padding: 20px 16px 0;
+      }
+      #site-name { margin-bottom: 0; }
+      #main { padding-bottom: 0; justify-content: flex-start; padding-top: 28px; }
+      #question { font-size: 22px; margin-bottom: 28px; }
+      #thankyou { padding-bottom: 0; padding-top: 28px; justify-content: flex-start; }
+      #thankyou p { font-size: 20px; }
+      #text-input { font-size: 16px; }
+      #kb-bar { position: static; flex-shrink: 0; padding-bottom: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="site-name">Menochat Masters — I.1 Feedback</div>
+
+<div id="main">
+  <div id="progress">1 / 3</div>
+  <div id="question">How was your experience today?</div>
+  <div id="input-row">
+    <input id="text-input" type="text" autocomplete="off" inputmode="none" placeholder="">
+    <button id="send-btn" onclick="submit()">Enter</button>
+  </div>
+</div>
+
+<div id="thankyou">
+  <p>Thanks and congrats! Come back tomorrow for Proposition I.2. You're well on your way to becoming a Meno Master!</p>
+</div>
+
+<div id="kb-bar">
+  <div id="kb-alpha">
+    <div class="kb-row">
+      <button class="kb-key" onclick="kbTap('q')">Q</button><button class="kb-key" onclick="kbTap('w')">W</button><button class="kb-key" onclick="kbTap('e')">E</button><button class="kb-key" onclick="kbTap('r')">R</button><button class="kb-key" onclick="kbTap('t')">T</button><button class="kb-key" onclick="kbTap('y')">Y</button><button class="kb-key" onclick="kbTap('u')">U</button><button class="kb-key" onclick="kbTap('i')">I</button><button class="kb-key" onclick="kbTap('o')">O</button><button class="kb-key" onclick="kbTap('p')">P</button>
+    </div>
+    <div class="kb-row">
+      <button class="kb-key" onclick="kbTap('a')">A</button><button class="kb-key" onclick="kbTap('s')">S</button><button class="kb-key" onclick="kbTap('d')">D</button><button class="kb-key" onclick="kbTap('f')">F</button><button class="kb-key" onclick="kbTap('g')">G</button><button class="kb-key" onclick="kbTap('h')">H</button><button class="kb-key" onclick="kbTap('j')">J</button><button class="kb-key" onclick="kbTap('k')">K</button><button class="kb-key" onclick="kbTap('l')">L</button>
+    </div>
+    <div class="kb-row">
+      <button class="kb-key kb-wide" onclick="kbToggleNum()">123</button><button class="kb-key" onclick="kbTap('z')">Z</button><button class="kb-key" onclick="kbTap('x')">X</button><button class="kb-key" onclick="kbTap('c')">C</button><button class="kb-key" onclick="kbTap('v')">V</button><button class="kb-key" onclick="kbTap('b')">B</button><button class="kb-key" onclick="kbTap('n')">N</button><button class="kb-key" onclick="kbTap('m')">M</button><button class="kb-key kb-wide" onclick="kbBack()">⌫</button>
+    </div>
+    <div class="kb-row">
+      <button class="kb-key" onclick="kbTap('.')">.</button>
+      <button class="kb-key kb-space" onclick="kbTap(' ')">space</button>
+      <button class="kb-key kb-enter" onclick="kbEnter()">Enter</button>
+    </div>
+  </div>
+  <div id="kb-num" style="display:none">
+    <div class="kb-row">
+      <button class="kb-key" onclick="kbTap('1')">1</button><button class="kb-key" onclick="kbTap('2')">2</button><button class="kb-key" onclick="kbTap('3')">3</button>
+    </div>
+    <div class="kb-row">
+      <button class="kb-key" onclick="kbTap('4')">4</button><button class="kb-key" onclick="kbTap('5')">5</button><button class="kb-key" onclick="kbTap('6')">6</button>
+    </div>
+    <div class="kb-row">
+      <button class="kb-key" onclick="kbTap('7')">7</button><button class="kb-key" onclick="kbTap('8')">8</button><button class="kb-key" onclick="kbTap('9')">9</button>
+    </div>
+    <div class="kb-row">
+      <button class="kb-key kb-wide" onclick="kbToggleNum()">ABC</button><button class="kb-key" onclick="kbTap('.')">.</button><button class="kb-key" onclick="kbTap('0')">0</button><button class="kb-key kb-wide" onclick="kbBack()">⌫</button>
+    </div>
+    <div class="kb-row">
+      <button class="kb-key kb-enter" onclick="kbEnter()">Enter</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const QUESTIONS = [
+  'How was your experience today?',
+  'What did you like?',
+  "What didn't you like?",
+];
+
+const answers  = [];
+let   current  = 0;
+
+const mainEl    = document.getElementById('main');
+const thankyouEl= document.getElementById('thankyou');
+const progressEl= document.getElementById('progress');
+const questionEl= document.getElementById('question');
+const inputEl   = document.getElementById('text-input');
+const sendBtn   = document.getElementById('send-btn');
+const kbBar     = document.getElementById('kb-bar');
+
+const isMobile  = () => window.innerWidth <= 600;
+
+function showQuestion(i){
+  progressEl.textContent = `${i + 1} / ${QUESTIONS.length}`;
+  questionEl.textContent = QUESTIONS[i];
+  inputEl.value = '';
+  if(isMobile()){
+    kbBar.style.display = 'flex';
+    document.getElementById('kb-alpha').style.display = '';
+    document.getElementById('kb-num').style.display   = 'none';
+    setTimeout(() => { mainEl.scrollTop = mainEl.scrollHeight; }, 80);
+  } else {
+    setTimeout(() => inputEl.focus(), 50);
+  }
+}
+
+function submit(){
+  const val = inputEl.value.trim();
+  if(!val) return;
+  answers.push(val);
+  inputEl.value = '';
+  current++;
+  if(current < QUESTIONS.length){
+    showQuestion(current);
+  } else {
+    done();
+  }
+}
+
+function done(){
+  sendBtn.disabled = true;
+  mainEl.style.display    = 'none';
+  kbBar.style.display     = 'none';
+  thankyouEl.style.display = 'flex';
+  fetch('/api/survey', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({ q1: answers[0], q2: answers[1], q3: answers[2] })
+  }).catch(() => {});
+}
+
+inputEl.addEventListener('keydown', e => { if(e.key === 'Enter') submit(); });
+
+function kbTap(ch){ inputEl.value += ch; }
+function kbBack(){ inputEl.value = inputEl.value.slice(0, -1); }
+function kbEnter(){ submit(); }
+function kbToggleNum(){
+  const a = document.getElementById('kb-alpha');
+  const n = document.getElementById('kb-num');
+  const toNum = a.style.display !== 'none';
+  a.style.display = toNum ? 'none' : '';
+  n.style.display = toNum ? ''     : 'none';
+}
+
+showQuestion(0);
+</script>
+</body>
+</html>

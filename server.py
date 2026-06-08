@@ -67,6 +67,15 @@ def init_db():
                 message     TEXT NOT NULL,
                 created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
             );
+            CREATE TABLE IF NOT EXISTS surveys (
+                id          INTEGER PRIMARY KEY,
+                user_id     INTEGER NOT NULL REFERENCES users(id),
+                proposition INTEGER NOT NULL DEFAULT 1,
+                q1          TEXT,
+                q2          TEXT,
+                q3          TEXT,
+                created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
+            );
         ''')
 
 init_db()
@@ -162,6 +171,12 @@ async def i1(request: Request):
         return RedirectResponse('/login', status_code=303)
     return FileResponse('static/i1.html')
 
+@app.get('/survey', response_class=HTMLResponse)
+async def survey(request: Request):
+    if not current_user(request):
+        return RedirectResponse('/login', status_code=303)
+    return FileResponse('static/survey.html')
+
 # ── API ────────────────────────────────────────────────────────────────────────
 
 @app.post('/api/complete')
@@ -173,6 +188,20 @@ async def api_complete(request: Request):
     with db() as con:
         con.execute('INSERT INTO completions (user_id, proposition) VALUES (?,?)',
                     (user['id'], body.get('proposition', 1)))
+    return {'ok': True}
+
+@app.post('/api/survey')
+async def api_survey(request: Request):
+    user = current_user(request)
+    if not user:
+        raise HTTPException(status_code=401, detail='Not logged in.')
+    body = await request.json()
+    with db() as con:
+        con.execute(
+            'INSERT INTO surveys (user_id, proposition, q1, q2, q3) VALUES (?,?,?,?,?)',
+            (user['id'], body.get('proposition', 1),
+             body.get('q1', ''), body.get('q2', ''), body.get('q3', ''))
+        )
     return {'ok': True}
 
 @app.post('/api/event')
@@ -209,10 +238,16 @@ async def admin(key: str = ''):
             FROM events e JOIN users u ON e.user_id = u.id
             ORDER BY e.created_at ASC
         ''').fetchall()
+        surveys = con.execute('''
+            SELECT s.*, u.name, u.username, s.created_at AS completed_at
+            FROM surveys s JOIN users u ON s.user_id = u.id
+            ORDER BY s.created_at DESC
+        ''').fetchall()
     events_by_user = {}
     for e in event_rows:
         events_by_user.setdefault(e['user_id'], []).append(e)
-    return render('admin.html', users=users, completions=completions, events_by_user=events_by_user, key=key)
+    return render('admin.html', users=users, completions=completions,
+                  events_by_user=events_by_user, surveys=surveys, key=key)
 
 @app.get('/admin/login', response_class=HTMLResponse)
 async def admin_login_get():

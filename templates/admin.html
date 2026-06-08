@@ -78,6 +78,24 @@
 <p class="muted">No completions yet.</p>
 {% endif %}
 
+<h2>Feedback ({{ surveys|length }})</h2>
+{% if surveys %}
+<table>
+  <tr><th>when</th><th>who</th><th>experience</th><th>liked</th><th>disliked</th></tr>
+  {% for s in surveys %}
+  <tr>
+    <td class="muted">{{ s.completed_at[:16] }}</td>
+    <td>{{ s.name }} <span class="muted">@{{ s.username }}</span></td>
+    <td>{{ s.q1 }}</td>
+    <td>{{ s.q2 }}</td>
+    <td>{{ s.q3 }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p class="muted">No feedback yet.</p>
+{% endif %}
+
 <h2>All users ({{ users|length }})</h2>
 <table>
   <tr><th>name</th><th>username</th><th>phone</th><th>status</th></tr>
