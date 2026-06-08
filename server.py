@@ -1,5 +1,6 @@
 import os
 import sqlite3
+import secrets
 from pathlib import Path
 
 from fastapi import FastAPI, Request, Form, HTTPException
@@ -27,6 +28,7 @@ app.add_middleware(SessionMiddleware, secret_key=os.environ.get('SECRET_KEY', 'd
 jinja = Environment(loader=FileSystemLoader('templates'), autoescape=True)
 
 ADMIN_KEY = os.environ.get('ADMIN_KEY', 'admin')
+BASE_URL  = os.environ.get('BASE_URL', 'https://menoacct-production.up.railway.app')
 
 # ── Database ──────────────────────────────────────────────────────────────────
 
@@ -212,6 +214,34 @@ async def admin_login_post(request: Request, key: str = Form(...)):
     if key != ADMIN_KEY:
         return render('admin_login.html', error='Wrong key.')
     return RedirectResponse(f'/admin?key={key}', status_code=303)
+
+@app.post('/admin/seed')
+async def admin_seed(request: Request):
+    body = await request.json()
+    if body.get('key') != ADMIN_KEY:
+        raise HTTPException(status_code=403, detail='Wrong key.')
+    results = []
+    with db() as con:
+        for u in body.get('users', []):
+            token = secrets.token_urlsafe(32)
+            name  = u['name']
+            phone = u.get('phone', '')
+            email = u.get('email') or phone.replace('-','').replace(' ','').replace('+','') + '@noemail.invalid'
+            try:
+                con.execute(
+                    'INSERT INTO users (name, email, phone, invite_token) VALUES (?,?,?,?)',
+                    (name, email, phone, token)
+                )
+                con.commit()
+                results.append({'name': name, 'status': 'added', 'link': f'{BASE_URL}/invite/{token}'})
+            except sqlite3.IntegrityError:
+                row = con.execute(
+                    'SELECT invite_token, username FROM users WHERE email=?', (email,)
+                ).fetchone()
+                if row:
+                    status = 'already set up' if row['username'] else 'already added'
+                    results.append({'name': name, 'status': status, 'link': f"{BASE_URL}/invite/{row['invite_token']}"})
+    return {'results': results}
 
 # ── Entry point ────────────────────────────────────────────────────────────────
 
