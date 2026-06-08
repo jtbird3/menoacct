@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Welcome — Menochat Masters{% endblock %}
+{% block content %}
+<h1 class="green">You're in.</h1>
+<p>Welcome, {{ username }}. You have officially registered for the <strong>Menochat Masters Challenge</strong>.</p>
+<p>48 propositions. 49 days.</p>
+<p><strong>Proposition I.1 drops Monday at 7AM.</strong></p>
+
+<a href="/i1"><button class="btn" style="margin-top:24px;">&gt; Go to Menochat</button></a>
+
+<p class="muted"><a href="/logout">log out</a></p>
+{% endblock %}

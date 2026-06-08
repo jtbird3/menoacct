@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Menochat{% endblock %}</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #fff; color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      font-size: 14px;
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      width: 100%; max-width: 420px;
+    }
+    .card h1 { font-size: 15px; font-weight: bold; margin-bottom: 20px; }
+    .card p  { line-height: 1.6; margin-bottom: 12px; opacity: .7; }
+    .field { margin-bottom: 14px; }
+    .field label { display: block; font-size: 12px; opacity: .5; margin-bottom: 4px; }
+    .field input {
+      width: 100%; padding: 8px; font-family: inherit; font-size: 14px;
+      border: 1px solid #ccc; outline: none;
+    }
+    .field input:focus { border-color: #000; }
+    .btn {
+      width: 100%; padding: 10px; font-family: inherit; font-size: 14px; font-weight: bold;
+      border: 2px solid #000; background: #000; color: #fff; cursor: pointer;
+      margin-top: 4px;
+    }
+    .btn:hover { background: #333; }
+    .btn.secondary { background: #fff; color: #000; }
+    .btn.secondary:hover { background: #f5f5f5; }
+    .error { color: #dc2626; font-size: 13px; margin-bottom: 12px; }
+    .muted { opacity: .45; font-size: 12px; margin-top: 16px; }
+    .green { color: #16a34a; }
+    a { color: inherit; }
+  </style>
+</head>
+<body>
+<div class="card">
+  {% block content %}{% endblock %}
+</div>
+</body>
+</html>

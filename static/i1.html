@@ -1,0 +1,720 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Euclid I.1 — Socratic</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #fff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      font-size: 14px;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 16px 16px 110px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    h1 { font-size: 15px; font-weight: bold; margin-bottom: 10px; }
+
+    /* ── Diagram ── */
+    #diagram-row { position: relative; margin-bottom: 10px; }
+    #diagram-wrap { position: relative; }
+    #diagram {
+      border: 1px solid #ccc;
+      background: #fff;
+      display: block;
+      width: 100%;
+      height: clamp(160px, 38vh, 380px);
+      cursor: grab;
+    }
+    #diagram.panning { cursor: grabbing; }
+    #diagram-controls {
+      position: absolute; bottom: 22px; right: 8px;
+      display: flex; flex-direction: column; gap: 2px; z-index: 10;
+    }
+    #diagram-controls button {
+      font-family: inherit; font-size: 15px;
+      width: 28px; height: 28px;
+      border: 1px solid #ccc; background: rgba(255,255,255,0.9);
+      cursor: pointer; padding: 0; line-height: 1;
+    }
+    #diagram-controls button:hover { background: #f0f0f0; }
+    .resize-corner {
+      position: absolute; bottom: 0; width: 16px; height: 16px;
+      user-select: none; z-index: 10; opacity: 0.5;
+      background: repeating-linear-gradient(-45deg,#bbb 0,#bbb 1px,transparent 1px,transparent 3px);
+    }
+    .resize-corner:hover { opacity: 1; }
+    #rc-l { left: 0; cursor: sw-resize; }
+    #rc-r { right: 0; cursor: se-resize; }
+
+    /* side panels */
+    #side-panel {
+      position: absolute; left: calc(100% + 10px); top: 0;
+      width: 110px; font-size: 13px;
+    }
+    .side-item { opacity: 0; transition: opacity 0.5s; line-height: 1.6; color: #16a34a; }
+    .side-item.on { opacity: 1; }
+    .side-gap { margin-top: 8px; }
+    #left-panel {
+      position: absolute; right: calc(100% + 12px); top: 0;
+      width: 190px; font-size: 11.5px; line-height: 1.5;
+    }
+    #left-panel .prop-label {
+      font-size: 10px; text-transform: uppercase; letter-spacing: .06em;
+      opacity: .4; margin-bottom: 4px;
+    }
+    #left-panel .prop-enunc {
+      font-style: italic; opacity: .55; font-size: 11px;
+      border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 10px;
+    }
+    .proof-line {
+      opacity: .22; margin-bottom: 6px; transition: opacity .4s, color .4s;
+    }
+    .proof-line .just { display: block; font-size: 10px; opacity: .65; margin-top: 1px; }
+    .proof-line.past { opacity: .48; }
+    .proof-line.active { opacity: 1; color: #16a34a; }
+
+    /* SVG elements */
+    .de { opacity: 0; transition: opacity 0.5s; }
+    .de.on { opacity: 1; }
+    #dc-pt {
+      transform-box: fill-box; transform-origin: center;
+      transform: scale(0);
+      transition: opacity .35s, transform .45s cubic-bezier(.34,1.56,.64,1);
+    }
+    #dc-pt.on { transform: scale(1); }
+
+    /* ── Chat ── */
+    #chat {
+      border: 1px solid #ccc; padding: 10px;
+      flex: 1; min-height: 120px; max-height: 260px;
+      overflow-y: auto; display: flex; flex-direction: column;
+      gap: 8px; white-space: pre-wrap; margin-bottom: 10px;
+    }
+    .msg-bot  { color: #000; }
+    .msg-user { color: #777; text-align: right; }
+
+    /* ── Input ── */
+    #input-row {
+      display: flex; gap: 8px; margin-bottom: 8px;
+    }
+    #text-input {
+      flex: 1; padding: 8px; font-family: inherit; font-size: 14px;
+      border: 1px solid #ccc; outline: none;
+    }
+    #text-input:focus { border-color: #000; }
+    #send-btn {
+      padding: 8px 14px; font-family: inherit; font-size: 14px;
+      border: 1px solid #000; background: #000; color: #fff; cursor: pointer;
+    }
+    #send-btn:disabled { background: #ccc; border-color: #ccc; cursor: not-allowed; }
+
+    /* ── YES/NO quick buttons ── */
+    #yn-bar {
+      display: none;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #fff; border-top: 1px solid #ccc;
+      padding: 10px 16px; gap: 12px; justify-content: center; z-index: 100;
+    }
+    #yn-bar button {
+      flex: 1; max-width: 140px;
+      padding: 12px 20px; font-family: inherit; font-size: 15px; font-weight: bold;
+      border: 2px solid #000; background: #fff; color: #000; cursor: pointer;
+    }
+    #yn-bar button:active { background: #000; color: #fff; }
+    #draw-bar {
+      display: none;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #fff; border-top: 1px solid #ccc;
+      padding: 10px 16px; justify-content: center; z-index: 100;
+    }
+    #draw-bar button {
+      flex: 1; max-width: 200px;
+      padding: 12px 20px; font-family: inherit; font-size: 15px; font-weight: bold;
+      border: 2px solid #000; background: #fff; color: #000; cursor: pointer;
+    }
+    #draw-bar button:active { background: #000; color: #fff; }
+    #proof-display {
+      min-height: 1.6em;
+      font-style: italic; font-size: 12px; color: #444;
+      border-left: 2px solid #16a34a; padding: 4px 10px;
+      margin-bottom: 8px; opacity: 0; transition: opacity 0.4s;
+    }
+    #proof-display.visible { opacity: 1; }
+    #proof-display .proof-just { font-style: normal; font-size: 10px; color: #888; margin-left: 8px; }
+    @media (max-width: 600px) {
+      body { padding-bottom: 80px; }
+      #chat { max-height: 180px; }
+    }
+  </style>
+</head>
+<body>
+
+<h1>Euclid I.1 — On a given finite straight line, to construct an equilateral triangle</h1>
+
+<div id="diagram-row">
+<div id="diagram-wrap">
+  <svg id="diagram"
+       viewBox="0 -20 800 400"
+       preserveAspectRatio="xMidYMid meet"
+       xmlns="http://www.w3.org/2000/svg">
+    <g id="canvas">
+      <!-- Circle A (blue) -->
+      <g id="dc-ca" class="de">
+        <circle cx="200" cy="350" r="400" fill="none" stroke="#2563eb" stroke-width="2" stroke-dasharray="12 7" opacity=".65"/>
+        <text x="-130" y="90" font-family="inherit" font-size="22" fill="#2563eb" opacity=".8">&#x25CB;A</text>
+      </g>
+      <!-- Circle B (red) -->
+      <g id="dc-cb" class="de">
+        <circle cx="600" cy="350" r="400" fill="none" stroke="#dc2626" stroke-width="2" stroke-dasharray="12 7" opacity=".65"/>
+        <text x="870" y="90" font-family="inherit" font-size="22" fill="#dc2626" opacity=".8">&#x25CB;B</text>
+      </g>
+      <!-- Triangle fill -->
+      <g id="dc-fill" class="de">
+        <polygon points="200,350 600,350 400,4" fill="rgba(22,163,74,0.13)" stroke="none"/>
+        <text x="400" y="235" font-family="inherit" font-size="18" fill="#16a34a" text-anchor="middle" opacity=".85">&#x25B3;ABC</text>
+      </g>
+      <!-- Side CA (green) -->
+      <g id="dc-side-ca" class="de">
+        <line x1="200" y1="350" x2="400" y2="4" stroke="#16a34a" stroke-width="2.5"/>
+      </g>
+      <!-- Side CB (green) -->
+      <g id="dc-side-cb" class="de">
+        <line x1="600" y1="350" x2="400" y2="4" stroke="#16a34a" stroke-width="2.5"/>
+      </g>
+      <!-- Tick AC=AB (blue) -->
+      <g id="dc-t1" class="de">
+        <line x1="400" y1="343" x2="400" y2="357" stroke="#2563eb" stroke-width="3"/>
+        <line x1="293.9" y1="173.5" x2="306.1" y2="180.5" stroke="#2563eb" stroke-width="3"/>
+      </g>
+      <!-- Tick BC=BA (red) -->
+      <g id="dc-t2" class="de">
+        <line x1="493.9" y1="180.5" x2="506.1" y2="173.5" stroke="#dc2626" stroke-width="3"/>
+      </g>
+      <!-- Line AB (always visible) -->
+      <g id="dc-ab" class="de">
+        <line x1="60" y1="350" x2="740" y2="350" stroke="#ccc" stroke-width="1" stroke-dasharray="4 5"/>
+        <line x1="200" y1="350" x2="600" y2="350" stroke="#000" stroke-width="3"/>
+        <circle cx="200" cy="350" r="6" fill="#000"/>
+        <circle cx="600" cy="350" r="6" fill="#000"/>
+        <text x="176" y="378" font-family="inherit" font-size="18" fill="#000">A</text>
+        <text x="596" y="378" font-family="inherit" font-size="18" fill="#000">B</text>
+      </g>
+      <!-- Point C -->
+      <g id="dc-pt" class="de">
+        <circle cx="400" cy="4" r="7" fill="#7c3aed"/>
+        <text x="412" y="1" font-family="inherit" font-size="18" fill="#7c3aed">C</text>
+      </g>
+    </g>
+  </svg>
+  <div id="rc-l" class="resize-corner"></div>
+  <div id="rc-r" class="resize-corner"></div>
+  <div id="diagram-controls">
+    <button onclick="zoomCenter(1.5)">+</button>
+    <button onclick="zoomCenter(1/1.5)">−</button>
+    <button onclick="resetView()">&#x2302;</button>
+  </div>
+</div>
+<div id="side-panel"></div>
+<div id="left-panel"></div>
+</div>
+
+<div id="proof-display"></div>
+
+<div id="chat"></div>
+
+<div id="input-row">
+  <input id="text-input" type="text" placeholder="Your answer…" autocomplete="off">
+  <button id="send-btn">→</button>
+</div>
+
+<div id="yn-bar">
+  <button id="btn-yes">YES</button>
+  <button id="btn-no">NO</button>
+</div>
+
+<div id="draw-bar">
+  <button id="btn-draw">Draw</button>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// SCRIPT — follows the user's authored flow exactly
+// type: 'yn'   = yes/no question
+//       'open' = free-text, keyword check, hint after 1 fail, advance after 2
+//       'say'  = tutor narrates, diagram updates, auto-advances
+//       'draw' = tutor narrates, student clicks Draw to reveal and advance
+// ─────────────────────────────────────────────────────────────────────────────
+
+const STEPS = [
+  { type:'yn',
+    q:'We are given a finite straight line AB. Can you see that?',
+    no:'A finite straight line is a line with two endpoints. Look at the diagram — the bold segment from A to B is your given line.',
+    text:'Let AB be the given finite straight line.', just:null,
+    side:'Given: line AB' },
+
+  { type:'yn',
+    q:'Our goal is to construct an equilateral triangle on the line AB. Ready to continue?',
+    no:'An equilateral triangle has all three sides equal to one another. We will build one on AB using straightedge and compass.',
+    text:'It is required to construct an equilateral triangle on the straight line AB.', just:null,
+    side:'Goal: equilateral △ on AB' },
+
+  { type:'open',
+    q:'What does it mean for a triangle to be equilateral?',
+    ok: r => /equal/i.test(r) && /side|three/i.test(r),
+    hint:'Think about the sides — what does "equilateral" say about them?',
+    text:null, side:null },
+
+  { type:'open',
+    q:'How do you suppose we might construct an equilateral triangle using circles and straight lines?',
+    ok: r => /circle|compass|post|\b3\b|\bthree\b/i.test(r),
+    hint:'What does Postulate 3 allow us to do?',
+    hint_linked_idx: 4,
+    text:null, side:null },
+
+  { type:'draw',
+    q:'Let us draw a circle with centre A, radius AB.',
+    reveal:['dc-ca'],
+    text:'With centre A and distance AB let the circle BCD be described.', just:'Post. 3',
+    side:'Draw ⊙A, r = AB' },
+
+  { type:'draw',
+    q:'Now let us draw another circle with centre B, radius BA.',
+    reveal:['dc-cb'],
+    text:'Again, with centre B and distance BA let the circle ACE be described.', just:'Post. 3',
+    side:'Draw ⊙B, r = BA' },
+
+  { type:'yn',
+    q:'Do the two circles intersect?',
+    no:'Look at the diagram — ‘intersect’ means they cross.',
+    text:null, side:null },
+
+  { type:'open',
+    q:'At how many points?',
+    ok: r => /\b2\b|two/i.test(r),
+    hint:'Count the points where the two circles cross in the diagram.',
+    text:null, side:null },
+
+  { type:'draw',
+    q:'Let us label one of those intersection points C.',
+    reveal:['dc-pt'],
+    text:'...from the point C, in which the circles cut one another...', just:null,
+    side:'C = ⊙A ∩ ⊙B' },
+
+  { type:'open',
+    q:'By what postulate can we connect C to A and C to B with straight lines?',
+    ok: r => /post.{0,5}1|first.{0,10}post|postulate.{0,3}1|\b1\b|\bone\b/i.test(r),
+    hint:'Postulate 1: To draw a straight line from any point to any point.',
+    display_linked_idx: 10,
+    text:null, side:null },
+
+  { type:'draw',
+    q:'Let us draw lines CA and CB.',
+    reveal:['dc-side-ca','dc-side-cb'],
+    text:'...to the points A, B let the straight lines CA, CB be joined.', just:'Post. 1',
+    side:'Join CA, CB' },
+
+  { type:'yn',
+    q:'Is AB a radius of circle A?',
+    no:'AB runs from centre A to the circle — it was the radius used to draw circle A.',
+    text:null, side:null },
+
+  { type:'yn',
+    q:'Is AC a radius of circle A?',
+    no:'AC also runs from centre A to the circle — it is equally a radius of circle A.',
+    text:null, side:null },
+
+  { type:'open',
+    q:'What is true of all radii of the same circle?',
+    ok: r => /equal/i.test(r),
+    hint:'Think about the definition of a circle — all points on it are equidistant from the centre.',
+    text:null, side:null },
+
+  { type:'yn',
+    q:'Are AB and AC equal?',
+    no:'Both AB and AC are radii of circle A. All radii of the same circle are equal.',
+    reveal:['dc-t1'],
+    text:'Since the point A is the centre of the circle CDB, AC is equal to AB.', just:'Def. 15',
+    side:'AC = AB  (⊙A)' },
+
+  { type:'yn',
+    q:'Is AB a radius of circle B?',
+    no:'AB runs from centre B to the circle — it was the radius used to draw circle B.',
+    text:null, side:null },
+
+  { type:'yn',
+    q:'Is BC a radius of circle B?',
+    no:'BC also runs from centre B to the circle — it is equally a radius of circle B.',
+    text:null, side:null },
+
+  { type:'open',
+    q:'What is true of all radii of the same circle?',
+    ok: r => /equal/i.test(r),
+    hint:'Think about the definition of a circle — all points on it are equidistant from the centre.',
+    text:null, side:null },
+
+  { type:'yn',
+    q:'Are AB and BC equal?',
+    no:'Both AB and BC are radii of circle B. All radii of the same circle are equal.',
+    reveal:['dc-t2'],
+    text:'Since the point B is the centre of the circle CAE, BC is equal to BA.', just:'Def. 15',
+    side:'BC = BA  (⊙B)' },
+
+  { type:'say',
+    q:'So AC and BC both equal AB.',
+    reveal:[],
+    text:'But CA was also proved equal to AB; therefore each of CA, CB is equal to AB.', just:null,
+    side:null },
+
+  { type:'open',
+    q:'What does Common Notion 1 state?',
+    ok: r => /equal/i.test(r) && (/same/i.test(r) || /another/i.test(r) || /thing/i.test(r)),
+    hint:'Common Notion 1: Things which are equal to the same thing are also equal to one another.',
+    text:'And things which are equal to the same thing are also equal to one another.', just:'C.N. 1',
+    side:'C.N. 1' },
+
+  { type:'open',
+    q:'What can we say about AC and BC?',
+    ok: r => /equal/i.test(r),
+    hint:'AC = AB and BC = AB. Apply Common Notion 1.',
+    text:'Therefore CA is also equal to CB.', just:null,
+    side:null },
+
+  { type:'open',
+    q:'What can we say of all three sides?',
+    ok: r => /equal/i.test(r),
+    hint:'All three — CA, AB, and BC.',
+    text:'Therefore the three straight lines CA, AB, BC are equal to one another.', just:null,
+    side:'CA = AB = BC' },
+
+  { type:'yn',
+    q:'Have we drawn a triangle?',
+    no:'Three line segments, three vertices — what figure does that make?',
+    reveal:['dc-fill'],
+    text:null, side:null },
+
+  { type:'yn',
+    q:'Is it equilateral?',
+    no:'We showed all three sides equal to one another.',
+    text:'Therefore the triangle ABC is equilateral.', just:null,
+    side:'△ABC equilateral' },
+
+  { type:'open',
+    q:'Why is it equilateral?',
+    ok: r => /equal/i.test(r) && /side|three/i.test(r),
+    hint:'State what we proved about the three sides.',
+    text:null, side:null },
+
+  { type:'open',
+    q:'What line was it constructed on?',
+    ok: r => /\bab\b/i.test(r),
+    hint:'Look at the base of the triangle.',
+    text:'...and it has been constructed on the given finite straight line AB.', just:null,
+    side:'on line AB' },
+
+  { type:'open',
+    q:'What did we set out to do?',
+    ok: r => /equilateral/i.test(r) && /\bab\b/i.test(r),
+    hint:'What kind of triangle, on which line?',
+    text:null, side:null },
+
+  { type:'yn',
+    q:'Have we done so?',
+    no:'Look at the completed triangle in the diagram.',
+    text:null, side:null },
+
+  { type:'open',
+    q:'Q.E.F. or Q.E.D.?',
+    ok: r => /qef|q\.e\.f/i.test(r),
+    hint:'Q.E.F. = "which was to be done" (a construction). Q.E.D. = "which was to be demonstrated" (a proof). Which fits?',
+    text:'(Being) what it was required to do.', just:'Q.E.F.',
+    side:'Q.E.F.' },
+
+  { type:'open',
+    q:'Why Q.E.F. and not Q.E.D.?',
+    ok: r => /construct|make|build|do\b|done|made|creat|form|faciendum/i.test(r),
+    hint:'Did we prove a claim, or did we make something?',
+    text:null, side:null },
+];
+
+const CONCLUSION = `Congratulations! You have completed Euclid's Elements Book I, Proposition 1.`;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// State
+// ─────────────────────────────────────────────────────────────────────────────
+
+let step     = 0;
+let attempts = 0;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Pan / Zoom
+// ─────────────────────────────────────────────────────────────────────────────
+
+const diagramEl = document.getElementById('diagram');
+const canvas    = document.getElementById('canvas');
+let pan = { tx:0, ty:0, s:1 };
+const MIN_S=0.12, MAX_S=12;
+
+function clientToVB(cx,cy){
+  const r=diagramEl.getBoundingClientRect(), v=diagramEl.viewBox.baseVal;
+  return { x:(cx-r.left)/r.width*v.width+v.x, y:(cy-r.top)/r.height*v.height+v.y };
+}
+function applyTransform(){ canvas.setAttribute('transform',`translate(${pan.tx},${pan.ty}) scale(${pan.s})`); }
+function zoomAt(px,py,f){
+  const ns=Math.max(MIN_S,Math.min(MAX_S,pan.s*f)), r=ns/pan.s;
+  pan.tx=px-(px-pan.tx)*r; pan.ty=py-(py-pan.ty)*r; pan.s=ns; applyTransform();
+}
+function zoomCenter(f){ const v=diagramEl.viewBox.baseVal; zoomAt(v.x+v.width/2,v.y+v.height/2,f); }
+function animatePan(t,ms=420){
+  const from={...pan}, t0=performance.now();
+  (function tick(now){
+    let p=Math.min((now-t0)/ms,1); p=p<.5?2*p*p:-1+(4-2*p)*p;
+    pan.tx=from.tx+(t.tx-from.tx)*p; pan.ty=from.ty+(t.ty-from.ty)*p; pan.s=from.s+(t.s-from.s)*p;
+    applyTransform(); if(p<1) requestAnimationFrame(tick); else pan={...t};
+  })(performance.now());
+}
+function resetView(){ animatePan({tx:0,ty:0,s:1}); }
+
+diagramEl.addEventListener('wheel',e=>{
+  e.preventDefault(); const p=clientToVB(e.clientX,e.clientY);
+  zoomAt(p.x,p.y,e.deltaY<0?1.12:1/1.12);
+},{passive:false});
+
+let dragging=false, lastPt=null;
+diagramEl.addEventListener('mousedown',e=>{
+  if(e.button!==0) return; dragging=true; lastPt=clientToVB(e.clientX,e.clientY);
+  diagramEl.classList.add('panning'); e.preventDefault();
+});
+window.addEventListener('mousemove',e=>{
+  if(!dragging) return;
+  const pt=clientToVB(e.clientX,e.clientY);
+  pan.tx+=pt.x-lastPt.x; pan.ty+=pt.y-lastPt.y; lastPt=pt; applyTransform();
+});
+window.addEventListener('mouseup',()=>{ dragging=false; diagramEl.classList.remove('panning'); });
+
+let lastTouches=[];
+diagramEl.addEventListener('touchstart',e=>{ lastTouches=Array.from(e.touches); e.preventDefault(); },{passive:false});
+diagramEl.addEventListener('touchmove',e=>{
+  e.preventDefault(); const ts=Array.from(e.touches);
+  if(ts.length===1&&lastTouches.length>=1){
+    const c=clientToVB(ts[0].clientX,ts[0].clientY), p=clientToVB(lastTouches[0].clientX,lastTouches[0].clientY);
+    pan.tx+=c.x-p.x; pan.ty+=c.y-p.y; applyTransform();
+  } else if(ts.length===2&&lastTouches.length>=2){
+    const d1=Math.hypot(ts[1].clientX-ts[0].clientX,ts[1].clientY-ts[0].clientY);
+    const d2=Math.hypot(lastTouches[1].clientX-lastTouches[0].clientX,lastTouches[1].clientY-lastTouches[0].clientY);
+    if(d2>0){ const p=clientToVB((ts[0].clientX+ts[1].clientX)/2,(ts[0].clientY+ts[1].clientY)/2); zoomAt(p.x,p.y,d1/d2); }
+  }
+  lastTouches=ts;
+},{passive:false});
+diagramEl.addEventListener('touchend',e=>{ lastTouches=Array.from(e.touches); },{passive:false});
+
+// Resize
+let resizing=false, rSide=null, rStartY=0, rStartH=0, rStartX=0, rStartW=0, rStartML=0;
+const rowEl=document.getElementById('diagram-row');
+function startResize(side,cx,cy){
+  resizing=true; rSide=side; rStartY=cy; rStartX=cx;
+  const r=diagramEl.getBoundingClientRect(); rStartH=r.height; rStartW=r.width;
+  rStartML=parseFloat(rowEl.style.marginLeft)||0;
+}
+['rc-l','rc-r'].forEach(id=>{
+  const side=id.endsWith('-l')?'l':'r';
+  document.getElementById(id).addEventListener('mousedown',e=>{ startResize(side,e.clientX,e.clientY); e.preventDefault(); });
+  document.getElementById(id).addEventListener('touchstart',e=>{ startResize(side,e.touches[0].clientX,e.touches[0].clientY); e.preventDefault(); },{passive:false});
+});
+window.addEventListener('mousemove',e=>{ if(resizing) applyResize(e.clientX,e.clientY); });
+window.addEventListener('touchmove',e=>{ if(resizing) applyResize(e.touches[0].clientX,e.touches[0].clientY); },{passive:false});
+window.addEventListener('mouseup',()=>{ resizing=false; });
+window.addEventListener('touchend',()=>{ resizing=false; });
+function applyResize(cx,cy){
+  const h=Math.max(80,Math.min(600,rStartH+cy-rStartY)); diagramEl.style.height=h+'px';
+  const dx=cx-rStartX, dw=rSide==='r'?dx:-dx;
+  const w=Math.max(200,Math.min(window.innerWidth-40,rStartW+dw));
+  rowEl.style.width=w+'px'; if(rSide==='l') rowEl.style.marginLeft=(rStartML-(w-rStartW))+'px';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Side & Left panels
+// ─────────────────────────────────────────────────────────────────────────────
+
+function buildPanels(){
+  const side = document.getElementById('side-panel');
+  const left = document.getElementById('left-panel');
+
+  left.innerHTML = `<div class="prop-label">I.1</div>
+    <div class="prop-enunc">On a given finite straight line to construct an equilateral triangle.</div>`;
+
+  STEPS.forEach((s,i)=>{
+    if(s.side){
+      const el=document.createElement('div');
+      el.id=`si-${i}`; el.className='side-item';
+      el.textContent=s.side; side.appendChild(el);
+    }
+    if(s.text){
+      const el=document.createElement('div');
+      el.id=`pl-${i}`; el.className='proof-line';
+      el.appendChild(document.createTextNode(s.text));
+      if(s.just){ const sp=document.createElement('span'); sp.className='just'; sp.textContent=s.just; el.appendChild(sp); }
+      left.appendChild(el);
+    }
+  });
+}
+
+function getDisplayStep(){
+  const s = STEPS[step];
+  if(s && s.display_linked_idx !== undefined) return s.display_linked_idx;
+  for(let i=step; i>=0; i--){
+    if(STEPS[i] && STEPS[i].text) return i;
+  }
+  return -1;
+}
+
+function setProofDisplay(idx){
+  const pd = document.getElementById('proof-display');
+  if(!pd) return;
+  if(idx < 0){ pd.classList.remove('visible'); return; }
+  const s = STEPS[idx];
+  if(s && s.text){
+    pd.innerHTML = s.text + (s.just ? `<span class="proof-just">${s.just}</span>` : '');
+    pd.classList.add('visible');
+  } else {
+    pd.classList.remove('visible');
+  }
+}
+
+function updatePanels(){
+  const ds = getDisplayStep();
+  STEPS.forEach((s,i)=>{
+    const pl=document.getElementById(`pl-${i}`);
+    if(pl){ pl.classList.toggle('active',i===ds); pl.classList.toggle('past',i<ds); }
+  });
+  setProofDisplay(ds);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Diagram
+// ─────────────────────────────────────────────────────────────────────────────
+
+function show(id){ const el=document.getElementById(id); if(el) el.classList.add('on'); }
+
+function revealStep(s){
+  if(s.reveal) s.reveal.forEach(id=>show(id));
+  if(s.side){ const el=document.getElementById(`si-${step}`); if(el) el.classList.add('on'); }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Chat
+// ─────────────────────────────────────────────────────────────────────────────
+
+const chatEl    = document.getElementById('chat');
+const textInput = document.getElementById('text-input');
+const sendBtn   = document.getElementById('send-btn');
+const ynBar     = document.getElementById('yn-bar');
+const drawBar   = document.getElementById('draw-bar');
+
+function addMsg(text, who){
+  const d=document.createElement('div');
+  d.className = who==='user' ? 'msg-user' : 'msg-bot';
+  d.textContent=text; chatEl.appendChild(d);
+  chatEl.scrollTop=chatEl.scrollHeight;
+}
+
+function setMode(type){
+  if(type==='done'){
+    ynBar.style.display='none'; drawBar.style.display='none';
+    sendBtn.disabled=true; textInput.disabled=true; return;
+  }
+  ynBar.style.display   = type==='yn'   ? 'flex' : 'none';
+  drawBar.style.display = type==='draw' ? 'flex' : 'none';
+  sendBtn.disabled=type==='draw'; textInput.disabled=type==='draw';
+  if(type==='open') setTimeout(()=>textInput.focus(),50);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Flow
+// ─────────────────────────────────────────────────────────────────────────────
+
+function advance(){
+  attempts=0; step++; showStep();
+}
+
+function showStep(){
+  updatePanels();
+  if(step>=STEPS.length){
+    addMsg(CONCLUSION,'bot'); setMode('done');
+    fetch('/api/complete',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({proposition:1})}).catch(()=>{});
+    return;
+  }
+  const s=STEPS[step];
+
+  if(s.type==='say'){
+    revealStep(s);
+    addMsg(s.q,'bot');
+    setTimeout(advance, 700);
+    return;
+  }
+
+  if(s.type==='draw'){
+    addMsg(s.q,'bot');
+    setMode('draw');
+    return;
+  }
+
+  addMsg(s.q,'bot');
+  setMode(s.type);
+}
+
+function submit(raw){
+  const answer=raw.trim(); if(!answer) return;
+  textInput.value='';
+  addMsg(answer,'user');
+  const s=STEPS[step];
+
+  if(s.type==='yn'){
+    if(/^y/i.test(answer)){
+      revealStep(s); advance();
+    } else {
+      addMsg(s.no,'bot');
+    }
+    return;
+  }
+
+  if(s.type==='open'){
+    if(s.ok(answer)){
+      revealStep(s);
+      advance();
+    } else {
+      attempts++;
+      addMsg(s.hint,'bot');
+      if(s.hint_linked_idx !== undefined) setProofDisplay(s.hint_linked_idx);
+      if(attempts>=2){
+        revealStep(s);
+        setTimeout(advance, 800);
+      }
+    }
+  }
+}
+
+sendBtn.addEventListener('click',()=>submit(textInput.value));
+textInput.addEventListener('keydown',e=>{ if(e.key==='Enter') submit(textInput.value); });
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter' && drawBar.style.display==='flex' && e.target!==textInput){ e.preventDefault(); document.getElementById('btn-draw').click(); }
+});
+document.getElementById('btn-yes').addEventListener('click',()=>{ addMsg('Yes','user'); const s=STEPS[step]; revealStep(s); advance(); });
+document.getElementById('btn-no').addEventListener('click', ()=>{ addMsg('No','user');  addMsg(STEPS[step].no,'bot'); });
+document.getElementById('btn-draw').addEventListener('click',()=>{ const s=STEPS[step]; revealStep(s); advance(); });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Init
+// ─────────────────────────────────────────────────────────────────────────────
+
+buildPanels();
+show('dc-ab');
+showStep();
+</script>
+</body>
+</html>
