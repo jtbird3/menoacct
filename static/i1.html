@@ -307,10 +307,9 @@ const STEPS = [
     text:'Let AB be the given finite straight line.', just:null,
     side:'Given: line AB' },
 
-  { type:'open',
-    q:'Our goal is to construct an equilateral triangle on the line AB. Can you restate the goal?',
-    ok: r => /equilateral/i.test(r) && /triangle/i.test(r),
-    hint:'What kind of triangle, on which line?',
+  { type:'yn',
+    q:'Our goal is to construct an equilateral triangle on the line AB. Ready to continue?',
+    no:'An equilateral triangle has all three sides equal to one another. We will build one on AB using straightedge and compass.',
     text:'It is required to construct an equilateral triangle on the straight line AB.', just:null,
     side:'Goal: equilateral △ on AB' },
 
