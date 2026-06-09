@@ -699,7 +699,7 @@ function setMode(type){
   }
   inputRow.style.display = type==='draw' ? 'none' : 'flex';
   sendBtn.disabled=type==='draw'; textInput.disabled=type==='draw';
-  if(type==='open' && !isMobile()) setTimeout(()=>textInput.focus(),50);
+  if(type==='open') setTimeout(()=>textInput.focus(),50);
 }
 
 function kbTap(ch){ textInput.value += ch; }
@@ -761,6 +761,7 @@ function showStep(){
 function submit(raw){
   const answer=raw.trim(); if(!answer) return;
   textInput.value='';
+  setTimeout(()=>textInput.focus(),50);
   addMsg(answer,'user');
   logEvent('user', answer);
   const s=STEPS[step];
