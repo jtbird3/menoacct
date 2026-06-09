@@ -417,7 +417,7 @@ const STEPS = [
           || hasNear(r,['equilateral','triangle','proposition']),
     hint:'In I.1 we constructed an equilateral triangle on AB — all three sides equal. We build on that here.',
     text:null, just:null,
-    side:null, reveal:[] },
+    side:null, reveal:[], numpad:true },
 
   // 5
   { type:'draw',
@@ -846,6 +846,10 @@ function showStep(){
     addMsg(s.q,'bot'); setMode('draw'); return;
   }
   addMsg(s.q,'bot'); setMode(s.type);
+  if(s.numpad && isMobile()){
+    document.getElementById('kb-alpha').style.display='none';
+    document.getElementById('kb-num').style.display='';
+  }
 }
 
 function submit(raw){
