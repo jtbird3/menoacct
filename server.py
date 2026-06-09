@@ -230,7 +230,7 @@ async def welcome(request: Request):
 
     completed_set = {r['proposition'] for r in rows}
     n_done = len(completed_set)
-    completed = [{'prop': r['proposition'], 'date': fmt_date(r['completed_at'])} for r in rows]
+    completed = [{'prop': r['proposition'], 'date': fmt_date(r['completed_at']), 'url': PROP_URLS.get(r['proposition'])} for r in rows]
 
     next_prop = next((p for p in range(1, TOTAL_PROPS + 1) if p not in completed_set), None)
     next_url  = PROP_URLS.get(next_prop) if next_prop else None

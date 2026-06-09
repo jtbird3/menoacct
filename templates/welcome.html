@@ -7,7 +7,7 @@
 
 <div style="margin-bottom:22px;">
   <div style="font-size:11px;opacity:.35;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">Progress</div>
-  <div style="font-size:14px;letter-spacing:1.5px;margin-bottom:4px;">{{ progress_bar }}</div>
+  <div style="font-size:14px;letter-spacing:1.5px;margin-bottom:4px;color:#16a34a;">{{ progress_bar }}</div>
   <div style="font-size:12px;opacity:.5;">{{ n_done }} / {{ total }} propositions complete</div>
 </div>
 
@@ -28,7 +28,7 @@
 {% for c in completed %}
 <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:13px;margin-bottom:6px;">
   <span style="color:#16a34a;">&#x2713; I.{{ c.prop }}</span>
-  <span style="opacity:.35;">{{ c.date }}</span>
+  <span style="opacity:.35;">{{ c.date }}{% if c.url %} &nbsp;<a href="{{ c.url }}" style="opacity:1;color:#000;text-decoration:none;font-size:11px;">replay</a>{% endif %}</span>
 </div>
 {% endfor %}
 {% endif %}
