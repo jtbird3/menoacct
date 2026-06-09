@@ -810,7 +810,7 @@ function showStep(){
           addMsg('✓ Your completion has been recorded.','bot');
           const d=document.createElement('div');
           d.className='msg-bot';
-          d.innerHTML='<a href="/survey" style="color:#7c3aed;text-decoration:underline;">Share your experience →</a>';
+          d.innerHTML='<a href="/survey?prop=1" style="color:#7c3aed;text-decoration:underline;">Share your experience →</a>';
           chatEl.appendChild(d); chatEl.scrollTop=chatEl.scrollHeight;
         } else {
           addMsg('(Could not record completion — are you logged in via /i1?)','bot');
