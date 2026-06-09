@@ -1,6 +1,8 @@
 import os
 import sqlite3
 import secrets
+import json
+from datetime import datetime
 from pathlib import Path
 
 from fastapi import FastAPI, Request, Form, HTTPException
@@ -202,18 +204,61 @@ async def logout(request: Request):
 
 # ── App pages ──────────────────────────────────────────────────────────────────
 
+PROP_URLS = {1: '/i1', 2: '/i2'}
+TOTAL_PROPS = 48
+
+def fmt_date(dt_str):
+    try:
+        dt = datetime.strptime(dt_str[:10], '%Y-%m-%d')
+        return f"{dt.strftime('%b')} {dt.day}"
+    except Exception:
+        return dt_str[:10]
+
 @app.get('/welcome', response_class=HTMLResponse)
 async def welcome(request: Request):
     user = current_user(request)
     if not user:
         return RedirectResponse('/login', status_code=303)
-    return render('welcome.html', name=user['name'], username=user['username'])
+
+    with db() as con:
+        rows = con.execute(
+            '''SELECT proposition, MIN(completed_at) AS completed_at
+               FROM completions WHERE user_id=?
+               GROUP BY proposition ORDER BY proposition''',
+            (user['id'],)
+        ).fetchall()
+
+    completed_set = {r['proposition'] for r in rows}
+    n_done = len(completed_set)
+    completed = [{'prop': r['proposition'], 'date': fmt_date(r['completed_at'])} for r in rows]
+
+    next_prop = next((p for p in range(1, TOTAL_PROPS + 1) if p not in completed_set), None)
+    next_url  = PROP_URLS.get(next_prop) if next_prop else None
+
+    bar_filled = round(n_done / TOTAL_PROPS * 24)
+    progress_bar = '█' * bar_filled + '░' * (24 - bar_filled)
+
+    return render('welcome.html',
+        username=user['username'],
+        n_done=n_done,
+        total=TOTAL_PROPS,
+        progress_bar=progress_bar,
+        next_prop=next_prop,
+        next_url=next_url,
+        completed=completed,
+    )
 
 @app.get('/i1', response_class=HTMLResponse)
 async def i1(request: Request):
     if not current_user(request):
         return RedirectResponse('/login', status_code=303)
     return FileResponse('static/i1.html')
+
+@app.get('/i2', response_class=HTMLResponse)
+async def i2(request: Request):
+    if not current_user(request):
+        return RedirectResponse('/login', status_code=303)
+    return FileResponse('static/i2.html')
 
 @app.get('/survey', response_class=HTMLResponse)
 async def survey(request: Request):

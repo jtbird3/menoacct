@@ -1,12 +1,37 @@
 {% extends "base.html" %}
-{% block title %}Welcome — Menochat Masters{% endblock %}
+{% block title %}Dashboard — Menochat Masters{% endblock %}
 {% block content %}
-<h1 class="green">You're in.</h1>
-<p>Welcome, {{ username }}. You have officially registered for the <strong>Menochat Masters Challenge</strong>.</p>
-<p>48 propositions. 49 days.</p>
-<p><strong>Today's challenge: Proposition 1</strong></p>
 
-<a href="/i1"><button class="btn" style="margin-top:24px;">&gt; Go to Menochat</button></a>
+<h1>Menochat Masters</h1>
+<p style="margin-bottom:22px;opacity:.5;">Hey, {{ username }}. 48 propositions. 49 days.</p>
 
-<p class="muted"><a href="/logout">log out</a></p>
+<div style="margin-bottom:22px;">
+  <div style="font-size:11px;opacity:.35;text-transform:uppercase;letter-spacing:.07em;margin-bottom:6px;">Progress</div>
+  <div style="font-size:14px;letter-spacing:1.5px;margin-bottom:4px;">{{ progress_bar }}</div>
+  <div style="font-size:12px;opacity:.5;">{{ n_done }} / {{ total }} propositions complete</div>
+</div>
+
+{% if next_prop is none %}
+  <div style="color:#16a34a;font-weight:bold;margin-bottom:22px;">Challenge complete. Q.E.F.</div>
+{% elif next_url %}
+  <a href="{{ next_url }}" style="text-decoration:none;">
+    <button class="btn" style="margin-bottom:22px;">&gt; Start I.{{ next_prop }}</button>
+  </a>
+{% else %}
+  <div style="padding:12px;border:1px solid #e5e5e5;color:#aaa;font-size:13px;margin-bottom:22px;">
+    I.{{ next_prop }} — not yet available
+  </div>
+{% endif %}
+
+{% if completed %}
+<div style="font-size:11px;opacity:.35;text-transform:uppercase;letter-spacing:.07em;margin-bottom:8px;">Completed</div>
+{% for c in completed %}
+<div style="display:flex;justify-content:space-between;align-items:baseline;font-size:13px;margin-bottom:6px;">
+  <span style="color:#16a34a;">&#x2713; I.{{ c.prop }}</span>
+  <span style="opacity:.35;">{{ c.date }}</span>
+</div>
+{% endfor %}
+{% endif %}
+
+<p class="muted" style="margin-top:24px;"><a href="/logout">log out</a></p>
 {% endblock %}
