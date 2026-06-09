@@ -111,9 +111,6 @@
     #text-input {
       flex: 1; padding: 8px; font-family: inherit; font-size: 14px;
       border: 1px solid #ccc; outline: none;
-      resize: none; overflow: hidden; line-height: 1.4;
-      min-height: 36px; max-height: 120px;
-      caret-color: #000;
     }
     #text-input:focus { border-color: #000; }
     #send-btn {
@@ -279,7 +276,7 @@
 <div id="chat"></div>
 
 <div id="input-row">
-  <textarea id="text-input" placeholder="Your answer…" autocomplete="off" inputmode="none" rows="1"></textarea>
+  <input id="text-input" type="text" placeholder="Your answer…" autocomplete="off" inputmode="none">
   <button id="send-btn">→</button>
 </div>
 
@@ -798,13 +795,7 @@ function submit(raw){
 }
 
 sendBtn.addEventListener('click',()=>submit(textInput.value));
-textInput.addEventListener('keydown',e=>{
-  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); submit(textInput.value); }
-});
-textInput.addEventListener('input',()=>{
-  textInput.style.height='auto';
-  textInput.style.height=Math.min(textInput.scrollHeight,120)+'px';
-});
+textInput.addEventListener('keydown',e=>{ if(e.key==='Enter') submit(textInput.value); });
 document.addEventListener('keydown',e=>{
   if(e.key==='Enter' && drawBar.style.display==='flex' && e.target!==textInput){ e.preventDefault(); document.getElementById('btn-draw').click(); }
 });
