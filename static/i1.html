@@ -276,7 +276,7 @@
 <div id="chat"></div>
 
 <div id="input-row">
-  <input id="text-input" type="text" placeholder="Your answer…" autocomplete="off" inputmode="none">
+  <input id="text-input" type="text" placeholder="Your answer…" autocomplete="off" readonly>
   <button id="send-btn">→</button>
 </div>
 
@@ -699,7 +699,7 @@ function setMode(type){
   }
   inputRow.style.display = type==='draw' ? 'none' : 'flex';
   sendBtn.disabled=type==='draw'; textInput.disabled=type==='draw';
-  if(type==='open' && !isMobile()) setTimeout(()=>textInput.focus(),50);
+  if(type==='open') textInput.focus();
 }
 
 function kbTap(ch){ textInput.value += ch; }
