@@ -113,6 +113,15 @@
       border: 1px solid #ccc; outline: none;
     }
     #text-input:focus { border-color: #000; }
+    #fake-input {
+      display: none;
+      flex: 1; padding: 8px; font-family: inherit; font-size: 14px;
+      border: 1px solid #000; color: #000;
+      overflow: hidden; white-space: nowrap; align-items: center;
+    }
+    #fake-placeholder { color: #999; }
+    #fake-cursor { animation: blink-caret 1s step-end infinite; }
+    @keyframes blink-caret { 50% { opacity: 0; } }
     #send-btn {
       padding: 8px 14px; font-family: inherit; font-size: 14px;
       border: 1px solid #000; background: #000; color: #fff; cursor: pointer;
@@ -276,6 +285,7 @@
 <div id="chat"></div>
 
 <div id="input-row">
+  <div id="fake-input"><span id="fake-placeholder">Your answer…</span><span id="fake-cursor">|</span></div>
   <input id="text-input" type="text" placeholder="Your answer…" autocomplete="off" readonly>
   <button id="send-btn">→</button>
 </div>
@@ -683,6 +693,21 @@ function logEvent(role, message){
 const kbBar   = document.getElementById('kb-bar');
 const isMobile = () => window.innerWidth <= 600;
 
+const fakeInputEl  = document.getElementById('fake-input');
+const fakeCursorEl = document.getElementById('fake-cursor');
+const fakePlaceholder = document.getElementById('fake-placeholder');
+
+function updateFake(){
+  const v = textInput.value;
+  if(v){
+    fakePlaceholder.textContent = v;
+    fakePlaceholder.style.color = '';
+  } else {
+    fakePlaceholder.textContent = 'Your answer…';
+    fakePlaceholder.style.color = '#999';
+  }
+}
+
 function setMode(type){
   if(type==='done'){
     ynBar.style.display='none'; drawBar.style.display='none'; kbBar.style.display='none';
@@ -696,14 +721,20 @@ function setMode(type){
     document.getElementById('kb-alpha').style.display='';
     document.getElementById('kb-num').style.display='none';
     setTimeout(()=>{ chatEl.scrollTop=chatEl.scrollHeight; }, 80);
+    fakeInputEl.style.display='flex';
+    textInput.style.display='none';
+    updateFake();
+  } else {
+    fakeInputEl.style.display='none';
+    textInput.style.display='';
   }
   inputRow.style.display = type==='draw' ? 'none' : 'flex';
   sendBtn.disabled=type==='draw'; textInput.disabled=type==='draw';
-  if(type==='open') textInput.focus();
+  if(type==='open' && !isMobile()) textInput.focus();
 }
 
-function kbTap(ch){ textInput.value += ch; }
-function kbBack(){ textInput.value = textInput.value.slice(0,-1); }
+function kbTap(ch){ textInput.value += ch; updateFake(); }
+function kbBack(){ textInput.value = textInput.value.slice(0,-1); updateFake(); }
 function kbEnter(){ submit(textInput.value); }
 function kbToggleNum(){
   const a=document.getElementById('kb-alpha'), n=document.getElementById('kb-num');
@@ -760,7 +791,7 @@ function showStep(){
 
 function submit(raw){
   const answer=raw.trim(); if(!answer) return;
-  textInput.value='';
+  textInput.value=''; updateFake();
   addMsg(answer,'user');
   logEvent('user', answer);
   const s=STEPS[step];
