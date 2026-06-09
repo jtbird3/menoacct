@@ -49,23 +49,22 @@
 <table>
   <tr><th>when</th><th>who</th><th>proposition</th><th></th></tr>
   {% for c in completions %}
+  {% set log_id = 'log-' ~ c.user_id ~ '-' ~ c.proposition %}
   <tr>
     <td class="green">{{ c.completed_at[:16] }}</td>
     <td>{{ c.name }} <span class="muted">@{{ c.username }}</span></td>
     <td>I.{{ c.proposition }}</td>
-    <td><button class="view-btn" onclick="toggle('log-{{ c.user_id }}')">view</button></td>
+    <td><button class="view-btn" onclick="toggle('{{ log_id }}')">view</button></td>
   </tr>
-  <tr class="log-row" id="log-{{ c.user_id }}">
-    <td class="log-cell" colspan="4" data-uid="{{ c.user_id }}">
-      {% set evs = events_by_user.get(c.user_id, []) %}
+  <tr class="log-row" id="{{ log_id }}">
+    <td class="log-cell" colspan="4">
+      {% set evs = events_by_key.get(c.user_id|string ~ '_' ~ c.proposition|string, []) %}
       {% if evs %}
         {% for e in evs %}
-        {% if e.role == 'user' %}
-        <div class="log-line user" data-step="{{ e.step }}">
-          <div class="who">{{ e.username }}</div>
+        <div class="log-line {{ e.role }}">
+          <div class="who">{% if e.role == 'bot' %}tutor{% else %}{{ e.username }}{% endif %}</div>
           <div class="msg">{{ e.message }}</div>
         </div>
-        {% endif %}
         {% endfor %}
       {% else %}
         <span class="muted">No conversation recorded.</span>
@@ -119,51 +118,9 @@
 </table>
 
 <script>
-const QUESTIONS = {
-  0:  'We are given a finite straight line AB. Can you see that?',
-  1:  'Our goal is to construct an equilateral triangle on the line AB. Ready to continue?',
-  2:  'What does it mean for a triangle to be equilateral?',
-  3:  'What does Postulate 3 allow us to do?',
-  4:  'Can we draw a circle with centre A, radius AB?',
-  5:  'Can we draw another circle with centre B, radius BA?',
-  6:  'Do the two circles intersect?',
-  7:  'At how many points?',
-  8:  'Can we label one of those intersection points C?',
-  9:  'What does Postulate 1 allow us to do?',
-  10: 'Can we draw lines CA and CB?',
-  11: 'What are AB and AC, with respect to circle A?',
-  12: 'So what can we say about their lengths?',
-  13: 'What are AB and BC, with respect to circle B?',
-  14: 'So what can we say about their lengths?',
-  15: 'What does Common Notion 1 state?',
-  16: 'What can we say about AC and BC?',
-  17: 'Do AC and BC both equal AB?',
-  18: 'What can we say of all three sides?',
-  19: 'What have we constructed?',
-  20: 'Why is it equilateral?',
-  21: 'Q.E.F. or Q.E.D.?',
-  22: 'Why Q.E.F. and not Q.E.D.?',
-  23: 'Did we prove a claim, or did we make something?',
-};
-
 function toggle(id) {
-  const row = document.getElementById(id);
-  row.classList.toggle('open');
+  document.getElementById(id).classList.toggle('open');
 }
-
-document.querySelectorAll('.log-cell[data-uid]').forEach(cell => {
-  const lines = cell.querySelectorAll('.log-line.user');
-  lines.forEach(line => {
-    const step = parseInt(line.dataset.step);
-    const q = QUESTIONS[step];
-    if (q) {
-      const tutorDiv = document.createElement('div');
-      tutorDiv.className = 'log-line bot';
-      tutorDiv.innerHTML = '<div class="who">tutor</div><div class="msg">' + q + '</div>';
-      cell.insertBefore(tutorDiv, line);
-    }
-  });
-});
 </script>
 </body>
 </html>

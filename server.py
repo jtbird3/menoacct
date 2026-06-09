@@ -445,11 +445,12 @@ async def admin(key: str = ''):
             FROM surveys s JOIN users u ON s.user_id = u.id
             ORDER BY s.created_at DESC
         ''').fetchall()
-    events_by_user = {}
+    events_by_key = {}
     for e in event_rows:
-        events_by_user.setdefault(e['user_id'], []).append(e)
+        k = f"{e['user_id']}_{e['proposition']}"
+        events_by_key.setdefault(k, []).append(e)
     return render('admin.html', users=users, completions=completions,
-                  events_by_user=events_by_user, surveys=surveys, key=key)
+                  events_by_key=events_by_key, surveys=surveys, key=key)
 
 @app.get('/admin/login', response_class=HTMLResponse)
 async def admin_login_get():
