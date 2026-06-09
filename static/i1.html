@@ -115,12 +115,20 @@
     #text-input:focus { border-color: #000; }
     #fake-input {
       display: none;
-      flex: 1; padding: 8px; font-family: inherit; font-size: 14px;
+      flex: 1; padding: 8px 8px; font-family: inherit; font-size: 14px;
       border: 1px solid #000; color: #000;
-      overflow: hidden; white-space: nowrap; align-items: center;
+      overflow: hidden; white-space: nowrap;
+      align-items: center; line-height: 1.4;
     }
     #fake-placeholder { color: #999; }
-    #fake-cursor { animation: blink-caret 1s step-end infinite; }
+    #fake-cursor {
+      display: inline-block;
+      width: 2px; height: 1em;
+      background: #000;
+      vertical-align: text-bottom;
+      margin-left: 1px;
+      animation: blink-caret 1s step-end infinite;
+    }
     @keyframes blink-caret { 50% { opacity: 0; } }
     #send-btn {
       padding: 8px 14px; font-family: inherit; font-size: 14px;
@@ -204,6 +212,7 @@
       #chat { flex: 1; min-height: 0; max-height: none; font-size: 13px; }
       #input-row { flex-shrink: 0; }
       #text-input { font-size: 16px; }
+      #fake-input { font-size: 16px; }
       #yn-bar, #draw-bar, #kb-bar { position: static; flex-shrink: 0; }
       #kb-bar { padding-bottom: 10px; }
     }
@@ -285,8 +294,8 @@
 <div id="chat"></div>
 
 <div id="input-row">
-  <div id="fake-input"><span id="fake-placeholder">Your answer…</span><span id="fake-cursor">|</span></div>
-  <input id="text-input" type="text" placeholder="Your answer…" autocomplete="off" readonly>
+  <div id="fake-input"><span id="fake-placeholder">Your answer…</span><span id="fake-cursor"></span></div>
+  <input id="text-input" type="text" placeholder="Your answer…" autocomplete="off" inputmode="none">
   <button id="send-btn">→</button>
 </div>
 
@@ -691,7 +700,7 @@ function logEvent(role, message){
 }
 
 const kbBar   = document.getElementById('kb-bar');
-const isMobile = () => window.innerWidth <= 600;
+const isMobile = () => navigator.maxTouchPoints > 0;
 
 const fakeInputEl  = document.getElementById('fake-input');
 const fakeCursorEl = document.getElementById('fake-cursor');
