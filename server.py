@@ -2,7 +2,10 @@ import os
 import sqlite3
 import secrets
 import json
-from datetime import datetime
+import smtplib
+import ssl
+from datetime import datetime, timedelta
+from email.mime.text import MIMEText
 from pathlib import Path
 
 from fastapi import FastAPI, Request, Form, HTTPException
@@ -77,6 +80,13 @@ def init_db():
                 q2          TEXT,
                 q3          TEXT,
                 created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
+            );
+            CREATE TABLE IF NOT EXISTS password_resets (
+                id         INTEGER PRIMARY KEY,
+                user_id    INTEGER NOT NULL REFERENCES users(id),
+                token      TEXT UNIQUE NOT NULL,
+                expires_at TEXT NOT NULL,
+                used       INTEGER NOT NULL DEFAULT 0
             );
         ''')
 
@@ -180,6 +190,26 @@ async def signup_post(
     request.session['user_id'] = user['id']
     return RedirectResponse('/welcome', status_code=303)
 
+# ── Email ─────────────────────────────────────────────────────────────────────
+
+def send_email(to: str, subject: str, body: str):
+    host = os.environ.get('SMTP_HOST', '')
+    port = int(os.environ.get('SMTP_PORT', 587))
+    user = os.environ.get('SMTP_USER', '')
+    pwd  = os.environ.get('SMTP_PASSWORD', '')
+    if not host or not user:
+        raise RuntimeError('SMTP not configured')
+    msg = MIMEText(body, 'plain')
+    msg['Subject'] = subject
+    msg['From']    = user
+    msg['To']      = to
+    ctx = ssl.create_default_context()
+    with smtplib.SMTP(host, port) as s:
+        s.ehlo()
+        s.starttls(context=ctx)
+        s.login(user, pwd)
+        s.sendmail(user, to, msg.as_string())
+
 # ── Login / Logout ─────────────────────────────────────────────────────────────
 
 @app.get('/login', response_class=HTMLResponse)
@@ -201,6 +231,59 @@ async def login_post(request: Request, username: str = Form(...), password: str 
 async def logout(request: Request):
     request.session.clear()
     return RedirectResponse('/login', status_code=303)
+
+@app.get('/forgot-password', response_class=HTMLResponse)
+async def forgot_get():
+    return render('forgot_password.html', sent=False, error=None)
+
+@app.post('/forgot-password', response_class=HTMLResponse)
+async def forgot_post(email: str = Form(...)):
+    with db() as con:
+        user = con.execute('SELECT * FROM users WHERE email=?', (email.strip().lower(),)).fetchone()
+    if user:
+        token = secrets.token_urlsafe(32)
+        expires = (datetime.utcnow() + timedelta(hours=1)).isoformat()
+        with db() as con:
+            con.execute('DELETE FROM password_resets WHERE user_id=?', (user['id'],))
+            con.execute('INSERT INTO password_resets (user_id, token, expires_at) VALUES (?,?,?)',
+                        (user['id'], token, expires))
+        link = f"{BASE_URL}/reset-password/{token}"
+        try:
+            send_email(
+                user['email'],
+                'Reset your Menochat password',
+                f"Click this link to reset your password (expires in 1 hour):\n\n{link}\n\nIf you didn't request this, ignore it."
+            )
+        except Exception:
+            pass  # fail silently — don't reveal whether email exists
+    return render('forgot_password.html', sent=True, error=None)
+
+@app.get('/reset-password/{token}', response_class=HTMLResponse)
+async def reset_get(token: str):
+    with db() as con:
+        row = con.execute(
+            'SELECT * FROM password_resets WHERE token=? AND used=0', (token,)
+        ).fetchone()
+    if not row or row['expires_at'] < datetime.utcnow().isoformat():
+        return render('reset_password.html', token=token, expired=True, error=None)
+    return render('reset_password.html', token=token, expired=False, error=None)
+
+@app.post('/reset-password/{token}', response_class=HTMLResponse)
+async def reset_post(token: str, password: str = Form(...), confirm: str = Form(...)):
+    with db() as con:
+        row = con.execute(
+            'SELECT * FROM password_resets WHERE token=? AND used=0', (token,)
+        ).fetchone()
+    if not row or row['expires_at'] < datetime.utcnow().isoformat():
+        return render('reset_password.html', token=token, expired=True, error=None)
+    if len(password) < 8:
+        return render('reset_password.html', token=token, expired=False, error='Password must be at least 8 characters.')
+    if password != confirm:
+        return render('reset_password.html', token=token, expired=False, error='Passwords do not match.')
+    with db() as con:
+        con.execute('UPDATE users SET password_hash=? WHERE id=?', (hash_password(password), row['user_id']))
+        con.execute('UPDATE password_resets SET used=1 WHERE id=?', (row['id'],))
+    return RedirectResponse('/login?reset=1', status_code=303)
 
 # ── App pages ──────────────────────────────────────────────────────────────────
 
