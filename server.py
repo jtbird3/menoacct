@@ -158,6 +158,7 @@ async def signup_get(request: Request):
 async def signup_post(
     request: Request,
     name: str = Form(...), username: str = Form(...),
+    email: str = Form(...),
     password: str = Form(...), confirm: str = Form(...)
 ):
     def err(msg):
@@ -167,13 +168,15 @@ async def signup_post(
         return err('Please enter your name.')
     if len(username) < 3:
         return err('Username must be at least 3 characters.')
+    if '@' not in email:
+        return err('Please enter a valid email.')
     if len(password) < 8:
         return err('Password must be at least 8 characters.')
     if password != confirm:
         return err('Passwords do not match.')
 
     token = secrets.token_urlsafe(32)
-    email = f'{username}@signup.menochat.app'
+    email = email.strip().lower()
     with db() as con:
         taken = con.execute('SELECT id FROM users WHERE username=?', (username,)).fetchone()
         if taken:
@@ -185,7 +188,7 @@ async def signup_post(
             )
             user = con.execute('SELECT * FROM users WHERE username=?', (username,)).fetchone()
         except Exception:
-            return err('Something went wrong. Try a different username.')
+            return err('Something went wrong. Try a different username or email.')
 
     request.session['user_id'] = user['id']
     return RedirectResponse('/welcome', status_code=303)
@@ -237,10 +240,10 @@ async def forgot_get():
     return render('forgot_password.html', sent=False, error=None)
 
 @app.post('/forgot-password', response_class=HTMLResponse)
-async def forgot_post(email: str = Form(...)):
+async def forgot_post(username: str = Form(...)):
     with db() as con:
-        user = con.execute('SELECT * FROM users WHERE email=?', (email.strip().lower(),)).fetchone()
-    if user:
+        user = con.execute('SELECT * FROM users WHERE username=?', (username.strip(),)).fetchone()
+    if user and user['email'] and '@signup.menochat.app' not in user['email']:
         token = secrets.token_urlsafe(32)
         expires = (datetime.utcnow() + timedelta(hours=1)).isoformat()
         with db() as con:
@@ -255,7 +258,7 @@ async def forgot_post(email: str = Form(...)):
                 f"Click this link to reset your password (expires in 1 hour):\n\n{link}\n\nIf you didn't request this, ignore it."
             )
         except Exception:
-            pass  # fail silently — don't reveal whether email exists
+            pass
     return render('forgot_password.html', sent=True, error=None)
 
 @app.get('/reset-password/{token}', response_class=HTMLResponse)
