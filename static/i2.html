@@ -491,7 +491,7 @@ const STEPS = [
   // 14
   { type:'open',
     q:'So what can we say about the lengths of BC and BG?',
-    ok: r => /equal|same|identical|congruent|equivalent|match|\bbc\s*=\s*bg|\bbg\s*=\s*bc/i.test(r)
+    ok: r => /equal|\beq\b|same|identical|congruent|equivalent|match|\bbc\s*=\s*bg|\bbg\s*=\s*bc/i.test(r)
           || hasNear(r,['equal','same','identical','congruent']),
     hint:'Definition 15: A circle is a figure where all straight lines from the centre to the boundary are equal.',
     reveal:['dc-ticks-bc'],
@@ -510,7 +510,7 @@ const STEPS = [
   // 16
   { type:'open',
     q:'So what can we say about DL and DG?',
-    ok: r => /equal|same|identical|congruent|equivalent|match|\bdl\s*=\s*dg|\bdg\s*=\s*dl/i.test(r)
+    ok: r => /equal|\beq\b|same|identical|congruent|equivalent|match|\bdl\s*=\s*dg|\bdg\s*=\s*dl/i.test(r)
           || hasNear(r,['equal','same','identical','congruent']),
     hint:'All radii of the same circle are equal to one another.',
     text:'Since D is the centre of circle GKL, DL is equal to DG.', just:'Def. 15',
@@ -519,7 +519,7 @@ const STEPS = [
   // 17
   { type:'open',
     q:'What is true of DA and DB if they are sides of equilateral triangle DAB?',
-    ok: r => /equal|same|identical|congruent|equivalent|match|\bda\s*=\s*db|\bdb\s*=\s*da/i.test(r)
+    ok: r => /equal|\beq\b|same|identical|congruent|equivalent|match|\bda\s*=\s*db|\bdb\s*=\s*da/i.test(r)
           || hasNear(r,['equal','same','identical','congruent']),
     hint:'An equilateral triangle has all three sides equal to one another.',
     text:'And DA is equal to DB, since triangle DAB is equilateral.', just:'I.1',
@@ -537,7 +537,7 @@ const STEPS = [
   // 19
   { type:'open',
     q:'If we have DL = DG and DA = DB, then we subtract DA from DL and DB from DG. What can we say about the remainders AL and BG?',
-    ok: r => /al\s*=?\s*bg|bg\s*=?\s*al|equal|same|identical|congruent/i.test(r)
+    ok: r => /al\s*=?\s*bg|bg\s*=?\s*al|equal|\beq\b|same|identical|congruent/i.test(r)
           || hasNear(r,['equal','same','identical','congruent']),
     hint:'DL − DA = AL, and DG − DB = BG. Since DL=DG and DA=DB, C.N. 3 gives AL = BG.',
     reveal:['dc-al'],
