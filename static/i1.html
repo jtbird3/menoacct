@@ -300,6 +300,9 @@
   <input id="text-input" type="text" placeholder="Your answer…" autocomplete="off" inputmode="none">
   <button id="send-btn">→</button>
 </div>
+<div id="dashboard-btn" style="display:none;margin-bottom:8px;">
+  <a href="/welcome" style="text-decoration:none;"><button style="width:100%;padding:10px;font-family:inherit;font-size:14px;font-weight:bold;border:2px solid #000;background:#fff;color:#000;cursor:pointer;">&gt; Go to Dashboard</button></a>
+</div>
 
 <div id="yn-bar">
   <button id="btn-yes">YES</button>
@@ -757,6 +760,7 @@ function setMode(type){
   if(type==='done'){
     ynBar.style.display='none'; drawBar.style.display='none'; kbBar.style.display='none';
     inputRow.style.display='none';
+    document.getElementById('dashboard-btn').style.display='';
     sendBtn.disabled=true; textInput.disabled=true; return;
   }
   ynBar.style.display    = type==='yn'   ? 'flex' : 'none';
