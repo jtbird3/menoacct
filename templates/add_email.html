@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Add your email — Menochat{% endblock %}
+{% block content %}
+<h1>One quick thing</h1>
+<p style="margin-bottom:16px;">Add your email so you can reset your password if you ever get locked out.</p>
+
+{% if error %}<div class="error">{{ error }}</div>{% endif %}
+
+<form method="post" action="/add-email">
+  <div class="field">
+    <label>email</label>
+    <input type="email" name="email" required autocomplete="email" spellcheck="false">
+  </div>
+  <button class="btn" type="submit">&gt; Save and continue</button>
+</form>
+<p style="margin-top:16px;font-size:13px;"><a href="/welcome">Skip for now</a></p>
+{% endblock %}

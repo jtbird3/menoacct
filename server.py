@@ -221,6 +221,10 @@ async def login_get(request: Request):
         return RedirectResponse('/welcome', status_code=303)
     return render('login.html', error=None)
 
+def needs_email(user) -> bool:
+    e = user['email'] or ''
+    return not e or e.endswith('@signup.menochat.app') or e.endswith('@noemail.invalid')
+
 @app.post('/login', response_class=HTMLResponse)
 async def login_post(request: Request, username: str = Form(...), password: str = Form(...)):
     with db() as con:
@@ -228,6 +232,29 @@ async def login_post(request: Request, username: str = Form(...), password: str 
     if not user or not user['password_hash'] or not verify_password(password, user['password_hash']):
         return render('login.html', error='Incorrect username or password.')
     request.session['user_id'] = user['id']
+    if needs_email(user):
+        return RedirectResponse('/add-email', status_code=303)
+    return RedirectResponse('/welcome', status_code=303)
+
+@app.get('/add-email', response_class=HTMLResponse)
+async def add_email_get(request: Request):
+    if not current_user(request):
+        return RedirectResponse('/login', status_code=303)
+    return render('add_email.html', error=None)
+
+@app.post('/add-email', response_class=HTMLResponse)
+async def add_email_post(request: Request, email: str = Form(...)):
+    user = current_user(request)
+    if not user:
+        return RedirectResponse('/login', status_code=303)
+    email = email.strip().lower()
+    if '@' not in email or '.' not in email.split('@')[-1]:
+        return render('add_email.html', error='Please enter a valid email address.')
+    with db() as con:
+        taken = con.execute('SELECT id FROM users WHERE email=? AND id!=?', (email, user['id'])).fetchone()
+        if taken:
+            return render('add_email.html', error='That email is already linked to another account.')
+        con.execute('UPDATE users SET email=? WHERE id=?', (email, user['id']))
     return RedirectResponse('/welcome', status_code=303)
 
 @app.get('/logout')
