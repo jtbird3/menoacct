@@ -117,9 +117,11 @@
       display: none;
       flex: 1; padding: 8px 8px; font-family: inherit; font-size: 14px;
       border: 1px solid #000; color: #000;
-      overflow: hidden; white-space: nowrap;
+      overflow-x: scroll; overflow-y: hidden; white-space: nowrap;
+      scrollbar-width: none; -ms-overflow-style: none;
       align-items: center; line-height: 1.4;
     }
+    #fake-input::-webkit-scrollbar { display: none; }
     #fake-placeholder { color: #999; }
     #fake-cursor {
       display: inline-block;
@@ -715,6 +717,7 @@ function updateFake(){
     fakePlaceholder.textContent = 'Your answer…';
     fakePlaceholder.style.color = '#999';
   }
+  fakeInputEl.scrollLeft = fakeInputEl.scrollWidth;
 }
 
 function setMode(type){
