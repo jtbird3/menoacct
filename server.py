@@ -284,8 +284,8 @@ async def forgot_post(username: str = Form(...)):
                 'Reset your Menochat password',
                 f"Click this link to reset your password (expires in 1 hour):\n\n{link}\n\nIf you didn't request this, ignore it."
             )
-        except Exception:
-            pass
+        except Exception as e:
+            print(f"[EMAIL ERROR] failed to send reset to {user['email']}: {e}")
     return render('forgot_password.html', sent=True, error=None)
 
 @app.get('/reset-password/{token}', response_class=HTMLResponse)
@@ -461,6 +461,20 @@ async def admin_login_post(request: Request, key: str = Form(...)):
     if key != ADMIN_KEY:
         return render('admin_login.html', error='Wrong key.')
     return RedirectResponse(f'/admin?key={key}', status_code=303)
+
+@app.get('/admin/test-email')
+async def admin_test_email(key: str = ''):
+    if key != ADMIN_KEY:
+        raise HTTPException(status_code=403, detail='Wrong key.')
+    try:
+        send_email(
+            os.environ.get('SMTP_USER', ''),
+            'Menochat SMTP test',
+            f'SMTP is working. BASE_URL={BASE_URL}'
+        )
+        return {'ok': True, 'message': f"Email sent to {os.environ.get('SMTP_USER')}"}
+    except Exception as e:
+        return {'ok': False, 'error': str(e)}
 
 @app.post('/admin/seed')
 async def admin_seed(request: Request):
