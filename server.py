@@ -208,25 +208,26 @@ async def signup_post(
 # ── Email ─────────────────────────────────────────────────────────────────────
 
 def send_email(to: str, subject: str, body: str):
-    import urllib.request, json as _json, re as _re
+    import re as _re
     # strip Gmail +tags: jtbird3+username@gmail.com -> jtbird3@gmail.com
     to = _re.sub(r'\+[^@]+(@gmail\.com)$', r'\1', to, flags=_re.I)
-    key = os.environ.get('RESEND_API_KEY', '')
-    if not key:
-        raise RuntimeError('RESEND_API_KEY not set')
-    payload = _json.dumps({
-        'from': RESEND_FROM,
-        'to': [to],
-        'subject': subject,
-        'text': body,
-    }).encode()
-    req = urllib.request.Request(
-        'https://api.resend.com/emails',
-        data=payload,
-        headers={'Authorization': f'Bearer {key}', 'Content-Type': 'application/json'},
-    )
-    with urllib.request.urlopen(req, timeout=15) as r:
-        return _json.loads(r.read())
+    host = os.environ.get('SMTP_HOST', '')
+    port = int(os.environ.get('SMTP_PORT', 587))
+    user = os.environ.get('SMTP_USER', '')
+    pwd  = os.environ.get('SMTP_PASSWORD', '')
+    if not (host and user and pwd):
+        raise RuntimeError('SMTP_HOST / SMTP_USER / SMTP_PASSWORD not set')
+    msg = MIMEText(body)
+    msg['Subject'] = subject
+    msg['From']    = user
+    msg['To']      = to
+    ctx = ssl.create_default_context()
+    with smtplib.SMTP(host, port, timeout=15) as s:
+        s.ehlo()
+        s.starttls(context=ctx)
+        s.login(user, pwd)
+        s.sendmail(user, [to], msg.as_string())
+    return {'ok': True}
 
 async def send_email_bg(to: str, subject: str, body: str):
     import asyncio
@@ -507,7 +508,7 @@ async def admin_test_email(key: str = '', to: str = ''):
     if not to:
         return JSONResponse({'ok': False, 'error': 'Provide ?to=someone@example.com'}, status_code=400)
     try:
-        result = send_email(to, 'Menochat email test', f'Email is working.\n\nBASE_URL={BASE_URL}\nRESEND_FROM={RESEND_FROM}')
+        result = send_email(to, 'Menochat email test', f'Email is working.\n\nBASE_URL={BASE_URL}\nSMTP_USER={os.environ.get("SMTP_USER","(not set)")}')
         return {'ok': True, 'result': result}
     except Exception as e:
         return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
