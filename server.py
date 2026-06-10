@@ -205,7 +205,9 @@ async def signup_post(
 # ── Email ─────────────────────────────────────────────────────────────────────
 
 def send_email(to: str, subject: str, body: str):
-    import urllib.request, json as _json
+    import urllib.request, json as _json, re as _re
+    # strip Gmail +tags: jtbird3+username@gmail.com -> jtbird3@gmail.com
+    to = _re.sub(r'\+[^@]+(@gmail\.com)$', r'\1', to, flags=_re.I)
     key = os.environ.get('RESEND_API_KEY', '')
     if not key:
         raise RuntimeError('RESEND_API_KEY not set')
