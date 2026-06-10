@@ -80,6 +80,8 @@ steps:
     q: "Which proposition lets us place, at a given point, a straight line equal to a given straight line?"
     criteria: "Proposition I.2 — it shows how to place a straight line equal to a given line with one end at any given point."
     hint: "We proved this in the last proposition: how to transfer a segment to a given endpoint."
+    ok_regex: "i\\.?2|prop(?:osition)?\\.?\\s*2|\\btwo\\b|\\bsecond\\b"
+    ok_targets: ["proposition", "previous"]
     text: null
     just: null
     side: null
@@ -107,6 +109,8 @@ steps:
     q: "What can we do by Postulate 3?"
     criteria: "Describe (draw) a circle with any given centre and any given radius (distance)."
     hint: "Postulate 3: To describe a circle with any centre and distance."
+    ok_regex: "circle|arc|radius|compass|describ|draw|sweep|post\\.?\\s*3"
+    ok_targets: ["circle", "radius", "compass", "describe"]
     text: "Post. 3: To describe a circle with any centre and distance."
     just: "Post. 3"
     side: null
@@ -148,6 +152,8 @@ steps:
     q: "What are AE and AD with respect to circle A?"
     criteria: "Radii / equal — AE and AD are both radii of circle A, so they are equal (Definition 15)."
     hint: "Definition 15: All straight lines drawn from the centre of a circle to its boundary are equal."
+    ok_regex: "radius|radii|equal|same|centre|center|distance|def\\.?\\s*15"
+    ok_targets: ["radius", "radii", "centre", "center", "equal", "distance"]
     reveal:
       - dc-ae
     text: "Since A is the centre of circle DEF, AE is equal to AD."
@@ -167,19 +173,6 @@ steps:
     reveal: []
     criteria: null
     hint: null
-    hint_linked_idx: null
-    display_linked_idx: null
-
-  - type: open
-    type_rationale: "Student names the proposition used — generative recall of I.2."
-    q: "By which Proposition?"
-    criteria: "I.2 — the proposition for placing a straight line equal to a given line at a given point."
-    hint: "We used this in the construction: how to transfer a segment to a given endpoint."
-    text: null
-    just: null
-    side: null
-    reveal: []
-    no: null
     hint_linked_idx: null
     display_linked_idx: null
 
@@ -228,6 +221,8 @@ steps:
     q: "What have we cut off from AB, and what is its relationship to C?"
     criteria: "We have cut off AE from AB the greater, and AE equals C the less."
     hint: "Look at segment AE — it starts at A and ends at E on AB. How long is AE compared to C?"
+    ok_regex: "\\bae\\b|equal|same|cut"
+    ok_targets: ["equal", "same", "cut"]
     text: "Therefore from AB the greater AE has been cut off equal to C the less."
     just: null
     side: null
@@ -241,6 +236,8 @@ steps:
     q: "Q.E.F. or Q.E.D.?"
     criteria: "Q.E.F. — quod erat faciendum, which was to be done. This was a construction problem, not a theorem to be proved."
     hint: "Q.E.F. = 'which was to be done' (constructions). Q.E.D. = 'which was to be demonstrated' (theorems). Which type was I.3?"
+    ok_regex: "qef|q\\.e\\.f|quod.?erat.?faci|faciendum|to.?be.?done|construct"
+    ok_targets: ["qef", "faciendum"]
     text: "(Being) what it was required to do."
     just: "Q.E.F."
     side: "Q.E.F."

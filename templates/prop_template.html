@@ -296,6 +296,24 @@ const STEPS    = {{ steps_json }};
 const PROP_NUM = {{ prop_num }};
 const CONCLUSION = {{ conclusion_json }};
 
+// ─── Fuzzy matching helpers ───────────────────────────────────────────────────
+function lev(a,b){
+  const m=a.length,n=b.length;
+  if(!m)return n; if(!n)return m;
+  const dp=Array.from({length:m+1},(_,i)=>[i]);
+  for(let j=1;j<=n;j++) dp[0][j]=j;
+  for(let i=1;i<=m;i++) for(let j=1;j<=n;j++)
+    dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j-1],dp[i-1][j],dp[i][j-1]);
+  return dp[m][n];
+}
+function hasNear(response, targets){
+  const words=response.toLowerCase().split(/[\s,.;!?]+/).filter(w=>w.length>=3);
+  return words.some(w=>targets.some(t=>{
+    const d=t.length<=7?1:2; return lev(w,t)<=d;
+  }));
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
 // ─────────────────────────────────────────────────────────────────────────────
 // State
 // ─────────────────────────────────────────────────────────────────────────────
@@ -574,6 +592,16 @@ function submit(raw){
   }
 
   if(s.type==='open'){
+    const ok = !s.ok_regex
+      || new RegExp(s.ok_regex,'i').test(answer)
+      || (s.ok_targets && hasNear(answer, s.ok_targets));
+    if(!ok){
+      attempts++;
+      if(attempts>=2 && s.hint){ addMsg(s.hint,'bot'); if(s.hint_linked_idx!=null) setProofDisplay(s.hint_linked_idx); }
+      else { addMsg('Not quite — try again.','bot'); }
+      if(attempts>=3){ revealStep(s); setTimeout(advance,800); }
+      return;
+    }
     revealStep(s); advance();
   }
 }
