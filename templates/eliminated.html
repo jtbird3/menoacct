@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Eliminated — Menochat Masters{% endblock %}
+{% block content %}
+<h1>Menochat Masters</h1>
+<p style="font-size:13px;opacity:.5;margin-bottom:24px;">Hey, {{ username }}.</p>
+
+<div style="margin-bottom:24px;">
+  <div style="font-size:15px;font-weight:bold;color:#dc2626;margin-bottom:8px;">Eliminated — Day {{ cs.day_number }}</div>
+  <p style="font-size:13px;line-height:1.7;opacity:.7;">
+    You fell more than one day behind and were eliminated from the challenge.<br>
+    Final record: {{ n_done }} / 48 propositions completed.
+  </p>
+</div>
+
+<p class="muted"><a href="/logout">log out</a></p>
+{% endblock %}

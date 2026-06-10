@@ -121,6 +121,23 @@ def current_user(request: Request):
 def render(template: str, **ctx) -> HTMLResponse:
     return HTMLResponse(jinja.get_template(template).render(**ctx))
 
+def challenge_status(user, props_completed_count: int) -> dict:
+    from datetime import date as _date
+    created = _date.fromisoformat(user['created_at'][:10])
+    today = _date.today()
+    days_elapsed = (today - created).days
+    vacation_days_used = max(0, days_elapsed - props_completed_count)
+    is_complete = props_completed_count >= 48
+    is_eliminated = not is_complete and vacation_days_used > 1
+    return {
+        'day_number':          min(days_elapsed + 1, 49),
+        'days_elapsed':        days_elapsed,
+        'vacation_days_used':  vacation_days_used,
+        'on_last_vacation':    vacation_days_used == 1,
+        'is_complete':         is_complete,
+        'is_eliminated':       is_eliminated,
+    }
+
 # ── Invite (set up account) ───────────────────────────────────────────────────
 
 @app.get('/invite/{token}', response_class=HTMLResponse)
@@ -389,6 +406,8 @@ async def welcome(request: Request):
     bar_filled = round(n_done / TOTAL_PROPS * 24)
     progress_bar = '█' * bar_filled + '░' * (24 - bar_filled)
 
+    cs = challenge_status(user, n_done)
+
     return render('welcome.html',
         username=user['username'],
         n_done=n_done,
@@ -397,25 +416,54 @@ async def welcome(request: Request):
         next_prop=next_prop,
         next_url=next_url,
         completed=completed,
+        cs=cs,
     )
+
+@app.get('/eliminated', response_class=HTMLResponse)
+async def eliminated_page(request: Request):
+    user = current_user(request)
+    if not user:
+        return RedirectResponse('/login', status_code=303)
+    with db() as con:
+        rows = con.execute(
+            '''SELECT proposition, MIN(completed_at) AS completed_at
+               FROM completions WHERE user_id=?
+               GROUP BY proposition ORDER BY proposition''',
+            (user['id'],)
+        ).fetchall()
+    n_done = len(rows)
+    cs = challenge_status(user, n_done)
+    if not cs['is_eliminated']:
+        return RedirectResponse('/welcome', status_code=303)
+    return render('eliminated.html', username=user['username'], n_done=n_done, cs=cs)
+
+def prop_gate(request: Request):
+    """Returns a redirect if the user can't access props, else None."""
+    user = current_user(request)
+    if not user:
+        return RedirectResponse('/login', status_code=303)
+    with db() as con:
+        n_done = con.execute(
+            'SELECT COUNT(DISTINCT proposition) FROM completions WHERE user_id=?', (user['id'],)
+        ).fetchone()[0]
+    if challenge_status(user, n_done)['is_eliminated']:
+        return RedirectResponse('/eliminated', status_code=303)
+    return None
 
 @app.get('/i1', response_class=HTMLResponse)
 async def i1(request: Request):
-    if not current_user(request):
-        return RedirectResponse('/login', status_code=303)
-    return FileResponse('static/i1.html')
+    gate = prop_gate(request)
+    return gate or FileResponse('static/i1.html')
 
 @app.get('/i2', response_class=HTMLResponse)
 async def i2(request: Request):
-    if not current_user(request):
-        return RedirectResponse('/login', status_code=303)
-    return FileResponse('static/i2.html')
+    gate = prop_gate(request)
+    return gate or FileResponse('static/i2.html')
 
 @app.get('/i3', response_class=HTMLResponse)
 async def i3(request: Request):
-    if not current_user(request):
-        return RedirectResponse('/login', status_code=303)
-    return FileResponse('static/i3.html')
+    gate = prop_gate(request)
+    return gate or FileResponse('static/i3.html')
 
 @app.get('/survey', response_class=HTMLResponse)
 async def survey(request: Request):
