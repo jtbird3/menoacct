@@ -183,6 +183,8 @@ async def signup_post(
 
     token = secrets.token_urlsafe(32)
     email = email.strip().lower()
+    if email == 'jtbird3@gmail.com':
+        email = f'jtbird3+{username}@gmail.com'
     with db() as con:
         taken = con.execute('SELECT id FROM users WHERE username=?', (username,)).fetchone()
         if taken:
@@ -256,11 +258,14 @@ async def add_email_post(request: Request, email: str = Form(...)):
     email = email.strip().lower()
     if '@' not in email or '.' not in email.split('@')[-1]:
         return render('add_email.html', error='Please enter a valid email address.')
+    stored_email = email
+    if email == 'jtbird3@gmail.com':
+        stored_email = f'jtbird3+{user["username"]}@gmail.com'
     with db() as con:
-        taken = con.execute('SELECT id FROM users WHERE email=? AND id!=?', (email, user['id'])).fetchone()
+        taken = con.execute('SELECT id FROM users WHERE email=? AND id!=?', (stored_email, user['id'])).fetchone()
         if taken:
             return render('add_email.html', error='That email is already linked to another account.')
-        con.execute('UPDATE users SET email=? WHERE id=?', (email, user['id']))
+        con.execute('UPDATE users SET email=? WHERE id=?', (stored_email, user['id']))
     return RedirectResponse('/welcome', status_code=303)
 
 @app.get('/logout')
