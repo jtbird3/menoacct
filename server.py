@@ -561,6 +561,24 @@ async def admin_login_post(request: Request, key: str = Form(...)):
         return render('admin_login.html', error='Wrong key.')
     return RedirectResponse(f'/admin?key={key}', status_code=303)
 
+@app.get('/admin/make-reset-link')
+async def admin_make_reset_link(key: str = '', username: str = ''):
+    if key != ADMIN_KEY:
+        raise HTTPException(status_code=403, detail='Wrong key.')
+    if not username:
+        return JSONResponse({'ok': False, 'error': 'Provide ?username=...'}, status_code=400)
+    with db() as con:
+        user = con.execute('SELECT * FROM users WHERE username=?', (username,)).fetchone()
+        if not user:
+            return JSONResponse({'ok': False, 'error': f'User not found: {username}'}, status_code=404)
+        token = secrets.token_urlsafe(32)
+        expires = (datetime.utcnow() + timedelta(hours=24)).isoformat()
+        con.execute('DELETE FROM password_resets WHERE user_id=?', (user['id'],))
+        con.execute('INSERT INTO password_resets (user_id, token, expires_at) VALUES (?,?,?)',
+                    (user['id'], token, expires))
+    link = f"{BASE_URL}/reset-password/{token}"
+    return {'ok': True, 'username': username, 'link': link}
+
 @app.get('/admin/test-email')
 async def admin_test_email(key: str = '', to: str = ''):
     if key != ADMIN_KEY:
