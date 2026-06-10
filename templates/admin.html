@@ -98,20 +98,36 @@
 
 <h2>All users ({{ users|length }})</h2>
 <table>
-  <tr><th>name</th><th>username</th><th>phone</th><th>status</th></tr>
+  <tr><th>name</th><th>username</th><th>phone</th><th>challenge</th><th>props</th></tr>
   {% for u in users %}
+  {% set cs = user_cs.get(u.id) %}
   <tr>
     <td>{{ u.name }}</td>
     <td>{% if u.username %}<span class="done">{{ u.username }}</span>{% else %}<span class="pending">not set up</span>{% endif %}</td>
     <td class="muted">{{ u.phone }}</td>
     <td>
+      {% if cs %}
+        {% if cs.is_complete %}
+          <span class="done">complete 🎉</span>
+        {% elif cs.is_eliminated %}
+          <span style="color:#dc2626;">eliminated day {{ cs.day_number }}</span>
+        {% elif cs.vacation_days_used == 1 %}
+          <span style="color:#b45309;">day {{ cs.day_number }} ⚠ vac used</span>
+        {% else %}
+          <span class="muted">day {{ cs.day_number }} on track</span>
+        {% endif %}
+      {% else %}
+        <span class="pending">not started</span>
+      {% endif %}
+    </td>
+    <td>
       {% set user_completions = completions | selectattr('user_id', 'equalto', u.id) | list %}
       {% if user_completions %}
-        <span class="done">I.{{ user_completions|map(attribute='proposition')|list|join(', I.') }} done</span>
+        <span class="done">{{ user_completions|map(attribute='proposition')|list|unique|list|sort|join(', ') }}</span>
       {% elif u.username %}
-        <span class="muted">registered</span>
+        <span class="muted">none</span>
       {% else %}
-        <span class="pending">invite pending</span>
+        <span class="pending">—</span>
       {% endif %}
     </td>
   </tr>

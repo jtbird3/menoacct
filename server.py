@@ -541,8 +541,15 @@ async def admin(key: str = ''):
     for e in event_rows:
         k = f"{e['user_id']}_{e['proposition']}"
         events_by_key.setdefault(k, []).append(e)
+    # per-user completion counts for challenge status
+    completion_counts = {}
+    for c in completions:
+        uid = c['user_id']
+        completion_counts[uid] = completion_counts.get(uid, set()) | {c['proposition']}
+    user_cs = {u['id']: challenge_status(u, len(completion_counts.get(u['id'], set())))
+               for u in users if u['username']}
     return render('admin.html', users=users, completions=completions,
-                  events_by_key=events_by_key, surveys=surveys, key=key)
+                  events_by_key=events_by_key, surveys=surveys, key=key, user_cs=user_cs)
 
 @app.get('/admin/login', response_class=HTMLResponse)
 async def admin_login_get():
