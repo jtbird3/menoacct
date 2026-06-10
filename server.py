@@ -126,9 +126,9 @@ def challenge_status(user, props_completed_count: int) -> dict:
     created = _date.fromisoformat(user['created_at'][:10])
     today = _date.today()
     days_elapsed = (today - created).days
-    vacation_days_used = max(0, days_elapsed - props_completed_count)
+    vacation_days_used = max(0, days_elapsed - props_completed_count - 1)
     is_complete = props_completed_count >= 48
-    is_eliminated = not is_complete and vacation_days_used > 1
+    is_eliminated = not is_complete and vacation_days_used > 0
     return {
         'day_number':          min(days_elapsed + 1, 49),
         'days_elapsed':        days_elapsed,
