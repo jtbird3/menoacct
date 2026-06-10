@@ -1,0 +1,382 @@
+number: 2
+title: "Euclid I.2 — To place at a given point a straight line equal to a given straight line"
+enunciation: "To place at a given point (as an extremity) a straight line equal to a given straight line."
+conclusion: "Congratulations! You have completed Euclid's Elements Book I, Proposition 2."
+viewbox: "0 0 800 470"
+initial_visible:
+  - dc-given
+
+# ── SVG canvas ────────────────────────────────────────────────────────────────
+# Coordinates (all verified):
+#   A=(220,310)  B=(450,310)  C=(570,310)   AB=230, BC=120
+#   D=(335,111)  apex of equilateral △DAB   DB=DA=230
+#   G=(510,414)  on line DB extended, BG=BC=120
+#   L=(160,414)  on line DA extended, DL=DG=350, AL=BC=120 ✓
+#   Circle CGH: centre B, r=120   Circle GKL: centre D, r=350
+svg_canvas: |
+  <!-- Point A and segment BC — shown at start -->
+  <g id="dc-given" class="de">
+    <circle cx="220" cy="310" r="6" fill="#000"/>
+    <text x="207" y="337" font-family="inherit" font-size="18" fill="#000">A</text>
+    <line x1="450" y1="310" x2="570" y2="310" stroke="#000" stroke-width="3"/>
+    <circle cx="450" cy="310" r="6" fill="#000"/>
+    <circle cx="570" cy="310" r="6" fill="#000"/>
+    <text x="437" y="337" font-family="inherit" font-size="18" fill="#000">B</text>
+    <text x="564" y="337" font-family="inherit" font-size="18" fill="#000">C</text>
+  </g>
+  <!-- Segment AB -->
+  <g id="dc-ab" class="de">
+    <line x1="220" y1="310" x2="450" y2="310" stroke="#000" stroke-width="2" stroke-dasharray="6 4"/>
+  </g>
+  <!-- Equilateral triangle DAB with apex D -->
+  <g id="dc-tri" class="de">
+    <polygon points="220,310 450,310 335,111" fill="rgba(37,99,235,0.07)" stroke="#2563eb" stroke-width="1.5"/>
+    <circle cx="335" cy="111" r="6" fill="#2563eb"/>
+    <text x="340" y="108" font-family="inherit" font-size="18" fill="#2563eb">D</text>
+  </g>
+  <!-- Lines DA and DB produced beyond A and B (dashed extensions) -->
+  <g id="dc-ext" class="de">
+    <line x1="335" y1="111" x2="133" y2="460" stroke="#bbb" stroke-width="1" stroke-dasharray="6 4"/>
+    <line x1="335" y1="111" x2="537" y2="460" stroke="#bbb" stroke-width="1" stroke-dasharray="6 4"/>
+  </g>
+  <!-- Circle CGH: centre B(450,310), radius BC=120 -->
+  <g id="dc-circle-cgh" class="de">
+    <circle cx="450" cy="310" r="120" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="10 6" opacity=".7"/>
+    <text x="562" y="210" font-family="inherit" font-size="14" fill="#dc2626" opacity=".85">&#x25CB;CGH</text>
+  </g>
+  <!-- Point G (on circle CGH and on line DB extended) -->
+  <g id="dc-g" class="de">
+    <circle cx="510" cy="414" r="5" fill="#dc2626"/>
+    <text x="518" y="432" font-family="inherit" font-size="16" fill="#dc2626">G</text>
+  </g>
+  <!-- Circle GKL: centre D(335,111), radius DG=350 -->
+  <g id="dc-circle-gkl" class="de">
+    <circle cx="335" cy="111" r="350" fill="none" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="10 6" opacity=".5"/>
+    <text x="624" y="450" font-family="inherit" font-size="14" fill="#7c3aed" opacity=".85">&#x25CB;GKL</text>
+  </g>
+  <!-- Point L (on circle GKL and on line DA extended) -->
+  <g id="dc-l" class="de">
+    <circle cx="160" cy="414" r="5" fill="#7c3aed"/>
+    <text x="138" y="432" font-family="inherit" font-size="16" fill="#7c3aed">L</text>
+  </g>
+  <!-- Segment AL — the answer (green) -->
+  <g id="dc-al" class="de">
+    <line x1="220" y1="310" x2="160" y2="414" stroke="#16a34a" stroke-width="3"/>
+  </g>
+  <!-- Tick marks showing AL = BC -->
+  <g id="dc-ticks" class="de">
+    <line x1="510" y1="303" x2="510" y2="317" stroke="#16a34a" stroke-width="2.5"/>
+    <line x1="184" y1="359" x2="196" y2="367" stroke="#16a34a" stroke-width="2.5"/>
+    <text x="164" y="375" font-family="inherit" font-size="11" fill="#16a34a" opacity=".85">AL = BC</text>
+  </g>
+
+# ── Steps ─────────────────────────────────────────────────────────────────────
+steps:
+  - type: yn
+    type_rationale: "Perceptual orientation — student simply confirms the given objects are visible."
+    q: "We are given a point A and a straight line BC. Can you see both in the diagram?"
+    no: "Point A is the dot on the left. Segment BC is the bold line on the right with endpoints B and C."
+    text: "Let A be the given point, and BC the given straight line."
+    just: null
+    side: "Given: A, line BC"
+    reveal: []
+    criteria: null
+    hint: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: yn
+    type_rationale: "Goal orientation — binary confirmation before beginning the proof."
+    q: "Our goal is to place a straight line starting at A that is equal in length to BC. Ready?"
+    no: "We want to draw a new segment with one endpoint at A whose length equals BC."
+    text: "It is required to place at the point A (as an extremity) a straight line equal to the given straight line BC."
+    just: null
+    side: "Goal: AL = BC"
+    reveal: []
+    criteria: null
+    hint: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: open
+    type_rationale: "Student must recall Postulate 1 before we use it — generative recall, not perceptual."
+    q: "What does Postulate 1 allow us to do?"
+    criteria: "Draw a straight line from any point to any point."
+    hint: "Postulate 1: To draw a straight line from any point to any point."
+    text: "Post. 1: To draw a straight line from any point to any point."
+    just: "Post. 1"
+    side: null
+    reveal: []
+    no: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: draw
+    type_rationale: "New construction element (segment AB) revealed — student confirms Post. 1 applies."
+    q: "Can we join A to B with a straight line?"
+    reveal:
+      - dc-ab
+    text: "Let the straight line AB be joined."
+    just: "Post. 1"
+    side: "Join AB"
+    criteria: null
+    hint: null
+    no: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: open
+    type_rationale: "Student must connect to the previously proven Proposition I.1 — non-trivial recall."
+    q: "We need equal lengths near A. Which earlier result constructs equal segments on a line?"
+    criteria: "Mention Proposition I.1, equilateral triangle, or that three equal segments come from two intersecting circles."
+    hint: "In I.1 we constructed an equilateral triangle on AB — all three sides equal. We build on that here."
+    text: null
+    just: null
+    side: null
+    reveal: []
+    no: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: draw
+    type_rationale: "New element: equilateral triangle DAB. Student invokes I.1 as a previously proven result."
+    q: "Can we construct an equilateral triangle DAB on the line AB? (We proved this in I.1.)"
+    reveal:
+      - dc-tri
+    text: "On the straight line AB let the equilateral triangle DAB be constructed."
+    just: "I.1"
+    side: "△DAB equilateral"
+    criteria: null
+    hint: null
+    no: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: open
+    type_rationale: "Student must recall Postulate 2 before we use it."
+    q: "What does Postulate 2 allow us to do?"
+    criteria: "Produce (extend) a finite straight line continuously in a straight line."
+    hint: "Postulate 2: To produce a finite straight line continuously in a straight line."
+    text: "Post. 2: To produce a finite straight line continuously in a straight line."
+    just: "Post. 2"
+    side: null
+    reveal: []
+    no: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: draw
+    type_rationale: "New construction: extend lines DA and DB beyond A and B respectively."
+    q: "Can we extend line DA past A, and line DB past B?"
+    reveal:
+      - dc-ext
+    text: "Let the straight lines AE and BF be produced in a straight line with DA and DB."
+    just: "Post. 2"
+    side: "Extend DA, DB"
+    criteria: null
+    hint: null
+    no: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: open
+    type_rationale: "Student must recall Postulate 3 before we use it."
+    q: "What does Postulate 3 allow us to do?"
+    criteria: "Describe a circle with any centre and any radius (distance)."
+    hint: "Postulate 3: To describe a circle with any centre and distance."
+    text: "Post. 3: To describe a circle with any centre and distance."
+    just: "Post. 3"
+    side: null
+    reveal: []
+    no: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: draw
+    type_rationale: "New construction: circle CGH. Student confirms Post. 3 applies."
+    q: "Can we draw a circle with centre B and radius BC?"
+    reveal:
+      - dc-circle-cgh
+    text: "With centre B and distance BC let the circle CGH be described."
+    just: "Post. 3"
+    side: "⊙CGH, r = BC"
+    criteria: null
+    hint: null
+    no: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: draw
+    type_rationale: "Identify point G — the intersection of the circle with line BF. Reveal reveals G."
+    q: "Let G be the point where circle CGH meets the extension of DB beyond B."
+    reveal:
+      - dc-g
+    text: null
+    just: null
+    side: "G = ⊙CGH ∩ BF"
+    criteria: null
+    hint: null
+    no: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: draw
+    type_rationale: "New construction: circle GKL. Student confirms Post. 3 applies again."
+    q: "Can we draw a circle with centre D and radius DG?"
+    reveal:
+      - dc-circle-gkl
+    text: "With centre D and distance DG let the circle GKL be described."
+    just: "Post. 3"
+    side: "⊙GKL, r = DG"
+    criteria: null
+    hint: null
+    no: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: draw
+    type_rationale: "Identify point L — the key result point. Reveal it."
+    q: "Let L be the point where circle GKL meets the extension of DA beyond A."
+    reveal:
+      - dc-l
+    text: null
+    just: null
+    side: "L = ⊙GKL ∩ AE"
+    criteria: null
+    hint: null
+    no: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: open
+    type_rationale: "Student must name the relationship — BC and BG are both radii. Generative, not perceptual."
+    q: "What are BC and BG, with respect to circle CGH?"
+    criteria: "They are both radii (or: distances from the centre) of circle CGH."
+    hint: "Both BC and BG run from the centre B to the circle — what do we call such segments?"
+    text: null
+    just: null
+    side: null
+    reveal: []
+    no: null
+    hint_linked_idx: null
+    display_linked_idx: 9
+
+  - type: open
+    type_rationale: "Student deduces equality of radii — requires knowing Def. 15."
+    q: "So what can we say about the lengths of BC and BG?"
+    criteria: "They are equal — all radii of the same circle are equal (Def. 15)."
+    hint: "Definition 15: A circle is a figure where all straight lines from the centre are equal."
+    reveal:
+      - dc-ticks
+    text: "Since B is the centre of circle CGH, BC is equal to BG."
+    just: "Def. 15"
+    side: "BC = BG  (⊙CGH)"
+    no: null
+    hint_linked_idx: null
+    display_linked_idx: 9
+
+  - type: open
+    type_rationale: "Parallel structure to the previous — student applies same reasoning to circle GKL."
+    q: "What are DL and DG, with respect to circle GKL?"
+    criteria: "They are both radii of circle GKL."
+    hint: "Both DL and DG run from the centre D to the circle."
+    text: null
+    just: null
+    side: null
+    reveal: []
+    no: null
+    hint_linked_idx: null
+    display_linked_idx: 11
+
+  - type: open
+    type_rationale: "Student deduces equality — same Def. 15 reasoning."
+    q: "So what can we say about DL and DG?"
+    criteria: "They are equal — radii of circle GKL."
+    hint: "All radii of the same circle are equal."
+    text: "Since D is the centre of circle GKL, DL is equal to DG."
+    just: "Def. 15"
+    side: "DL = DG  (⊙GKL)"
+    reveal: []
+    no: null
+    hint_linked_idx: null
+    display_linked_idx: 11
+
+  - type: open
+    type_rationale: "Student connects DA and DB back to the equilateral triangle — requires recalling I.1."
+    q: "DA and DB are both sides of equilateral triangle DAB. What follows about them?"
+    criteria: "DA equals DB — sides of an equilateral triangle are all equal."
+    hint: "An equilateral triangle has all three sides equal."
+    text: "And DA is equal to DB, since the triangle DAB is equilateral."
+    just: "I.1"
+    side: "DA = DB  (△DAB)"
+    reveal: []
+    no: null
+    hint_linked_idx: null
+    display_linked_idx: 5
+
+  - type: open
+    type_rationale: "Student must recall CN.3 — generative recall of a key axiom."
+    q: "What does Common Notion 3 state?"
+    criteria: "Things equal to the same thing (or equal things) subtracted from equal things leave equal remainders."
+    hint: "Common Notion 3: If equals be subtracted from equals, the remainders are equal."
+    text: "C.N. 3: If equals be subtracted from equals, the remainders are equal."
+    just: "C.N. 3"
+    side: null
+    reveal: []
+    no: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: open
+    type_rationale: "Student applies CN.3 to derive AL = BG — the central deductive step."
+    q: "We have DL = DG and DA = DB. Subtract DA from DL and DB from DG. What can we say about the remainders AL and BG?"
+    criteria: "AL equals BG — by Common Notion 3, subtracting equal quantities (DA=DB) from equal quantities (DL=DG) leaves equal remainders."
+    hint: "DL − DA = AL, and DG − DB = BG. Since DL=DG and DA=DB, CN.3 gives AL = BG."
+    reveal:
+      - dc-al
+    text: "Therefore the remainder AL is equal to the remainder BG."
+    just: "C.N. 3"
+    side: "AL = BG  (C.N. 3)"
+    no: null
+    hint_linked_idx: null
+    display_linked_idx: 18
+
+  - type: yn
+    type_rationale: "Student confirms BC=BG was already proved — then CN.1 connects AL to BC. Simple binary confirmation."
+    q: "We proved BC = BG and now AL = BG. By Common Notion 1, does AL = BC?"
+    no: "CN.1: things equal to the same thing are equal to one another. BC=BG and AL=BG, so AL=BC."
+    reveal:
+      - dc-ticks
+    text: "But BC was also proved equal to BG; therefore AL is also equal to BC."
+    just: "C.N. 1"
+    side: "AL = BC ✓"
+    criteria: null
+    hint: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: open
+    type_rationale: "Student states the conclusion — ensures they understand what was placed where."
+    q: "What have we placed at point A, and what is its relationship to BC?"
+    criteria: "A straight line (AL) has been placed at A equal in length to BC."
+    hint: "Look at segment AL in the diagram. How does its length compare to BC?"
+    text: "Therefore at the given point A the straight line AL has been placed equal to the given straight line BC."
+    just: null
+    side: null
+    reveal: []
+    no: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: open
+    type_rationale: "Student distinguishes QEF from QED — important conceptual closure."
+    q: "Q.E.F. or Q.E.D.?"
+    criteria: "Q.E.F. — quod erat faciendum, which was to be done (a construction, not a theorem)."
+    hint: "Q.E.F. = 'which was to be done' (construction). Q.E.D. = 'which was to be demonstrated' (proof of a truth). Which did we do?"
+    text: "(Being) what it was required to do."
+    just: "Q.E.F."
+    side: "Q.E.F."
+    reveal: []
+    no: null
+    hint_linked_idx: null
+    display_linked_idx: null

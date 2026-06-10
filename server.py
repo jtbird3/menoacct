@@ -40,8 +40,11 @@ app.add_middleware(CORSMiddleware,
 )
 jinja = Environment(loader=FileSystemLoader('templates'), autoescape=True)
 
-ADMIN_KEY = os.environ.get('ADMIN_KEY', 'admin')
-BASE_URL  = os.environ.get('BASE_URL', 'https://menoacct-production.up.railway.app')
+ADMIN_KEY    = os.environ.get('ADMIN_KEY', 'admin')
+BASE_URL     = os.environ.get('BASE_URL', 'https://menoacct-production.up.railway.app')
+# Set RESEND_FROM to a verified-domain address in Railway, e.g. "Menochat <noreply@menochat.app>".
+# The default onboarding@resend.dev is Resend's sandbox and only delivers to the account owner.
+RESEND_FROM  = os.environ.get('RESEND_FROM', 'Menochat <onboarding@resend.dev>')
 
 # ── Database ──────────────────────────────────────────────────────────────────
 
@@ -212,7 +215,7 @@ def send_email(to: str, subject: str, body: str):
     if not key:
         raise RuntimeError('RESEND_API_KEY not set')
     payload = _json.dumps({
-        'from': 'Menochat <onboarding@resend.dev>',
+        'from': RESEND_FROM,
         'to': [to],
         'subject': subject,
         'text': body,
@@ -346,7 +349,7 @@ async def reset_post(token: str, password: str = Form(...), confirm: str = Form(
 
 # ── App pages ──────────────────────────────────────────────────────────────────
 
-PROP_URLS = {1: '/i1', 2: '/i2'}
+PROP_URLS = {1: '/i1', 2: '/i2', 3: '/i3'}
 TOTAL_PROPS = 48
 
 def fmt_date(dt_str):
@@ -401,6 +404,12 @@ async def i2(request: Request):
     if not current_user(request):
         return RedirectResponse('/login', status_code=303)
     return FileResponse('static/i2.html')
+
+@app.get('/i3', response_class=HTMLResponse)
+async def i3(request: Request):
+    if not current_user(request):
+        return RedirectResponse('/login', status_code=303)
+    return FileResponse('static/i3.html')
 
 @app.get('/survey', response_class=HTMLResponse)
 async def survey(request: Request):
@@ -492,16 +501,16 @@ async def admin_login_post(request: Request, key: str = Form(...)):
     return RedirectResponse(f'/admin?key={key}', status_code=303)
 
 @app.get('/admin/test-email')
-async def admin_test_email(key: str = ''):
+async def admin_test_email(key: str = '', to: str = ''):
     if key != ADMIN_KEY:
         raise HTTPException(status_code=403, detail='Wrong key.')
-    import asyncio
-    asyncio.create_task(send_email_bg(
-        os.environ.get('SMTP_USER', ''),
-        'Menochat SMTP test',
-        f'SMTP is working. BASE_URL={BASE_URL}'
-    ))
-    return {'ok': True, 'message': 'Email queued — check logs for result'}
+    if not to:
+        return JSONResponse({'ok': False, 'error': 'Provide ?to=someone@example.com'}, status_code=400)
+    try:
+        result = send_email(to, 'Menochat email test', f'Email is working.\n\nBASE_URL={BASE_URL}\nRESEND_FROM={RESEND_FROM}')
+        return {'ok': True, 'result': result}
+    except Exception as e:
+        return JSONResponse({'ok': False, 'error': str(e)}, status_code=500)
 
 @app.get('/admin/reset-user-password')
 async def admin_reset_password(key: str = '', username: str = '', password: str = ''):

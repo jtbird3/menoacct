@@ -1,0 +1,250 @@
+number: 3
+title: "Euclid I.3"
+enunciation: "Given two unequal straight lines, to cut off from the greater a straight line equal to the less."
+conclusion: "Congratulations! You have completed Euclid's Elements Book I, Proposition 3."
+viewbox: "0 0 800 440"
+initial_visible:
+  - dc-given
+svg_canvas: |
+  <!-- Line AB (greater) and its endpoints — shown at start -->
+  <g id="dc-given" class="de">
+    <line x1="130" y1="230" x2="670" y2="230" stroke="#000" stroke-width="3"/>
+    <circle cx="130" cy="230" r="6" fill="#000"/>
+    <circle cx="670" cy="230" r="6" fill="#000"/>
+    <text x="117" y="257" font-family="inherit" font-size="18" fill="#000">A</text>
+    <text x="664" y="257" font-family="inherit" font-size="18" fill="#000">B</text>
+    <text x="400" y="218" font-family="inherit" font-size="12" fill="#999" text-anchor="middle">(greater)</text>
+    <!-- Line C (less) shown separately below -->
+    <line x1="430" y1="390" x2="575" y2="390" stroke="#000" stroke-width="3"/>
+    <circle cx="430" cy="390" r="6" fill="#000"/>
+    <circle cx="575" cy="390" r="6" fill="#000"/>
+    <text x="502" y="415" font-family="inherit" font-size="18" fill="#000" text-anchor="middle">C</text>
+    <text x="502" y="378" font-family="inherit" font-size="12" fill="#999" text-anchor="middle">(less)</text>
+  </g>
+  <!-- Segment AD (blue dashed) and point D — placed by I.2 equal to C -->
+  <g id="dc-d" class="de">
+    <line x1="130" y1="85" x2="130" y2="230" stroke="#2563eb" stroke-width="2" stroke-dasharray="6 4"/>
+    <circle cx="130" cy="85" r="5" fill="#2563eb"/>
+    <text x="141" y="89" font-family="inherit" font-size="18" fill="#2563eb">D</text>
+  </g>
+  <!-- Circle DEF: centre A(130,230), radius AD=145 -->
+  <g id="dc-circle-def" class="de">
+    <circle cx="130" cy="230" r="145" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="10 6" opacity=".7"/>
+    <text x="264" y="76" font-family="inherit" font-size="14" fill="#dc2626" opacity=".85">&#x25CB;DEF</text>
+  </g>
+  <!-- Point E on AB (where circle DEF meets AB) -->
+  <g id="dc-e" class="de">
+    <circle cx="275" cy="230" r="6" fill="#16a34a"/>
+    <text x="268" y="257" font-family="inherit" font-size="18" fill="#16a34a">E</text>
+  </g>
+  <!-- Segment AE highlighted green (the result) -->
+  <g id="dc-ae" class="de">
+    <line x1="130" y1="230" x2="275" y2="230" stroke="#16a34a" stroke-width="4"/>
+  </g>
+  <!-- Tick marks showing AE = C -->
+  <g id="dc-ticks" class="de">
+    <line x1="202" y1="223" x2="202" y2="237" stroke="#16a34a" stroke-width="2.5"/>
+    <line x1="502" y1="383" x2="502" y2="397" stroke="#16a34a" stroke-width="2.5"/>
+    <text x="155" y="218" font-family="inherit" font-size="11" fill="#16a34a" opacity=".9">AE = C</text>
+  </g>
+
+steps:
+  - type: yn
+    type_rationale: "Perceptual orientation — student confirms both given objects are visible before we start."
+    q: "We are given line AB (the greater) and line C (the less). Can you see both in the diagram?"
+    no: "Line AB is the long horizontal line at top, with A on the left and B on the right. Line C is the shorter segment below it."
+    text: "Let AB and C be the two given unequal straight lines, of which AB is the greater."
+    just: null
+    side: "Given: AB > C"
+    reveal: []
+    criteria: null
+    hint: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: yn
+    type_rationale: "Goal orientation — binary confirmation of what we need to construct before the proof begins."
+    q: "We need to cut off from AB a piece AE equal to C — that is, mark a point E on AB so that AE = C. Ready?"
+    no: "We want to find a point E on AB such that the segment AE has the same length as C."
+    text: "It is required to cut off from AB the greater a straight line equal to C the less."
+    just: null
+    side: "Goal: AE = C"
+    reveal: []
+    criteria: null
+    hint: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: open
+    type_rationale: "Student recalls I.2 before we apply it — generative recall of the immediately preceding proposition."
+    q: "Which proposition lets us place, at a given point, a straight line equal to a given straight line?"
+    criteria: "Proposition I.2 — it shows how to place a straight line equal to a given line with one end at any given point."
+    hint: "We proved this in the last proposition: how to transfer a segment to a given endpoint."
+    text: null
+    just: null
+    side: null
+    reveal: []
+    no: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: draw
+    type_rationale: "Construction action — applying I.2 to place AD = C. Reveals segment AD and point D."
+    q: "By I.2, let AD be placed at A equal to C."
+    reveal:
+      - dc-d
+    text: "At the point A let AD be placed equal to the straight line C."
+    just: "I.2"
+    side: "AD = C  (I.2)"
+    criteria: null
+    hint: null
+    no: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: open
+    type_rationale: "Student recalls Post. 3 before we use it — required generative recall of a postulate."
+    q: "What can we do by Postulate 3?"
+    criteria: "Describe (draw) a circle with any given centre and any given radius (distance)."
+    hint: "Postulate 3: To describe a circle with any centre and distance."
+    text: "Post. 3: To describe a circle with any centre and distance."
+    just: "Post. 3"
+    side: null
+    reveal: []
+    no: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: draw
+    type_rationale: "Construction action — drawing circle DEF with centre A and radius AD. Reveals the circle."
+    q: "With centre A and distance AD, let circle DEF be described."
+    reveal:
+      - dc-circle-def
+    text: "With centre A and distance AD let the circle DEF be described."
+    just: "Post. 3"
+    side: "⊙DEF, r = AD"
+    criteria: null
+    hint: null
+    no: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: draw
+    type_rationale: "Identifying point E — where the circle cuts AB. Reveals E and anchors the next deductive step."
+    q: "Let E be the point where circle A meets segment AB."
+    reveal:
+      - dc-e
+    text: null
+    just: null
+    side: "E = ⊙DEF ∩ AB"
+    criteria: null
+    hint: null
+    no: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: open
+    type_rationale: "Student deduces AE = AD from Def. 15 — requires knowing that radii of a circle are equal."
+    q: "What are AE and AD with respect to circle A?"
+    criteria: "Radii / equal — AE and AD are both radii of circle A, so they are equal (Definition 15)."
+    hint: "Definition 15: All straight lines drawn from the centre of a circle to its boundary are equal."
+    reveal:
+      - dc-ae
+    text: "Since A is the centre of circle DEF, AE is equal to AD."
+    just: "Def. 15"
+    side: "AE = AD  (Def. 15)"
+    no: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: yn
+    type_rationale: "Confirms the earlier construction — student recalls AD was placed equal to C."
+    q: "Was AD drawn equal to C?"
+    no: "Yes — we placed AD at A equal to C using I.2 in a previous step."
+    text: null
+    just: null
+    side: null
+    reveal: []
+    criteria: null
+    hint: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: open
+    type_rationale: "Student names the proposition used — generative recall of I.2."
+    q: "By which Proposition?"
+    criteria: "I.2 — the proposition for placing a straight line equal to a given line at a given point."
+    hint: "We used this in the construction: how to transfer a segment to a given endpoint."
+    text: null
+    just: null
+    side: null
+    reveal: []
+    no: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: yn
+    type_rationale: "Confirms the radius equality established in the previous step."
+    q: "And AE = AD?"
+    no: "Yes — AE and AD are both radii of circle A, so they are equal by Definition 15."
+    text: null
+    just: null
+    side: null
+    reveal: []
+    criteria: null
+    hint: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: yn
+    type_rationale: "Student confirms C.N. 1 before applying it — binary recall of the axiom."
+    q: "Are things equal to the same thing equal to each other?"
+    no: "Yes — Common Notion 1: things which are equal to the same thing are also equal to one another."
+    text: "But C is also equal to AD; therefore AE is also equal to C."
+    just: "C.N. 1"
+    side: "AE = C ✓"
+    reveal: []
+    criteria: null
+    hint: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: yn
+    type_rationale: "Student draws the final conclusion — AE = C follows from the chain AD = C and AE = AD."
+    q: "Does AE = C?"
+    no: "Yes — AD = C and AE = AD, so by C.N. 1 we have AE = C."
+    reveal:
+      - dc-ticks
+    text: null
+    just: null
+    side: null
+    criteria: null
+    hint: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: open
+    type_rationale: "Student states the conclusion — ensures they understand what the construction achieved."
+    q: "What have we cut off from AB, and what is its relationship to C?"
+    criteria: "We have cut off AE from AB the greater, and AE equals C the less."
+    hint: "Look at segment AE — it starts at A and ends at E on AB. How long is AE compared to C?"
+    text: "Therefore from AB the greater AE has been cut off equal to C the less."
+    just: null
+    side: null
+    reveal: []
+    no: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: open
+    type_rationale: "Student distinguishes Q.E.F. from Q.E.D. — conceptual closure distinguishing construction from theorem."
+    q: "Q.E.F. or Q.E.D.?"
+    criteria: "Q.E.F. — quod erat faciendum, which was to be done. This was a construction problem, not a theorem to be proved."
+    hint: "Q.E.F. = 'which was to be done' (constructions). Q.E.D. = 'which was to be demonstrated' (theorems). Which type was I.3?"
+    text: "(Being) what it was required to do."
+    just: "Q.E.F."
+    side: "Q.E.F."
+    reveal: []
+    no: null
+    hint_linked_idx: null
+    display_linked_idx: null

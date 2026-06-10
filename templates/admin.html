@@ -80,11 +80,12 @@
 <h2>Feedback ({{ surveys|length }})</h2>
 {% if surveys %}
 <table>
-  <tr><th>when</th><th>who</th><th>experience</th><th>liked</th><th>disliked</th></tr>
+  <tr><th>when</th><th>who</th><th>prop</th><th>experience</th><th>liked</th><th>disliked</th></tr>
   {% for s in surveys %}
   <tr>
     <td class="muted">{{ s.completed_at[:16] }}</td>
     <td>{{ s.name }} <span class="muted">@{{ s.username }}</span></td>
+    <td class="green">I.{{ s.proposition }}</td>
     <td>{{ s.q1 }}</td>
     <td>{{ s.q2 }}</td>
     <td>{{ s.q3 }}</td>
