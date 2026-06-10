@@ -216,11 +216,20 @@ def send_email(to: str, subject: str, body: str):
     msg['From']    = user
     msg['To']      = to
     ctx = ssl.create_default_context()
-    with smtplib.SMTP(host, port) as s:
+    with smtplib.SMTP(host, port, timeout=15) as s:
         s.ehlo()
         s.starttls(context=ctx)
         s.login(user, pwd)
         s.sendmail(user, to, msg.as_string())
+
+async def send_email_bg(to: str, subject: str, body: str):
+    import asyncio
+    loop = asyncio.get_event_loop()
+    try:
+        await loop.run_in_executor(None, send_email, to, subject, body)
+        print(f"[EMAIL] sent to {to}")
+    except Exception as e:
+        print(f"[EMAIL ERROR] {to}: {e}")
 
 # ── Login / Logout ─────────────────────────────────────────────────────────────
 
@@ -295,15 +304,12 @@ async def forgot_post(request: Request):
                     con.execute('INSERT INTO password_resets (user_id, token, expires_at) VALUES (?,?,?)',
                                 (user['id'], token, expires))
                 link = f"{BASE_URL}/reset-password/{token}"
-                try:
-                    send_email(
-                        user['email'],
-                        'Reset your Menochat password',
-                        f"Click this link to reset your password (expires in 1 hour):\n\n{link}\n\nIf you didn't request this, ignore it."
-                    )
-                    print(f"[EMAIL] reset sent to {user['email']}")
-                except Exception as e:
-                    print(f"[EMAIL ERROR] failed to send reset to {user['email']}: {e}")
+                import asyncio
+                asyncio.create_task(send_email_bg(
+                    user['email'],
+                    'Reset your Menochat password',
+                    f"Click this link to reset your password (expires in 1 hour):\n\n{link}\n\nIf you didn't request this, ignore it."
+                ))
     except Exception as e:
         print(f"[FORGOT ERROR] {e}")
     return render('forgot_password.html', sent=True, error=None)
@@ -486,15 +492,13 @@ async def admin_login_post(request: Request, key: str = Form(...)):
 async def admin_test_email(key: str = ''):
     if key != ADMIN_KEY:
         raise HTTPException(status_code=403, detail='Wrong key.')
-    try:
-        send_email(
-            os.environ.get('SMTP_USER', ''),
-            'Menochat SMTP test',
-            f'SMTP is working. BASE_URL={BASE_URL}'
-        )
-        return {'ok': True, 'message': f"Email sent to {os.environ.get('SMTP_USER')}"}
-    except Exception as e:
-        return {'ok': False, 'error': str(e)}
+    import asyncio
+    asyncio.create_task(send_email_bg(
+        os.environ.get('SMTP_USER', ''),
+        'Menochat SMTP test',
+        f'SMTP is working. BASE_URL={BASE_URL}'
+    ))
+    return {'ok': True, 'message': 'Email queued — check logs for result'}
 
 @app.post('/admin/seed')
 async def admin_seed(request: Request):
