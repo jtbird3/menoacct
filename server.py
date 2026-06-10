@@ -267,25 +267,32 @@ async def forgot_get():
     return render('forgot_password.html', sent=False, error=None)
 
 @app.post('/forgot-password', response_class=HTMLResponse)
-async def forgot_post(username: str = Form(...)):
-    with db() as con:
-        user = con.execute('SELECT * FROM users WHERE username=?', (username.strip(),)).fetchone()
-    if user and user['email'] and '@signup.menochat.app' not in user['email']:
-        token = secrets.token_urlsafe(32)
-        expires = (datetime.utcnow() + timedelta(hours=1)).isoformat()
-        with db() as con:
-            con.execute('DELETE FROM password_resets WHERE user_id=?', (user['id'],))
-            con.execute('INSERT INTO password_resets (user_id, token, expires_at) VALUES (?,?,?)',
-                        (user['id'], token, expires))
-        link = f"{BASE_URL}/reset-password/{token}"
-        try:
-            send_email(
-                user['email'],
-                'Reset your Menochat password',
-                f"Click this link to reset your password (expires in 1 hour):\n\n{link}\n\nIf you didn't request this, ignore it."
-            )
-        except Exception as e:
-            print(f"[EMAIL ERROR] failed to send reset to {user['email']}: {e}")
+async def forgot_post(request: Request):
+    try:
+        form = await request.form()
+        username = (form.get('username') or '').strip()
+        if username:
+            with db() as con:
+                user = con.execute('SELECT * FROM users WHERE username=?', (username,)).fetchone()
+            if user and user['email'] and '@signup.menochat.app' not in user['email'] and '@noemail.invalid' not in user['email']:
+                token = secrets.token_urlsafe(32)
+                expires = (datetime.utcnow() + timedelta(hours=1)).isoformat()
+                with db() as con:
+                    con.execute('DELETE FROM password_resets WHERE user_id=?', (user['id'],))
+                    con.execute('INSERT INTO password_resets (user_id, token, expires_at) VALUES (?,?,?)',
+                                (user['id'], token, expires))
+                link = f"{BASE_URL}/reset-password/{token}"
+                try:
+                    send_email(
+                        user['email'],
+                        'Reset your Menochat password',
+                        f"Click this link to reset your password (expires in 1 hour):\n\n{link}\n\nIf you didn't request this, ignore it."
+                    )
+                    print(f"[EMAIL] reset sent to {user['email']}")
+                except Exception as e:
+                    print(f"[EMAIL ERROR] failed to send reset to {user['email']}: {e}")
+    except Exception as e:
+        print(f"[FORGOT ERROR] {e}")
     return render('forgot_password.html', sent=True, error=None)
 
 @app.get('/reset-password/{token}', response_class=HTMLResponse)
