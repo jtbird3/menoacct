@@ -36,6 +36,7 @@ app.add_middleware(CORSMiddleware,
     allow_origins=['https://www.menochat.app', 'https://menoacct-production-d2e7.up.railway.app'],
     allow_methods=['POST'],
     allow_headers=['Content-Type'],
+    allow_credentials=True,
 )
 jinja = Environment(loader=FileSystemLoader('templates'), autoescape=True)
 
@@ -251,11 +252,12 @@ async def add_email_get(request: Request):
     return render('add_email.html', error=None)
 
 @app.post('/add-email', response_class=HTMLResponse)
-async def add_email_post(request: Request, email: str = Form(...)):
+async def add_email_post(request: Request):
     user = current_user(request)
     if not user:
         return RedirectResponse('/login', status_code=303)
-    email = email.strip().lower()
+    form = await request.form()
+    email = (form.get('email') or '').strip().lower()
     if '@' not in email or '.' not in email.split('@')[-1]:
         return render('add_email.html', error='Please enter a valid email address.')
     stored_email = email

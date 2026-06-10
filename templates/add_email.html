@@ -4,14 +4,49 @@
 <h1>One quick thing</h1>
 <p style="margin-bottom:16px;">Add your email so you can reset your password if you ever get locked out.</p>
 
-{% if error %}<div class="error">{{ error }}</div>{% endif %}
-
-<form method="post" action="/add-email">
+<div id="form-section">
+{% if error %}<div class="error" id="ae-error">{{ error }}</div>{% endif %}
+<form id="ae-form">
   <div class="field">
     <label>email</label>
-    <input type="email" name="email" required autocomplete="email" spellcheck="false">
+    <input type="email" name="email" id="ae-email" required autocomplete="email" spellcheck="false">
   </div>
-  <button class="btn" type="submit">&gt; Save and continue</button>
+  <button class="btn" type="submit" id="ae-btn">&gt; Save and continue</button>
 </form>
 <p style="margin-top:16px;font-size:13px;"><a href="/welcome">Skip for now</a></p>
+</div>
+
+<script>
+document.getElementById('ae-form').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  const btn = document.getElementById('ae-btn');
+  btn.disabled = true;
+  btn.textContent = '...';
+  const email = document.getElementById('ae-email').value;
+  try {
+    const res = await fetch('https://menoacct-production.up.railway.app/add-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: 'email=' + encodeURIComponent(email),
+      credentials: 'include',
+    });
+    if (res.ok || res.redirected) {
+      window.location.href = '/welcome';
+    } else {
+      const html = await res.text();
+      const match = html.match(/class="error"[^>]*>([^<]+)</);
+      const errDiv = document.getElementById('ae-error') || document.createElement('div');
+      errDiv.className = 'error';
+      errDiv.id = 'ae-error';
+      errDiv.textContent = match ? match[1] : 'Something went wrong. Try again.';
+      document.getElementById('ae-form').before(errDiv);
+      btn.disabled = false;
+      btn.textContent = '> Save and continue';
+    }
+  } catch(err) {
+    btn.disabled = false;
+    btn.textContent = '> Save and continue';
+  }
+});
+</script>
 {% endblock %}
