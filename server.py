@@ -503,6 +503,19 @@ async def admin_test_email(key: str = ''):
     ))
     return {'ok': True, 'message': 'Email queued — check logs for result'}
 
+@app.get('/admin/reset-user-password')
+async def admin_reset_password(key: str = '', username: str = '', password: str = ''):
+    if key != ADMIN_KEY:
+        raise HTTPException(status_code=403, detail='Wrong key.')
+    if not username or not password:
+        raise HTTPException(status_code=400, detail='username and password required.')
+    with db() as con:
+        user = con.execute('SELECT id FROM users WHERE username=?', (username,)).fetchone()
+        if not user:
+            return {'ok': False, 'error': f'User {username} not found.'}
+        con.execute('UPDATE users SET password_hash=? WHERE id=?', (hash_password(password), user['id']))
+    return {'ok': True, 'message': f'Password reset for {username}'}
+
 @app.post('/admin/seed')
 async def admin_seed(request: Request):
     body = await request.json()
