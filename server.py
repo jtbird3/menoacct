@@ -31,7 +31,10 @@ def verify_password(password: str, stored: str) -> bool:
     salt, key = data[:16], data[16:]
     check = hashlib.pbkdf2_hmac('sha256', password.encode(), salt, 260_000)
     return check == key
-app.add_middleware(SessionMiddleware, secret_key=os.environ.get('SECRET_KEY', 'dev-change-me'))
+app.add_middleware(SessionMiddleware,
+    secret_key=os.environ.get('SECRET_KEY', 'dev-change-me'),
+    max_age=90 * 24 * 3600,  # 90 days max; actual expiry set per-login in session
+)
 app.add_middleware(CORSMiddleware,
     allow_origins=['https://www.menochat.app', 'https://menoacct-production-d2e7.up.railway.app'],
     allow_methods=['POST'],
@@ -107,6 +110,10 @@ init_db()
 def current_user(request: Request):
     uid = request.session.get('user_id')
     if not uid:
+        return None
+    expires_at = request.session.get('expires_at')
+    if expires_at and datetime.utcnow().isoformat() > expires_at:
+        request.session.clear()
         return None
     with db() as con:
         return con.execute('SELECT * FROM users WHERE id=?', (uid,)).fetchone()
@@ -251,12 +258,14 @@ def needs_email(user) -> bool:
     return not e or e.endswith('@signup.menochat.app') or e.endswith('@noemail.invalid')
 
 @app.post('/login', response_class=HTMLResponse)
-async def login_post(request: Request, username: str = Form(...), password: str = Form(...)):
+async def login_post(request: Request, username: str = Form(...), password: str = Form(...), remember: str = Form(default='')):
     with db() as con:
         user = con.execute('SELECT * FROM users WHERE username=?', (username,)).fetchone()
     if not user or not user['password_hash'] or not verify_password(password, user['password_hash']):
         return render('login.html', error='Incorrect username or password.')
     request.session['user_id'] = user['id']
+    days = 90 if remember else 1
+    request.session['expires_at'] = (datetime.utcnow() + timedelta(days=days)).isoformat()
     if needs_email(user):
         return RedirectResponse('/add-email', status_code=303)
     return RedirectResponse('/welcome', status_code=303)
@@ -297,28 +306,24 @@ async def forgot_get():
 
 @app.post('/forgot-password', response_class=HTMLResponse)
 async def forgot_post(request: Request):
-    try:
-        form = await request.form()
-        username = (form.get('username') or '').strip()
-        if username:
+    form = await request.form()
+    username = (form.get('username') or '').strip()
+    if username:
+        with db() as con:
+            user = con.execute('SELECT * FROM users WHERE username=?', (username,)).fetchone()
+        if user and user['email'] and '@signup.menochat.app' not in user['email'] and '@noemail.invalid' not in user['email']:
+            token = secrets.token_urlsafe(32)
+            expires = (datetime.utcnow() + timedelta(hours=1)).isoformat()
             with db() as con:
-                user = con.execute('SELECT * FROM users WHERE username=?', (username,)).fetchone()
-            if user and user['email'] and '@signup.menochat.app' not in user['email'] and '@noemail.invalid' not in user['email']:
-                token = secrets.token_urlsafe(32)
-                expires = (datetime.utcnow() + timedelta(hours=1)).isoformat()
-                with db() as con:
-                    con.execute('DELETE FROM password_resets WHERE user_id=?', (user['id'],))
-                    con.execute('INSERT INTO password_resets (user_id, token, expires_at) VALUES (?,?,?)',
-                                (user['id'], token, expires))
-                link = f"{BASE_URL}/reset-password/{token}"
-                import asyncio
-                asyncio.create_task(send_email_bg(
-                    user['email'],
-                    'Reset your Menochat password',
-                    f"Click this link to reset your password (expires in 1 hour):\n\n{link}\n\nIf you didn't request this, ignore it."
-                ))
-    except Exception as e:
-        print(f"[FORGOT ERROR] {e}")
+                con.execute('DELETE FROM password_resets WHERE user_id=?', (user['id'],))
+                con.execute('INSERT INTO password_resets (user_id, token, expires_at) VALUES (?,?,?)',
+                            (user['id'], token, expires))
+            link = f"{BASE_URL}/reset-password/{token}"
+            await send_email_bg(
+                user['email'],
+                'Reset your Menochat password',
+                f"Click this link to reset your password (expires in 1 hour):\n\n{link}\n\nIf you didn't request this, ignore it."
+            )
     return render('forgot_password.html', sent=True, error=None)
 
 @app.get('/reset-password/{token}', response_class=HTMLResponse)
