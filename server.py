@@ -9,8 +9,9 @@ from email.mime.text import MIMEText
 from pathlib import Path
 
 from fastapi import FastAPI, Request, Form, HTTPException
-from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse
+from fastapi.responses import HTMLResponse, RedirectResponse, FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.sessions import SessionMiddleware
 from jinja2 import Environment, FileSystemLoader
 import hashlib, base64
@@ -31,6 +32,11 @@ def verify_password(password: str, stored: str) -> bool:
     check = hashlib.pbkdf2_hmac('sha256', password.encode(), salt, 260_000)
     return check == key
 app.add_middleware(SessionMiddleware, secret_key=os.environ.get('SECRET_KEY', 'dev-change-me'))
+app.add_middleware(CORSMiddleware,
+    allow_origins=['https://www.menochat.app', 'https://menoacct-production-d2e7.up.railway.app'],
+    allow_methods=['POST'],
+    allow_headers=['Content-Type'],
+)
 jinja = Environment(loader=FileSystemLoader('templates'), autoescape=True)
 
 ADMIN_KEY = os.environ.get('ADMIN_KEY', 'admin')
