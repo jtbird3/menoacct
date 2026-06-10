@@ -52,50 +52,50 @@ def db():
 
 def init_db():
     DB.parent.mkdir(exist_ok=True)
-    with db() as con:
-        con.executescript('''
-            CREATE TABLE IF NOT EXISTS users (
-                id           INTEGER PRIMARY KEY,
-                name         TEXT NOT NULL,
-                email        TEXT UNIQUE NOT NULL,
-                phone        TEXT,
-                username     TEXT UNIQUE,
-                password_hash TEXT,
-                invite_token TEXT UNIQUE NOT NULL,
-                created_at   DATETIME DEFAULT CURRENT_TIMESTAMP
-            );
-            CREATE TABLE IF NOT EXISTS completions (
-                id           INTEGER PRIMARY KEY,
-                user_id      INTEGER NOT NULL REFERENCES users(id),
-                proposition  INTEGER NOT NULL,
-                completed_at DATETIME DEFAULT CURRENT_TIMESTAMP
-            );
-            CREATE TABLE IF NOT EXISTS events (
-                id          INTEGER PRIMARY KEY,
-                user_id     INTEGER NOT NULL REFERENCES users(id),
-                proposition INTEGER NOT NULL,
-                step        INTEGER NOT NULL,
-                role        TEXT NOT NULL,
-                message     TEXT NOT NULL,
-                created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
-            );
-            CREATE TABLE IF NOT EXISTS surveys (
-                id          INTEGER PRIMARY KEY,
-                user_id     INTEGER NOT NULL REFERENCES users(id),
-                proposition INTEGER NOT NULL DEFAULT 1,
-                q1          TEXT,
-                q2          TEXT,
-                q3          TEXT,
-                created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
-            );
-            CREATE TABLE IF NOT EXISTS password_resets (
-                id         INTEGER PRIMARY KEY,
-                user_id    INTEGER NOT NULL REFERENCES users(id),
-                token      TEXT UNIQUE NOT NULL,
-                expires_at TEXT NOT NULL,
-                used       INTEGER NOT NULL DEFAULT 0
-            );
-        ''')
+    con = sqlite3.connect(DB)
+    con.execute('''CREATE TABLE IF NOT EXISTS users (
+        id            INTEGER PRIMARY KEY,
+        name          TEXT NOT NULL,
+        email         TEXT UNIQUE NOT NULL,
+        phone         TEXT,
+        username      TEXT UNIQUE,
+        password_hash TEXT,
+        invite_token  TEXT UNIQUE NOT NULL,
+        created_at    DATETIME DEFAULT CURRENT_TIMESTAMP
+    )''')
+    con.execute('''CREATE TABLE IF NOT EXISTS completions (
+        id           INTEGER PRIMARY KEY,
+        user_id      INTEGER NOT NULL REFERENCES users(id),
+        proposition  INTEGER NOT NULL,
+        completed_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )''')
+    con.execute('''CREATE TABLE IF NOT EXISTS events (
+        id          INTEGER PRIMARY KEY,
+        user_id     INTEGER NOT NULL REFERENCES users(id),
+        proposition INTEGER NOT NULL,
+        step        INTEGER NOT NULL,
+        role        TEXT NOT NULL,
+        message     TEXT NOT NULL,
+        created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
+    )''')
+    con.execute('''CREATE TABLE IF NOT EXISTS surveys (
+        id          INTEGER PRIMARY KEY,
+        user_id     INTEGER NOT NULL REFERENCES users(id),
+        proposition INTEGER NOT NULL DEFAULT 1,
+        q1          TEXT,
+        q2          TEXT,
+        q3          TEXT,
+        created_at  DATETIME DEFAULT CURRENT_TIMESTAMP
+    )''')
+    con.execute('''CREATE TABLE IF NOT EXISTS password_resets (
+        id         INTEGER PRIMARY KEY,
+        user_id    INTEGER NOT NULL REFERENCES users(id),
+        token      TEXT UNIQUE NOT NULL,
+        expires_at TEXT NOT NULL,
+        used       INTEGER NOT NULL DEFAULT 0
+    )''')
+    con.commit()
+    con.close()
 
 init_db()
 
