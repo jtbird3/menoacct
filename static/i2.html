@@ -108,11 +108,9 @@
       display: none;
       flex: 1; padding: 8px; font-family: inherit; font-size: 14px;
       border: 1px solid #000; color: #000;
-      overflow-x: scroll; overflow-y: hidden; white-space: nowrap;
-      scrollbar-width: none; -ms-overflow-style: none;
+      overflow: hidden; white-space: nowrap;
       align-items: center; line-height: 1.4;
     }
-    #fake-input::-webkit-scrollbar { display: none; }
     #fake-placeholder { color: #999; }
     #fake-cursor {
       display: inline-block; width: 2px; height: 1em;
@@ -219,66 +217,60 @@
        xmlns="http://www.w3.org/2000/svg">
     <g id="canvas">
       <!-- Point A and segment BC — shown at start -->
-      <g id="dc-given" class="de">
-        <circle cx="220" cy="310" r="6" fill="#000"/>
-        <text x="207" y="337" font-family="inherit" font-size="18" fill="#000">A</text>
-        <line x1="450" y1="310" x2="570" y2="310" stroke="#000" stroke-width="3"/>
-        <circle cx="450" cy="310" r="6" fill="#000"/>
-        <circle cx="570" cy="310" r="6" fill="#000"/>
-        <text x="437" y="337" font-family="inherit" font-size="18" fill="#000">B</text>
-        <text x="564" y="337" font-family="inherit" font-size="18" fill="#000">C</text>
-      </g>
-      <!-- Segment AB -->
-      <g id="dc-ab" class="de">
-        <line x1="220" y1="310" x2="450" y2="310" stroke="#000" stroke-width="2.5"/>
-      </g>
-      <!-- Equilateral triangle DAB with apex D above AB -->
-      <!-- D=(335,111): midpoint x of AB=335, y=310−100√3≈310−173=111 (apex above) -->
-      <g id="dc-tri" class="de">
-        <polygon points="220,310 450,310 335,111" fill="rgba(37,99,235,0.07)" stroke="#2563eb" stroke-width="1.5"/>
-        <circle cx="335" cy="111" r="6" fill="#2563eb"/>
-        <text x="340" y="108" font-family="inherit" font-size="18" fill="#2563eb">D</text>
-      </g>
-      <!-- Extensions of DA beyond A and DB beyond B (start at A and B, go down to diagram edge) -->
-      <g id="dc-ext" class="de">
-        <line x1="220" y1="310" x2="133" y2="460" stroke="#bbb" stroke-width="1" stroke-dasharray="6 4"/>
-        <line x1="450" y1="310" x2="537" y2="460" stroke="#bbb" stroke-width="1" stroke-dasharray="6 4"/>
-      </g>
-      <!-- Circle CGH: centre B(450,310), radius BC=120 -->
-      <!-- G=(510,414) lies on this circle and on extension of DB beyond B -->
-      <g id="dc-circle-cgh" class="de">
-        <circle cx="450" cy="310" r="120" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="10 6" opacity=".7"/>
-        <text x="562" y="210" font-family="inherit" font-size="14" fill="#dc2626" opacity=".85">&#x25CB;CGH</text>
-      </g>
-      <!-- Point G -->
-      <g id="dc-g" class="de">
-        <circle cx="510" cy="414" r="5" fill="#dc2626"/>
-        <text x="518" y="432" font-family="inherit" font-size="16" fill="#dc2626">G</text>
-      </g>
-      <!-- Circle GKL: centre D(335,111), radius DG≈350 -->
-      <!-- L=(160,414) lies on this circle and on extension of DA beyond A -->
-      <g id="dc-circle-gkl" class="de">
-        <circle cx="335" cy="111" r="350" fill="none" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="10 6" opacity=".5"/>
-        <text x="624" y="450" font-family="inherit" font-size="14" fill="#7c3aed" opacity=".85">&#x25CB;GKL</text>
-      </g>
-      <!-- Point L -->
-      <g id="dc-l" class="de">
-        <circle cx="160" cy="414" r="5" fill="#7c3aed"/>
-        <text x="138" y="432" font-family="inherit" font-size="16" fill="#7c3aed">L</text>
-      </g>
-      <!-- Segment AL — the answer (green) -->
-      <g id="dc-al" class="de">
-        <line x1="220" y1="310" x2="160" y2="414" stroke="#16a34a" stroke-width="3"/>
-      </g>
-      <!-- Tick on BC midpoint (510,310) — revealed when BC=BG is established -->
-      <g id="dc-ticks-bc" class="de">
-        <line x1="510" y1="303" x2="510" y2="317" stroke="#dc2626" stroke-width="2.5"/>
-      </g>
-      <!-- Tick on AL midpoint (~190,362) + conclusion label — revealed when AL=BC is established -->
-      <g id="dc-ticks-al" class="de">
-        <line x1="184" y1="359" x2="196" y2="367" stroke="#16a34a" stroke-width="2.5"/>
-        <text x="164" y="375" font-family="inherit" font-size="11" fill="#16a34a" opacity=".85">AL = BC</text>
-      </g>
+<g id="dc-given" class="de">
+  <circle cx="220" cy="310" r="6" fill="#000"/>
+  <text x="207" y="337" font-family="inherit" font-size="18" fill="#000">A</text>
+  <line x1="450" y1="310" x2="570" y2="310" stroke="#000" stroke-width="3"/>
+  <circle cx="450" cy="310" r="6" fill="#000"/>
+  <circle cx="570" cy="310" r="6" fill="#000"/>
+  <text x="437" y="337" font-family="inherit" font-size="18" fill="#000">B</text>
+  <text x="564" y="337" font-family="inherit" font-size="18" fill="#000">C</text>
+</g>
+<!-- Segment AB -->
+<g id="dc-ab" class="de">
+  <line x1="220" y1="310" x2="450" y2="310" stroke="#000" stroke-width="2" stroke-dasharray="6 4"/>
+</g>
+<!-- Equilateral triangle DAB with apex D -->
+<g id="dc-tri" class="de">
+  <polygon points="220,310 450,310 335,111" fill="rgba(37,99,235,0.07)" stroke="#2563eb" stroke-width="1.5"/>
+  <circle cx="335" cy="111" r="6" fill="#2563eb"/>
+  <text x="340" y="108" font-family="inherit" font-size="18" fill="#2563eb">D</text>
+</g>
+<!-- Lines DA and DB produced beyond A and B (dashed extensions) -->
+<g id="dc-ext" class="de">
+  <line x1="335" y1="111" x2="133" y2="460" stroke="#bbb" stroke-width="1" stroke-dasharray="6 4"/>
+  <line x1="335" y1="111" x2="537" y2="460" stroke="#bbb" stroke-width="1" stroke-dasharray="6 4"/>
+</g>
+<!-- Circle CGH: centre B(450,310), radius BC=120 -->
+<g id="dc-circle-cgh" class="de">
+  <circle cx="450" cy="310" r="120" fill="none" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="10 6" opacity=".7"/>
+  <text x="562" y="210" font-family="inherit" font-size="14" fill="#dc2626" opacity=".85">&#x25CB;CGH</text>
+</g>
+<!-- Point G (on circle CGH and on line DB extended) -->
+<g id="dc-g" class="de">
+  <circle cx="510" cy="414" r="5" fill="#dc2626"/>
+  <text x="518" y="432" font-family="inherit" font-size="16" fill="#dc2626">G</text>
+</g>
+<!-- Circle GKL: centre D(335,111), radius DG=350 -->
+<g id="dc-circle-gkl" class="de">
+  <circle cx="335" cy="111" r="350" fill="none" stroke="#7c3aed" stroke-width="1.5" stroke-dasharray="10 6" opacity=".5"/>
+  <text x="624" y="450" font-family="inherit" font-size="14" fill="#7c3aed" opacity=".85">&#x25CB;GKL</text>
+</g>
+<!-- Point L (on circle GKL and on line DA extended) -->
+<g id="dc-l" class="de">
+  <circle cx="160" cy="414" r="5" fill="#7c3aed"/>
+  <text x="138" y="432" font-family="inherit" font-size="16" fill="#7c3aed">L</text>
+</g>
+<!-- Segment AL — the answer (green) -->
+<g id="dc-al" class="de">
+  <line x1="220" y1="310" x2="160" y2="414" stroke="#16a34a" stroke-width="3"/>
+</g>
+<!-- Tick marks showing AL = BC -->
+<g id="dc-ticks" class="de">
+  <line x1="510" y1="303" x2="510" y2="317" stroke="#16a34a" stroke-width="2.5"/>
+  <line x1="184" y1="359" x2="196" y2="367" stroke="#16a34a" stroke-width="2.5"/>
+  <text x="164" y="375" font-family="inherit" font-size="11" fill="#16a34a" opacity=".85">AL = BC</text>
+</g>
     </g>
   </svg>
   <div id="rc-l" class="resize-corner"></div>
@@ -301,9 +293,6 @@
   <input id="text-input" type="text" placeholder="Your answer…" autocomplete="off" inputmode="none">
   <button id="send-btn">→</button>
 </div>
-<div id="dashboard-btn" style="display:none;margin-bottom:8px;">
-  <a href="/welcome" style="text-decoration:none;"><button style="width:100%;padding:10px;font-family:inherit;font-size:14px;font-weight:bold;border:2px solid #000;background:#fff;color:#000;cursor:pointer;">&gt; Go to Dashboard</button></a>
-</div>
 
 <div id="yn-bar">
   <button id="btn-yes">YES</button>
@@ -323,7 +312,7 @@
       <button class="kb-key" onclick="kbTap('a')">A</button><button class="kb-key" onclick="kbTap('s')">S</button><button class="kb-key" onclick="kbTap('d')">D</button><button class="kb-key" onclick="kbTap('f')">F</button><button class="kb-key" onclick="kbTap('g')">G</button><button class="kb-key" onclick="kbTap('h')">H</button><button class="kb-key" onclick="kbTap('j')">J</button><button class="kb-key" onclick="kbTap('k')">K</button><button class="kb-key" onclick="kbTap('l')">L</button>
     </div>
     <div class="kb-row">
-      <button class="kb-key kb-wide" onclick="kbToggleNum()">123</button><button class="kb-key" onclick="kbTap('z')">Z</button><button class="kb-key" onclick="kbTap('x')">X</button><button class="kb-key" onclick="kbTap('c')">C</button><button class="kb-key" onclick="kbTap('v')">V</button><button class="kb-key" onclick="kbTap('b')">B</button><button class="kb-key" onclick="kbTap('n')">N</button><button class="kb-key" onclick="kbTap('m')">M</button><button class="kb-key kb-wide" onclick="kbBack()">&#x232B;</button>
+      <button class="kb-key kb-wide" onclick="kbToggleNum()">123</button><button class="kb-key" onclick="kbTap('z')">Z</button><button class="kb-key" onclick="kbTap('x')">X</button><button class="kb-key" onclick="kbTap('c')">C</button><button class="kb-key" onclick="kbTap('v')">V</button><button class="kb-key" onclick="kbTap('b')">B</button><button class="kb-key" onclick="kbTap('n')">N</button><button class="kb-key" onclick="kbTap('m')">M</button><button class="kb-key kb-wide" onclick="kbBack()">⌫</button>
     </div>
     <div class="kb-row">
       <button class="kb-key" onclick="kbTap('.')">.</button>
@@ -342,7 +331,7 @@
       <button class="kb-key" onclick="kbTap('7')">7</button><button class="kb-key" onclick="kbTap('8')">8</button><button class="kb-key" onclick="kbTap('9')">9</button>
     </div>
     <div class="kb-row">
-      <button class="kb-key kb-wide" onclick="kbToggleNum()">ABC</button><button class="kb-key" onclick="kbTap('.')">.</button><button class="kb-key" onclick="kbTap('0')">0</button><button class="kb-key kb-wide" onclick="kbBack()">&#x232B;</button>
+      <button class="kb-key kb-wide" onclick="kbToggleNum()">ABC</button><button class="kb-key" onclick="kbTap('.')">.</button><button class="kb-key" onclick="kbTap('0')">0</button><button class="kb-key kb-wide" onclick="kbBack()">⌫</button>
     </div>
     <div class="kb-row">
       <button class="kb-key kb-enter" onclick="kbEnter()">Enter</button>
@@ -352,12 +341,14 @@
 
 <script>
 // ─────────────────────────────────────────────────────────────────────────────
-// SCRIPT
-// type: 'yn'   = yes/no question
-//       'open' = free-text, keyword check via ok(), hint after 1 fail, advance after 2
-//       'say'  = tutor narrates, auto-advances
-//       'draw' = tutor narrates, student clicks Draw to reveal and advance
+// Data — injected by generate_prop.py at build time
+// step types: yn / open / draw / say
+// open steps advance on any non-empty answer
 // ─────────────────────────────────────────────────────────────────────────────
+
+const STEPS    = [{"type": "yn", "q": "We are given a point A and a straight line BC. Can you see both in the diagram?", "no": "Point A is the dot on the left. Segment BC is the bold line on the right with endpoints B and C.", "text": "Let A be the given point, and BC the given straight line.", "just": null, "side": "Given: A, line BC", "reveal": [], "criteria": null, "hint": null, "hint_linked_idx": null, "display_linked_idx": null}, {"type": "yn", "q": "Our goal is to place a straight line starting at A that is equal in length to BC. Ready?", "no": "We want to draw a new segment with one endpoint at A whose length equals BC.", "text": "It is required to place at the point A (as an extremity) a straight line equal to the given straight line BC.", "just": null, "side": "Goal: AL = BC", "reveal": [], "criteria": null, "hint": null, "hint_linked_idx": null, "display_linked_idx": null}, {"type": "open", "q": "What does Postulate 1 allow us to do?", "criteria": "Draw a straight line from any point to any point.", "hint": "Postulate 1: To draw a straight line from any point to any point.", "text": "Post. 1: To draw a straight line from any point to any point.", "just": "Post. 1", "side": null, "reveal": [], "no": null, "hint_linked_idx": null, "display_linked_idx": null}, {"type": "draw", "q": "Can we join A to B with a straight line?", "reveal": ["dc-ab"], "text": "Let the straight line AB be joined.", "just": "Post. 1", "side": "Join AB", "criteria": null, "hint": null, "no": null, "hint_linked_idx": null, "display_linked_idx": null}, {"type": "open", "q": "We need equal lengths near A. Which earlier result constructs equal segments on a line?", "criteria": "Mention Proposition I.1, equilateral triangle, or that three equal segments come from two intersecting circles.", "hint": "In I.1 we constructed an equilateral triangle on AB — all three sides equal. We build on that here.", "text": null, "just": null, "side": null, "reveal": [], "no": null, "hint_linked_idx": null, "display_linked_idx": null}, {"type": "draw", "q": "Can we construct an equilateral triangle DAB on the line AB? (We proved this in I.1.)", "reveal": ["dc-tri"], "text": "On the straight line AB let the equilateral triangle DAB be constructed.", "just": "I.1", "side": "△DAB equilateral", "criteria": null, "hint": null, "no": null, "hint_linked_idx": null, "display_linked_idx": null}, {"type": "open", "q": "What does Postulate 2 allow us to do?", "criteria": "Produce (extend) a finite straight line continuously in a straight line.", "hint": "Postulate 2: To produce a finite straight line continuously in a straight line.", "text": "Post. 2: To produce a finite straight line continuously in a straight line.", "just": "Post. 2", "side": null, "reveal": [], "no": null, "hint_linked_idx": null, "display_linked_idx": null}, {"type": "draw", "q": "Can we extend line DA past A, and line DB past B?", "reveal": ["dc-ext"], "text": "Let the straight lines AE and BF be produced in a straight line with DA and DB.", "just": "Post. 2", "side": "Extend DA, DB", "criteria": null, "hint": null, "no": null, "hint_linked_idx": null, "display_linked_idx": null}, {"type": "open", "q": "What does Postulate 3 allow us to do?", "criteria": "Describe a circle with any centre and any radius (distance).", "hint": "Postulate 3: To describe a circle with any centre and distance.", "text": "Post. 3: To describe a circle with any centre and distance.", "just": "Post. 3", "side": null, "reveal": [], "no": null, "hint_linked_idx": null, "display_linked_idx": null}, {"type": "draw", "q": "Can we draw a circle with centre B and radius BC?", "reveal": ["dc-circle-cgh"], "text": "With centre B and distance BC let the circle CGH be described.", "just": "Post. 3", "side": "⊙CGH, r = BC", "criteria": null, "hint": null, "no": null, "hint_linked_idx": null, "display_linked_idx": null}, {"type": "draw", "q": "Let G be the point where circle CGH meets the extension of DB beyond B.", "reveal": ["dc-g"], "text": null, "just": null, "side": "G = ⊙CGH ∩ BF", "criteria": null, "hint": null, "no": null, "hint_linked_idx": null, "display_linked_idx": null}, {"type": "draw", "q": "Can we draw a circle with centre D and radius DG?", "reveal": ["dc-circle-gkl"], "text": "With centre D and distance DG let the circle GKL be described.", "just": "Post. 3", "side": "⊙GKL, r = DG", "criteria": null, "hint": null, "no": null, "hint_linked_idx": null, "display_linked_idx": null}, {"type": "draw", "q": "Let L be the point where circle GKL meets the extension of DA beyond A.", "reveal": ["dc-l"], "text": null, "just": null, "side": "L = ⊙GKL ∩ AE", "criteria": null, "hint": null, "no": null, "hint_linked_idx": null, "display_linked_idx": null}, {"type": "open", "q": "What are BC and BG, with respect to circle CGH?", "criteria": "They are both radii (or: distances from the centre) of circle CGH.", "hint": "Both BC and BG run from the centre B to the circle — what do we call such segments?", "text": null, "just": null, "side": null, "reveal": [], "no": null, "hint_linked_idx": null, "display_linked_idx": 9}, {"type": "open", "q": "So what can we say about the lengths of BC and BG?", "criteria": "They are equal — all radii of the same circle are equal (Def. 15).", "hint": "Definition 15: A circle is a figure where all straight lines from the centre are equal.", "reveal": ["dc-ticks"], "text": "Since B is the centre of circle CGH, BC is equal to BG.", "just": "Def. 15", "side": "BC = BG  (⊙CGH)", "no": null, "hint_linked_idx": null, "display_linked_idx": 9}, {"type": "open", "q": "What are DL and DG, with respect to circle GKL?", "criteria": "They are both radii of circle GKL.", "hint": "Both DL and DG run from the centre D to the circle.", "text": null, "just": null, "side": null, "reveal": [], "no": null, "hint_linked_idx": null, "display_linked_idx": 11}, {"type": "open", "q": "So what can we say about DL and DG?", "criteria": "They are equal — radii of circle GKL.", "hint": "All radii of the same circle are equal.", "text": "Since D is the centre of circle GKL, DL is equal to DG.", "just": "Def. 15", "side": "DL = DG  (⊙GKL)", "reveal": [], "no": null, "hint_linked_idx": null, "display_linked_idx": 11}, {"type": "open", "q": "DA and DB are both sides of equilateral triangle DAB. What follows about them?", "criteria": "DA equals DB — sides of an equilateral triangle are all equal.", "hint": "An equilateral triangle has all three sides equal.", "text": "And DA is equal to DB, since the triangle DAB is equilateral.", "just": "I.1", "side": "DA = DB  (△DAB)", "reveal": [], "no": null, "hint_linked_idx": null, "display_linked_idx": 5}, {"type": "open", "q": "What does Common Notion 3 state?", "criteria": "Things equal to the same thing (or equal things) subtracted from equal things leave equal remainders.", "hint": "Common Notion 3: If equals be subtracted from equals, the remainders are equal.", "text": "C.N. 3: If equals be subtracted from equals, the remainders are equal.", "just": "C.N. 3", "side": null, "reveal": [], "no": null, "hint_linked_idx": null, "display_linked_idx": null}, {"type": "open", "q": "We have DL = DG and DA = DB. Subtract DA from DL and DB from DG. What can we say about the remainders AL and BG?", "criteria": "AL equals BG — by Common Notion 3, subtracting equal quantities (DA=DB) from equal quantities (DL=DG) leaves equal remainders.", "hint": "DL − DA = AL, and DG − DB = BG. Since DL=DG and DA=DB, CN.3 gives AL = BG.", "reveal": ["dc-al"], "text": "Therefore the remainder AL is equal to the remainder BG.", "just": "C.N. 3", "side": "AL = BG  (C.N. 3)", "no": null, "hint_linked_idx": null, "display_linked_idx": 18}, {"type": "yn", "q": "We proved BC = BG and now AL = BG. By Common Notion 1, does AL = BC?", "no": "CN.1: things equal to the same thing are equal to one another. BC=BG and AL=BG, so AL=BC.", "reveal": ["dc-ticks"], "text": "But BC was also proved equal to BG; therefore AL is also equal to BC.", "just": "C.N. 1", "side": "AL = BC ✓", "criteria": null, "hint": null, "hint_linked_idx": null, "display_linked_idx": null}, {"type": "open", "q": "What have we placed at point A, and what is its relationship to BC?", "criteria": "A straight line (AL) has been placed at A equal in length to BC.", "hint": "Look at segment AL in the diagram. How does its length compare to BC?", "text": "Therefore at the given point A the straight line AL has been placed equal to the given straight line BC.", "just": null, "side": null, "reveal": [], "no": null, "hint_linked_idx": null, "display_linked_idx": null}, {"type": "open", "q": "Q.E.F. or Q.E.D.?", "criteria": "Q.E.F. — quod erat faciendum, which was to be done (a construction, not a theorem).", "hint": "Q.E.F. = 'which was to be done' (construction). Q.E.D. = 'which was to be demonstrated' (proof of a truth). Which did we do?", "text": "(Being) what it was required to do.", "just": "Q.E.F.", "side": "Q.E.F.", "reveal": [], "no": null, "hint_linked_idx": null, "display_linked_idx": null}];
+const PROP_NUM = 2;
+const CONCLUSION = "Congratulations! You have completed Euclid's Elements Book I, Proposition 2.";
 
 // ─── Fuzzy matching helpers ───────────────────────────────────────────────────
 function lev(a,b){
@@ -369,224 +360,13 @@ function lev(a,b){
     dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j-1],dp[i-1][j],dp[i][j-1]);
   return dp[m][n];
 }
-// Returns true if any word in `response` is within edit distance of any target.
-// Threshold: ≤7-char targets allow 1 edit, 8+ chars allow 2 edits.
 function hasNear(response, targets){
   const words=response.toLowerCase().split(/[\s,.;!?]+/).filter(w=>w.length>=3);
   return words.some(w=>targets.some(t=>{
-    const d=t.length<=7?1:2;
-    return lev(w,t)<=d;
+    const d=t.length<=7?1:2; return lev(w,t)<=d;
   }));
 }
 // ─────────────────────────────────────────────────────────────────────────────
-
-const PROP_NUM = 2;
-
-const STEPS = [
-  // 0
-  { type:'yn',
-    q:'We are given a point A and a straight line BC. Can you see both in the diagram?',
-    no:'Point A is the dot on the left. Segment BC is the bold line on the right with endpoints B and C.',
-    text:'Let A be the given point, and BC the given straight line.', just:null,
-    side:'Given: A, line BC', reveal:[] },
-
-  // 1
-  { type:'yn',
-    q:'Our goal is to place a straight line starting at A that is equal in length to BC. Ready?',
-    no:'We want to draw a new segment with one endpoint at A whose length equals BC.',
-    text:'It is required to place at the point A (as an extremity) a straight line equal to the given straight line BC.', just:null,
-    side:'Goal: AL = BC', reveal:[] },
-
-  // 2
-  { type:'open',
-    q:'What does Postulate 1 allow us to do?',
-    ok: r => /draw|join|connect|link|post\.?\s*1/i.test(r)
-          || hasNear(r,['draw','join','connect','link']),
-    hint:'Postulate 1: To draw a straight line from any point to any point.',
-    text:'Post. 1: To draw a straight line from any point to any point.', just:'Post. 1',
-    side:null, reveal:[] },
-
-  // 3
-  { type:'draw',
-    q:'Can we join A to B with a straight line?',
-    reveal:['dc-ab'],
-    text:'Let the straight line AB be joined.', just:'Post. 1',
-    side:'Join AB' },
-
-  // 4
-  { type:'open',
-    q:'We need equal lengths near A. Which earlier proposition constructs equal segments on a line?',
-    ok: r => /\b1\b|\bi\.?\s*1\b|\bprop(?:osition)?\.?\s*1\b|\bone\b|\bfirst\b|equilateral|triangle|previous/i.test(r)
-          || hasNear(r,['equilateral','triangle','proposition']),
-    hint:'In I.1 we constructed an equilateral triangle on AB — all three sides equal. We build on that here.',
-    text:null, just:null,
-    side:null, reveal:[], numpad:true },
-
-  // 5
-  { type:'draw',
-    q:'Can we construct an equilateral triangle DAB on the line AB? (We proved this in I.1.)',
-    reveal:['dc-tri'],
-    text:'On the straight line AB let the equilateral triangle DAB be constructed.', just:'I.1',
-    side:'△DAB equilateral' },
-
-  // 6
-  { type:'open',
-    q:'What does Postulate 2 allow us to do?',
-    ok: r => /extend|produc|continu|lengthen|prolong|stretch|elongat|post\.?\s*2/i.test(r)
-          || hasNear(r,['extend','produce','continue','lengthen','prolong','stretch']),
-    hint:'Postulate 2: To produce a finite straight line continuously in a straight line.',
-    text:'Post. 2: To produce a finite straight line continuously in a straight line.', just:'Post. 2',
-    side:null, reveal:[] },
-
-  // 7
-  { type:'draw',
-    q:'Can we extend line DA past A, and line DB past B?',
-    reveal:['dc-ext'],
-    text:'Let the straight lines AE and BF be produced in a straight line with DA and DB.', just:'Post. 2',
-    side:'Extend DA, DB' },
-
-  // 8
-  { type:'open',
-    q:'What does Postulate 3 allow us to do?',
-    ok: r => /circle|arc|radius|compass|describ|sweep|post\.?\s*3/i.test(r)
-          || hasNear(r,['circle','radius','compass','describe']),
-    hint:'Postulate 3: To describe a circle with any centre and distance.',
-    text:'Post. 3: To describe a circle with any centre and distance.', just:'Post. 3',
-    side:null, reveal:[] },
-
-  // 9
-  { type:'draw',
-    q:'Can we draw a circle with centre B and radius BC?',
-    reveal:['dc-circle-cgh'],
-    text:'With centre B and distance BC let the circle CGH be described.', just:'Post. 3',
-    side:'&#x25CB;CGH, r = BC' },
-
-  // 10
-  { type:'draw',
-    q:'Look where the circle at B meets the extension of DB beyond B. Can we name this point G?',
-    reveal:['dc-g'],
-    text:null, just:null,
-    side:'G = &#x25CB;CGH &#x2229; BF' },
-
-  // 11
-  { type:'draw',
-    q:'Can we draw a circle with centre D and radius DG?',
-    reveal:['dc-circle-gkl'],
-    text:'With centre D and distance DG let the circle GKL be described.', just:'Post. 3',
-    side:'&#x25CB;GKL, r = DG' },
-
-  // 12
-  { type:'draw',
-    q:'Look where the circle at D meets the extension of DA beyond A. Can we name this point L?',
-    reveal:['dc-l'],
-    text:null, just:null,
-    side:'L = &#x25CB;GKL &#x2229; AE' },
-
-  // 13
-  { type:'open',
-    q:'What are BC and BG, with respect to circle B?',
-    ok: r => /radius|radi|centre|center|distance|equidist/i.test(r)
-          || hasNear(r,['radius','radii','centre','center','distance']),
-    hint:'Both BC and BG run from the centre B to circle B — what do we call such segments?',
-    text:null, just:null,
-    side:null, reveal:[], display_linked_idx:9 },
-
-  // 14
-  { type:'open',
-    q:'So what can we say about the lengths of BC and BG?',
-    ok: r => /equal|\beq\b|same|identical|congruent|equivalent|match|\bbc\s*=\s*bg|\bbg\s*=\s*bc/i.test(r)
-          || hasNear(r,['equal','same','identical','congruent']),
-    hint:'Definition 15: A circle is a figure where all straight lines from the centre to the boundary are equal.',
-    reveal:['dc-ticks-bc'],
-    text:'Since B is the centre of circle CGH, BC is equal to BG.', just:'Def. 15',
-    side:'BC = BG  (&#x25CB;CGH)', display_linked_idx:9 },
-
-  // 15
-  { type:'open',
-    q:'What are DL and DG, with respect to circle D?',
-    ok: r => /radius|radi|centre|center|distance|equidist/i.test(r)
-          || hasNear(r,['radius','radii','centre','center','distance']),
-    hint:'Both DL and DG run from the centre D to circle D.',
-    text:null, just:null,
-    side:null, reveal:[], display_linked_idx:11 },
-
-  // 16
-  { type:'open',
-    q:'So what can we say about DL and DG?',
-    ok: r => /equal|\beq\b|same|identical|congruent|equivalent|match|\bdl\s*=\s*dg|\bdg\s*=\s*dl/i.test(r)
-          || hasNear(r,['equal','same','identical','congruent']),
-    hint:'All radii of the same circle are equal to one another.',
-    text:'Since D is the centre of circle GKL, DL is equal to DG.', just:'Def. 15',
-    side:'DL = DG  (&#x25CB;GKL)', reveal:[], display_linked_idx:11 },
-
-  // 17
-  { type:'open',
-    q:'What is true of DA and DB if they are sides of equilateral triangle DAB?',
-    ok: r => /equal|\beq\b|same|identical|congruent|equivalent|match|\bda\s*=\s*db|\bdb\s*=\s*da/i.test(r)
-          || hasNear(r,['equal','same','identical','congruent']),
-    hint:'An equilateral triangle has all three sides equal to one another.',
-    text:'And DA is equal to DB, since triangle DAB is equilateral.', just:'I.1',
-    side:'DA = DB  (&#x25B3;DAB)', reveal:[], display_linked_idx:5 },
-
-  // 18
-  { type:'open',
-    q:'What does Common Notion 3 state?',
-    ok: r => /subtract|substract|remain|remov|take.?away|deduct|equal.{0,30}equal|cn\s*3|c\.n\.?\s*3|common.?notion.?3/i.test(r)
-          || hasNear(r,['subtract','remain','remove','deduct']),
-    hint:'Common Notion 3: If equals be subtracted from equals, the remainders are equal.',
-    text:'C.N. 3: If equals be subtracted from equals, the remainders are equal.', just:'C.N. 3',
-    side:null, reveal:[] },
-
-  // 19
-  { type:'open',
-    q:'If we have DL = DG and DA = DB, then we subtract DA from DL and DB from DG. What can we say about the remainders AL and BG?',
-    ok: r => /al\s*=?\s*bg|bg\s*=?\s*al|equal|\beq\b|same|identical|congruent/i.test(r)
-          || hasNear(r,['equal','same','identical','congruent']),
-    hint:'DL − DA = AL, and DG − DB = BG. Since DL=DG and DA=DB, C.N. 3 gives AL = BG.',
-    reveal:['dc-al'],
-    text:'Therefore the remainder AL is equal to the remainder BG.', just:'C.N. 3',
-    side:'AL = BG  (C.N. 3)', display_linked_idx:18 },
-
-  // 20
-  { type:'yn',
-    q:'So AL = BG?',
-    no:'From C.N. 3: DL − DA = DG − DB, giving AL = BG.',
-    text:null, just:null,
-    side:null, reveal:[] },
-
-  // 21
-  { type:'yn',
-    q:'And BG = BC?',
-    no:'BG and BC are both radii of circle B, so they are equal.',
-    text:null, just:null,
-    side:null, reveal:[] },
-
-  // 22
-  { type:'yn',
-    q:'By Common Notion 1, does AL = BC?',
-    no:'C.N. 1: things equal to the same thing are equal to one another. BC=BG and AL=BG, so AL=BC.',
-    reveal:['dc-ticks-al'],
-    text:'But BC was also proved equal to BG; therefore AL is also equal to BC.', just:'C.N. 1',
-    side:'AL = BC &#x2713;' },
-
-  // 23
-  { type:'open',
-    q:'What have we placed at point A, and what is its relationship to BC?',
-    ok: r => /place|equal|construct|from\s+a|done|line|al|segment|finish|complet/i.test(r),
-    hint:'Look at segment AL in the diagram — it starts at A and equals BC.',
-    text:'Therefore at the given point A the straight line AL has been placed equal to the given straight line BC.', just:null,
-    side:null, reveal:[] },
-
-  // 24
-  { type:'open',
-    q:'Q.E.F. or Q.E.D.?',
-    ok: r => /qef|q\.e\.f\.?|q\s*e\s*f|quod.?erat.?faci|faciendum|to.?be.?done|to.?be.?made|construct/i.test(r),
-    hint:'Q.E.F. = "which was to be done" (construction). Q.E.D. = "which was to be demonstrated" (proof of a truth). Which did we do?',
-    text:'(Being) what it was required to do.', just:'Q.E.F.',
-    side:'Q.E.F.', reveal:[] },
-];
-
-const CONCLUSION = "Congratulations! You have completed Euclid's Elements Book I, Proposition 2.";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // State
@@ -681,7 +461,7 @@ function applyResize(cx,cy){
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Side & Left panels
+// Side & Left panels — built from STEPS data
 // ─────────────────────────────────────────────────────────────────────────────
 
 function buildPanels(){
@@ -695,7 +475,7 @@ function buildPanels(){
     if(s.side){
       const el=document.createElement('div');
       el.id=`si-${i}`; el.className='side-item';
-      el.innerHTML=s.side; side.appendChild(el);
+      el.textContent=s.side; side.appendChild(el);
     }
     if(s.text){
       const el=document.createElement('div');
@@ -772,6 +552,7 @@ function addMsg(text, who){
   return d;
 }
 
+
 function logEvent(role, message){
   fetch('/api/event',{method:'POST',headers:{'Content-Type':'application/json'},
     body:JSON.stringify({proposition:PROP_NUM,step,role,message})});
@@ -781,15 +562,12 @@ function updateFake(){
   const v=textInput.value;
   if(v){ fakePlaceholder.textContent=v; fakePlaceholder.style.color=''; }
   else { fakePlaceholder.textContent='Your answer…'; fakePlaceholder.style.color='#999'; }
-  fakeInputEl.scrollLeft = fakeInputEl.scrollWidth;
 }
 
 function setMode(type){
   if(type==='done'){
     ynBar.style.display='none'; drawBar.style.display='none'; kbBar.style.display='none';
-    inputRow.style.display='none';
-    document.getElementById('dashboard-btn').style.display='';
-    return;
+    inputRow.style.display='none'; return;
   }
   ynBar.style.display   = type==='yn'   ? 'flex' : 'none';
   drawBar.style.display = type==='draw' ? 'flex' : 'none';
@@ -833,13 +611,14 @@ function showStep(){
           addMsg('✓ Your completion has been recorded.','bot');
           const d=document.createElement('div');
           d.className='msg-bot';
-          d.innerHTML='<a href="/survey?prop=2" style="color:#7c3aed;text-decoration:underline;">Share your experience →</a>';
-          chatEl.appendChild(d); chatEl.scrollTop=chatEl.scrollHeight;
-        } else {
-          addMsg('(Could not record completion — are you logged in via /i2?)','bot');
+          d.innerHTML='<a href="/survey?prop='+PROP_NUM+'" style="color:#7c3aed;text-decoration:underline;">Share your experience →</a>';
+          chatEl.appendChild(d);
+          const b=document.createElement('div');
+          b.className='msg-bot';
+          b.innerHTML='<a href="/welcome" style="color:#000;text-decoration:none;font-size:12px;opacity:.5;">← dashboard</a>';
+          chatEl.appendChild(b); chatEl.scrollTop=chatEl.scrollHeight;
         }
-      })
-      .catch(()=>addMsg('(Network error recording completion.)','bot'));
+      });
     return;
   }
   const s=STEPS[step];
@@ -851,10 +630,6 @@ function showStep(){
     addMsg(s.q,'bot'); setMode('draw'); return;
   }
   addMsg(s.q,'bot'); setMode(s.type);
-  if(s.numpad && isMobile()){
-    document.getElementById('kb-alpha').style.display='none';
-    document.getElementById('kb-num').style.display='';
-  }
 }
 
 function submit(raw){
@@ -875,22 +650,17 @@ function submit(raw){
   }
 
   if(s.type==='open'){
-    if(s.ok(answer)){
-      revealStep(s);
-      advance();
-    } else {
+    const ok = !s.ok_regex
+      || new RegExp(s.ok_regex,'i').test(answer)
+      || (s.ok_targets && hasNear(answer, s.ok_targets));
+    if(!ok){
       attempts++;
-      if(attempts >= 2){
-        addMsg(s.hint,'bot');
-        if(s.hint_linked_idx != null) setProofDisplay(s.hint_linked_idx);
-      } else {
-        addMsg('Not quite — try again.','bot');
-      }
-      if(attempts >= 3){
-        revealStep(s);
-        setTimeout(advance, 800);
-      }
+      if(attempts>=2 && s.hint){ addMsg(s.hint,'bot'); if(s.hint_linked_idx!=null) setProofDisplay(s.hint_linked_idx); }
+      else { addMsg('Not quite — try again.','bot'); }
+      if(attempts>=3){ revealStep(s); setTimeout(advance,800); }
+      return;
     }
+    revealStep(s); advance();
   }
 }
 
@@ -917,7 +687,7 @@ document.getElementById('btn-draw').addEventListener('click',()=>{
 // ─────────────────────────────────────────────────────────────────────────────
 
 buildPanels();
-show('dc-given');
+["dc-given"].forEach(id=>show(id));
 showStep();
 </script>
 </body>

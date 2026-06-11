@@ -598,7 +598,11 @@ function showStep(){
           const d=document.createElement('div');
           d.className='msg-bot';
           d.innerHTML='<a href="/survey?prop='+PROP_NUM+'" style="color:#7c3aed;text-decoration:underline;">Share your experience →</a>';
-          chatEl.appendChild(d); chatEl.scrollTop=chatEl.scrollHeight;
+          chatEl.appendChild(d);
+          const b=document.createElement('div');
+          b.className='msg-bot';
+          b.innerHTML='<a href="/welcome" style="color:#000;text-decoration:none;font-size:12px;opacity:.5;">← dashboard</a>';
+          chatEl.appendChild(b); chatEl.scrollTop=chatEl.scrollHeight;
         }
       });
     return;
