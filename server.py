@@ -594,6 +594,27 @@ async def admin_make_reset_link(key: str = '', username: str = ''):
     link = f"{BASE_URL}/reset-password/{token}"
     return {'ok': True, 'username': username, 'link': link}
 
+@app.get('/admin/user-email')
+async def admin_user_email(key: str = '', username: str = ''):
+    if key != ADMIN_KEY:
+        raise HTTPException(status_code=403, detail='Wrong key.')
+    with db() as con:
+        user = con.execute('SELECT username, email FROM users WHERE username=?', (username,)).fetchone()
+        if not user:
+            return JSONResponse({'ok': False, 'error': f'User not found: {username}'}, status_code=404)
+    return {'ok': True, 'username': user['username'], 'email': user['email']}
+
+@app.get('/admin/set-email')
+async def admin_set_email(key: str = '', username: str = '', email: str = ''):
+    if key != ADMIN_KEY:
+        raise HTTPException(status_code=403, detail='Wrong key.')
+    with db() as con:
+        user = con.execute('SELECT id FROM users WHERE username=?', (username,)).fetchone()
+        if not user:
+            return JSONResponse({'ok': False, 'error': f'User not found: {username}'}, status_code=404)
+        con.execute('UPDATE users SET email=? WHERE id=?', (email, user['id']))
+    return {'ok': True, 'username': username, 'email': email}
+
 @app.get('/admin/test-email')
 async def admin_test_email(key: str = '', to: str = ''):
     if key != ADMIN_KEY:
