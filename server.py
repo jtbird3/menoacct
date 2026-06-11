@@ -561,6 +561,25 @@ async def admin_login_post(request: Request, key: str = Form(...)):
         return render('admin_login.html', error='Wrong key.')
     return RedirectResponse(f'/admin?key={key}', status_code=303)
 
+@app.get('/admin/test-connect')
+async def admin_test_connect(key: str = ''):
+    if key != ADMIN_KEY:
+        raise HTTPException(status_code=403, detail='Wrong key.')
+    import socket
+    results = {}
+    for host, port in [
+        ('smtp.gmail.com', 587), ('smtp.gmail.com', 465),
+        ('api.sendgrid.com', 443), ('api.mailgun.net', 443),
+        ('api.brevo.com', 443), ('api.postmarkapp.com', 443),
+    ]:
+        try:
+            s = socket.create_connection((host, port), timeout=5)
+            s.close()
+            results[f'{host}:{port}'] = 'OK'
+        except Exception as e:
+            results[f'{host}:{port}'] = str(e)
+    return results
+
 @app.get('/admin/make-reset-link')
 async def admin_make_reset_link(key: str = '', username: str = ''):
     if key != ADMIN_KEY:
