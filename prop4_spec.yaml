@@ -1,0 +1,242 @@
+number: 4
+title: "Euclid I.4"
+enunciation: "If two triangles have the two sides equal to two sides respectively, and have the angles contained by the equal straight lines equal, they will also have the base equal to the base, the triangle equal to the triangle, and the remaining angles equal to the remaining angles."
+conclusion: "Congratulations! You have completed Euclid's Elements Book I, Proposition 4."
+viewbox: "0 0 800 440"
+initial_visible:
+  - dc-given
+
+svg_canvas: |
+  <!-- === both triangles + equality markings, shown from the start === -->
+  <g id="dc-given" class="de">
+    <!-- Triangle ABC -->
+    <line x1="130" y1="380" x2="360" y2="380" stroke="#000" stroke-width="2.5"/>
+    <line x1="130" y1="380" x2="215" y2="155" stroke="#000" stroke-width="2.5"/>
+    <line x1="360" y1="380" x2="215" y2="155" stroke="#000" stroke-width="2.5"/>
+    <circle cx="130" cy="380" r="5" fill="#000"/>
+    <circle cx="360" cy="380" r="5" fill="#000"/>
+    <circle cx="215" cy="155" r="5" fill="#000"/>
+    <text x="112" y="403" font-family="inherit" font-size="17" fill="#000">A</text>
+    <text x="355" y="403" font-family="inherit" font-size="17" fill="#000">B</text>
+    <text x="209" y="147" font-family="inherit" font-size="17" fill="#000">C</text>
+    <!-- Triangle DEF (congruent copy, shifted right) -->
+    <line x1="440" y1="380" x2="670" y2="380" stroke="#000" stroke-width="2.5"/>
+    <line x1="440" y1="380" x2="525" y2="155" stroke="#000" stroke-width="2.5"/>
+    <line x1="670" y1="380" x2="525" y2="155" stroke="#000" stroke-width="2.5"/>
+    <circle cx="440" cy="380" r="5" fill="#000"/>
+    <circle cx="670" cy="380" r="5" fill="#000"/>
+    <circle cx="525" cy="155" r="5" fill="#000"/>
+    <text x="432" y="403" font-family="inherit" font-size="17" fill="#000">D</text>
+    <text x="665" y="403" font-family="inherit" font-size="17" fill="#000">E</text>
+    <text x="519" y="147" font-family="inherit" font-size="17" fill="#000">F</text>
+    <!-- Single tick marks on AB and DE -->
+    <line x1="245" y1="373" x2="245" y2="387" stroke="#000" stroke-width="2"/>
+    <line x1="555" y1="373" x2="555" y2="387" stroke="#000" stroke-width="2"/>
+    <!-- Double tick marks on AC -->
+    <line x1="166" y1="269" x2="176" y2="273" stroke="#000" stroke-width="2"/>
+    <line x1="169" y1="262" x2="179" y2="266" stroke="#000" stroke-width="2"/>
+    <!-- Double tick marks on DF -->
+    <line x1="476" y1="269" x2="486" y2="273" stroke="#000" stroke-width="2"/>
+    <line x1="479" y1="262" x2="489" y2="266" stroke="#000" stroke-width="2"/>
+    <!-- Angle arc at A (sweep counterclockwise from AB direction to AC direction) -->
+    <path d="M 158 380 A 28 28 0 0 0 140 354" fill="none" stroke="#000" stroke-width="1.5"/>
+    <!-- Angle arc at D (same) -->
+    <path d="M 468 380 A 28 28 0 0 0 450 354" fill="none" stroke="#000" stroke-width="1.5"/>
+  </g>
+
+  <!-- === superposition: correspondence labels D=A, E=B, F=C === -->
+  <g id="dc-apply" class="de">
+    <text x="448" y="403" font-family="inherit" font-size="10" fill="#2563eb">=A</text>
+    <text x="676" y="403" font-family="inherit" font-size="10" fill="#2563eb">=B</text>
+    <text x="530" y="147" font-family="inherit" font-size="10" fill="#2563eb">=C</text>
+  </g>
+
+  <!-- === equal bases BC and EF highlighted green === -->
+  <g id="dc-bc-ef" class="de">
+    <line x1="360" y1="380" x2="215" y2="155" stroke="#16a34a" stroke-width="3.5"/>
+    <line x1="670" y1="380" x2="525" y2="155" stroke="#16a34a" stroke-width="3.5"/>
+  </g>
+
+  <!-- === single tick marks on BC and EF === -->
+  <g id="dc-ticks-bc" class="de">
+    <line x1="292" y1="265" x2="283" y2="270" stroke="#16a34a" stroke-width="2"/>
+    <line x1="602" y1="265" x2="593" y2="270" stroke="#16a34a" stroke-width="2"/>
+  </g>
+
+  <!-- === congruence label === -->
+  <g id="dc-eq-label" class="de">
+    <text x="400" y="430" font-family="inherit" font-size="13" fill="#16a34a" text-anchor="middle">△ABC ≅ △DEF</text>
+  </g>
+
+steps:
+  - type: yn
+    type_rationale: "Perceptual orientation — student confirms all given information is visible before the argument begins."
+    q: "Two triangles: ABC on the left, DEF on the right. Single ticks show AB = DE, double ticks show AC = DF, and arcs at A and D show ∠BAC = ∠EDF. Can you see all this?"
+    no: "Triangle ABC has A bottom-left, B bottom-right, C top. DEF mirrors it on the right. Single tick marks on the horizontal bases mean AB = DE; double ticks on the slanted left sides mean AC = DF; small arcs at A and D mark the equal included angles."
+    text: "Let ABC, DEF be two triangles having AB = DE, AC = DF, and ∠BAC = ∠EDF."
+    just: null
+    side: "Given: AB=DE, AC=DF, ∠BAC=∠EDF"
+    reveal: []
+    criteria: null
+    hint: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: yn
+    type_rationale: "Goal orientation — student acknowledges the three things to be proved before the argument begins."
+    q: "Goal: prove (1) BC = EF, (2) △ABC = △DEF, (3) ∠ABC = ∠DEF and ∠ACB = ∠DFE. Ready?"
+    no: "We need to show the bases are equal, the full triangles are equal in area, and each remaining angle matches its counterpart."
+    text: "I say that BC = EF, △ABC = △DEF, ∠ABC = ∠DEF, and ∠ACB = ∠DFE."
+    just: null
+    side: "Goal: BC=EF, △=△, ∠=∠"
+    reveal: []
+    criteria: null
+    hint: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: draw
+    type_rationale: "Construction action — Euclid's superposition. Reveals correspondence labels near D, E, F."
+    q: "Euclid uses superposition: apply △ABC to △DEF, placing A on D and AB along DE. Shall we do this?"
+    reveal:
+      - dc-apply
+    text: "For if △ABC be applied to △DEF, with A placed on D and AB along DE:"
+    just: null
+    side: "A↦D, AB along DE"
+    criteria: null
+    hint: null
+    no: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: open
+    type_rationale: "Student deduces B coincides with E from AB = DE — first step of the superposition argument."
+    q: "A is now on D, and AB = DE. Where does B land?"
+    criteria: "B coincides with E — since A is on D and AB = DE, the other endpoint B falls exactly on E."
+    hint: "AB = DE (given). A is placed on D. Since both segments are equal length, B must land on…"
+    ok_regex: "\\be\\b|on\\s+e|falls?.*\\be\\b|lands?.*\\be\\b|coinc.*\\be\\b|ends?\\s*(at\\s*)?\\be\\b|point\\s+e|goes?.*\\be\\b|hits?.*\\be\\b|rests?.*\\be\\b"
+    ok_targets: ["falls", "lands", "coincide", "meets", "ends", "point", "hits", "rests", "equal"]
+    text: "Since AB = DE, B coincides with E."
+    just: "Hyp."
+    side: "B on E"
+    reveal: []
+    no: null
+    hint_linked_idx: 0
+    display_linked_idx: null
+
+  - type: open
+    type_rationale: "Student connects equal included angles to the direction of ray AC — the key geometric insight of the SAS proof."
+    q: "AB now lies on DE. Since ∠BAC = ∠EDF, in which direction must ray AC fall from D?"
+    criteria: "Along ray DF — equal angles measured from the same base force ray AC to fall exactly along ray DF."
+    hint: "∠BAC = ∠EDF, and both angles open from the same base (AB = DE). The equal angles force the other sides to point in the same direction — along…"
+    ok_regex: "\\bdf\\b|along.*\\bdf\\b|along.*\\bd\\b|toward\\s*f\\b|towards?\\s*f\\b|ray.*\\bdf\\b|on.*\\bdf\\b|direction.*\\bdf\\b|\\bdf\\b.*direction|coinc.*\\bdf\\b|align.*\\bdf\\b|same.*direction|points?.*\\bf\\b"
+    ok_targets: ["along", "toward", "towards", "direction", "align", "DF", "ray", "force", "points"]
+    text: "Since ∠BAC = ∠EDF, with AB on DE, ray AC falls along ray DF."
+    just: "Hyp."
+    side: "ray AC along DF"
+    reveal: []
+    no: null
+    hint_linked_idx: 0
+    display_linked_idx: null
+
+  - type: open
+    type_rationale: "Student deduces C coincides with F from AC = DF — symmetric to step 3."
+    q: "Ray AC now lies along DF, and AC = DF. Where does C land?"
+    criteria: "C coincides with F — AC = DF means C falls exactly on F."
+    hint: "AC = DF (given). Ray AC lies along ray DF. Since the lengths are equal, C must land on…"
+    ok_regex: "\\bf\\b|on\\s+f|falls?.*\\bf\\b|lands?.*\\bf\\b|coinc.*\\bf\\b|ends?\\s*(at\\s*)?\\bf\\b|point\\s+f|goes?.*\\bf\\b|hits?.*\\bf\\b|rests?.*\\bf\\b"
+    ok_targets: ["falls", "lands", "coincide", "meets", "ends", "point", "hits", "rests", "equal"]
+    text: "Since AC = DF, C coincides with F."
+    just: "Hyp."
+    side: "C on F"
+    reveal: []
+    no: null
+    hint_linked_idx: 0
+    display_linked_idx: null
+
+  - type: open
+    type_rationale: "Student draws the first conclusion — B on E and C on F forces BC to coincide with EF."
+    q: "B is on E and C is on F. What does that tell us about BC and EF?"
+    criteria: "BC coincides with EF and is therefore equal to it — segments that coincide are equal."
+    hint: "B landed on E, C landed on F. The segment from B to C must now lie exactly on the segment from E to F. Things that coincide are…"
+    ok_regex: "equal|same|coinc|bc.*ef|ef.*bc|base.*equal|overlap|identi|match|cover|congruent"
+    ok_targets: ["equal", "same", "coincide", "overlap", "identical", "match", "cover", "congruent", "base"]
+    text: "Since B coincides with E and C with F, BC coincides with EF and is equal to it."
+    just: "C.N."
+    side: "BC = EF ✓"
+    reveal:
+      - dc-bc-ef
+      - dc-ticks-bc
+    no: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: yn
+    type_rationale: "Student confirms full triangle coincidence — binary confirmation before drawing the equality conclusion."
+    q: "A is on D, B is on E, C is on F — does the whole triangle ABC coincide with triangle DEF?"
+    no: "Yes — every vertex of △ABC has landed on the corresponding vertex of △DEF, so the two triangles occupy exactly the same region."
+    text: "△ABC coincides entirely with △DEF."
+    just: null
+    side: "△ABC on △DEF"
+    reveal:
+      - dc-eq-label
+    criteria: null
+    hint: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: open
+    type_rationale: "Student states the consequence of full coincidence — tests knowledge of the CN that grounds equality."
+    q: "When two triangles coincide completely, what follows?"
+    criteria: "They are equal — things that coincide with one another are equal to one another (Common Notion)."
+    hint: "Common Notion: things that coincide with one another are equal to one another. Two triangles that fully overlap are…"
+    ok_regex: "equal|same|congruent|coinc|identical|match|area"
+    ok_targets: ["equal", "same", "congruent", "identical", "coincide", "match", "area"]
+    text: "Therefore △ABC = △DEF."
+    just: "C.N."
+    side: "△ABC = △DEF ✓"
+    reveal: []
+    no: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: yn
+    type_rationale: "Student confirms the first remaining angle equality — direct consequence of coincidence."
+    q: "∠ABC and ∠DEF sit at corresponding vertices (B coincides with E). Are they equal?"
+    no: "Yes — ∠ABC and ∠DEF occupy the same position since B coincides with E, so the angles are equal."
+    text: "∠ABC = ∠DEF and ∠ACB = ∠DFE."
+    just: null
+    side: "∠ABC=∠DEF, ∠ACB=∠DFE ✓"
+    reveal: []
+    criteria: null
+    hint: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: yn
+    type_rationale: "Student confirms the second angle equality — C is on F, same reasoning."
+    q: "And ∠ACB = ∠DFE, since C coincides with F?"
+    no: "Yes — C coincides with F, so ∠ACB and ∠DFE sit at the same point and are equal."
+    text: null
+    just: null
+    side: null
+    reveal: []
+    criteria: null
+    hint: null
+    hint_linked_idx: null
+    display_linked_idx: null
+
+  - type: open
+    type_rationale: "Student distinguishes Q.E.D. from Q.E.F. — first theorem in the sequence, a key conceptual milestone."
+    q: "We proved something is true — we didn't construct anything new. Q.E.F. or Q.E.D.?"
+    criteria: "Q.E.D. — quod erat demonstrandum, 'which was to be demonstrated.' I.4 is a theorem, not a construction."
+    hint: "I.1–3 ended with Q.E.F. = 'which was to be done' (constructions). I.4 proves something is true. Q.E.D. = 'which was to be demonstrated.' Which fits?"
+    ok_regex: "q\\.?e\\.?d\\.?|qed|quod.?erat.?demon|demonstrand|proved?|demonstrated?|theorem|proof"
+    ok_targets: ["qed", "demonstrated", "theorem", "proved", "proof", "demonstrandum", "demonstrate"]
+    text: "(Being) what it was required to demonstrate."
+    just: "Q.E.D."
+    side: "Q.E.D."
+    reveal: []
+    no: null
+    hint_linked_idx: null
+    display_linked_idx: null
