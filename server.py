@@ -2,10 +2,7 @@ import os
 import sqlite3
 import secrets
 import json
-import smtplib
-import ssl
 from datetime import datetime, timedelta
-from email.mime.text import MIMEText
 from pathlib import Path
 
 from fastapi import FastAPI, Request, Form, HTTPException
@@ -232,26 +229,25 @@ async def signup_post(
 # ── Email ─────────────────────────────────────────────────────────────────────
 
 def send_email(to: str, subject: str, body: str):
-    import re as _re
-    # strip Gmail +tags: jtbird3+username@gmail.com -> jtbird3@gmail.com
+    import re as _re, urllib.request as _req, json as _json
     to = _re.sub(r'\+[^@]+(@gmail\.com)$', r'\1', to, flags=_re.I)
-    host = os.environ.get('SMTP_HOST', '')
-    port = int(os.environ.get('SMTP_PORT', 587))
-    user = os.environ.get('SMTP_USER', '')
-    pwd  = os.environ.get('SMTP_PASSWORD', '')
-    if not (host and user and pwd):
-        raise RuntimeError('SMTP_HOST / SMTP_USER / SMTP_PASSWORD not set')
-    msg = MIMEText(body)
-    msg['Subject'] = subject
-    msg['From']    = user
-    msg['To']      = to
-    ctx = ssl.create_default_context()
-    with smtplib.SMTP(host, port, timeout=15) as s:
-        s.ehlo()
-        s.starttls(context=ctx)
-        s.login(user, pwd)
-        s.sendmail(user, [to], msg.as_string())
-    return {'ok': True}
+    api_key = os.environ.get('BREVO_API_KEY', '')
+    if not api_key:
+        raise RuntimeError('BREVO_API_KEY not set')
+    sender = os.environ.get('BREVO_SENDER', os.environ.get('SMTP_USER', 'noreply@menochat.app'))
+    payload = _json.dumps({
+        'sender':      {'email': sender, 'name': 'Menochat'},
+        'to':          [{'email': to}],
+        'subject':     subject,
+        'textContent': body,
+    }).encode()
+    request = _req.Request(
+        'https://api.brevo.com/v3/smtp/email',
+        data=payload,
+        headers={'api-key': api_key, 'Content-Type': 'application/json'},
+    )
+    with _req.urlopen(request, timeout=15) as resp:
+        return _json.loads(resp.read())
 
 async def send_email_bg(to: str, subject: str, body: str):
     import asyncio
