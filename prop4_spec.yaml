@@ -126,7 +126,7 @@ steps:
 
   - type: open
     type_rationale: "Student connects equal included angles to the direction of ray AC — the key geometric insight of the SAS proof."
-    q: "AB now lies on DE. Since ∠BAC = ∠EDF, in which direction must ray AC fall from D?"
+    q: "AB now lies on DE. Since ∠BAC = ∠EDF, along which line must AC fall from D?"
     criteria: "Along ray DF — equal angles measured from the same base force ray AC to fall exactly along ray DF."
     hint: "∠BAC = ∠EDF, and both angles open from the same base (AB = DE). The equal angles force the other sides to point in the same direction — along…"
     ok_regex: "\\bdf\\b|along.*\\bdf\\b|along.*\\bd\\b|toward\\s*f\\b|towards?\\s*f\\b|ray.*\\bdf\\b|on.*\\bdf\\b|direction.*\\bdf\\b|\\bdf\\b.*direction|coinc.*\\bdf\\b|align.*\\bdf\\b|same.*direction|points?.*\\bf\\b"
