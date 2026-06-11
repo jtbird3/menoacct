@@ -33,7 +33,7 @@ app.add_middleware(SessionMiddleware,
     max_age=90 * 24 * 3600,  # 90 days max; actual expiry set per-login in session
 )
 app.add_middleware(CORSMiddleware,
-    allow_origins=['https://www.menochat.app', 'https://menoacct-production-d2e7.up.railway.app'],
+    allow_origins=['https://menochat.app', 'https://www.menochat.app', 'https://menoacct-production-d2e7.up.railway.app'],
     allow_methods=['POST'],
     allow_headers=['Content-Type'],
     allow_credentials=True,
@@ -41,7 +41,7 @@ app.add_middleware(CORSMiddleware,
 jinja = Environment(loader=FileSystemLoader('templates'), autoescape=True)
 
 ADMIN_KEY    = os.environ.get('ADMIN_KEY', 'admin')
-BASE_URL     = os.environ.get('BASE_URL', 'https://menoacct-production.up.railway.app')
+BASE_URL     = os.environ.get('BASE_URL', 'https://menochat.app')
 # Set RESEND_FROM to a verified-domain address in Railway, e.g. "Menochat <noreply@menochat.app>".
 # The default onboarding@resend.dev is Resend's sandbox and only delivers to the account owner.
 RESEND_FROM  = os.environ.get('RESEND_FROM', 'Menochat <onboarding@resend.dev>')
