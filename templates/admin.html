@@ -111,8 +111,9 @@
           <span class="done">complete 🎉</span>
         {% elif cs.is_eliminated %}
           <span style="color:#dc2626;">eliminated day {{ cs.day_number }}</span>
-        {% elif cs.vacation_days_used == 1 %}
-          <span style="color:#b45309;">day {{ cs.day_number }} ⚠ vac used</span>
+          <span style="color:#dc2626;font-size:10px;"> ({{ cs.vacation_days_used }} vac used)</span>
+        {% elif cs.vacation_days_used > 0 %}
+          <span style="color:#b45309;">day {{ cs.day_number }} — {{ cs.vacation_days_used }} vac used</span>
         {% else %}
           <span class="muted">day {{ cs.day_number }} on track</span>
         {% endif %}
