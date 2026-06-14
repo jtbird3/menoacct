@@ -368,7 +368,7 @@ async def reset_post(token: str, password: str = Form(...), confirm: str = Form(
 
 # ── App pages ──────────────────────────────────────────────────────────────────
 
-PROP_URLS = {1: '/i1', 2: '/i2', 3: '/i3', 4: '/i4', 5: '/i5'}
+PROP_URLS = {1: '/i1', 2: '/i2', 3: '/i3', 4: '/i4', 5: '/i5', 6: '/i6'}
 TOTAL_PROPS = 48
 
 def fmt_date(dt_str):
