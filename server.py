@@ -446,6 +446,10 @@ def prop_gate(request: Request):
         return RedirectResponse('/eliminated', status_code=303)
     return None
 
+@app.get('/classic', response_class=HTMLResponse)
+async def classic(request: Request):
+    return FileResponse('static/classic.html')
+
 @app.get('/i1', response_class=HTMLResponse)
 async def i1(request: Request):
     gate = prop_gate(request)
