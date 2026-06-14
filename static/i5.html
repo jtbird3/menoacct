@@ -1,0 +1,702 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Euclid I.5</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; touch-action: manipulation; }
+    body {
+      background: #fff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      font-size: 14px;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 16px 16px 110px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    h1 { font-size: 15px; font-weight: bold; margin-bottom: 10px; }
+
+    /* ── Diagram ── */
+    #diagram-row { position: relative; margin-bottom: 10px; }
+    #diagram-wrap { position: relative; }
+    #diagram {
+      border: 1px solid #ccc;
+      background: #fff;
+      display: block;
+      width: 100%;
+      height: clamp(160px, 38vh, 380px);
+      cursor: grab;
+    }
+    #diagram.panning { cursor: grabbing; }
+    #diagram-controls {
+      position: absolute; bottom: 22px; right: 8px;
+      display: flex; flex-direction: column; gap: 2px; z-index: 10;
+    }
+    #diagram-controls button {
+      font-family: inherit; font-size: 15px;
+      width: 28px; height: 28px;
+      border: 1px solid #ccc; background: rgba(255,255,255,0.9);
+      cursor: pointer; padding: 0; line-height: 1;
+    }
+    #diagram-controls button:hover { background: #f0f0f0; }
+    .resize-corner {
+      position: absolute; bottom: 0; width: 16px; height: 16px;
+      user-select: none; z-index: 10; opacity: 0.5;
+      background: repeating-linear-gradient(-45deg,#bbb 0,#bbb 1px,transparent 1px,transparent 3px);
+    }
+    .resize-corner:hover { opacity: 1; }
+    #rc-l { left: 0; cursor: sw-resize; }
+    #rc-r { right: 0; cursor: se-resize; }
+
+    /* side panels */
+    #side-panel {
+      position: absolute; left: calc(100% + 10px); top: 0;
+      width: 110px; font-size: 13px;
+    }
+    .side-item { opacity: 0; transition: opacity 0.5s; line-height: 1.6; color: #16a34a; }
+    .side-item.on { opacity: 1; }
+    #left-panel {
+      position: absolute; right: calc(100% + 12px); top: 0;
+      width: 190px; font-size: 11.5px; line-height: 1.5;
+    }
+    #left-panel .prop-label {
+      font-size: 10px; text-transform: uppercase; letter-spacing: .06em;
+      opacity: .4; margin-bottom: 4px;
+    }
+    #left-panel .prop-enunc {
+      font-style: italic; opacity: .55; font-size: 11px;
+      border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 10px;
+    }
+    .proof-line {
+      opacity: .22; margin-bottom: 6px; transition: opacity .4s, color .4s;
+    }
+    .proof-line .just { display: block; font-size: 10px; opacity: .65; margin-top: 1px; }
+    .proof-line.past { opacity: .48; }
+    .proof-line.active { opacity: 1; color: #16a34a; }
+
+    /* SVG elements */
+    .de { opacity: 0; transition: opacity 0.5s; }
+    .de.on { opacity: 1; }
+
+    /* ── Chat ── */
+    #chat {
+      border: 1px solid #ccc; padding: 10px;
+      flex: 1; min-height: 120px; max-height: 260px;
+      overflow-y: auto; overflow-x: hidden;
+      display: flex; flex-direction: column;
+      gap: 8px; margin-bottom: 10px;
+    }
+    .msg-bot, .msg-user {
+      white-space: pre-wrap; word-break: break-word;
+      overflow-wrap: break-word; min-width: 0; max-width: 100%;
+    }
+    .msg-bot  { color: #000; }
+    .msg-user { color: #777; text-align: right; }
+
+    /* ── Input ── */
+    #input-row { display: flex; gap: 8px; margin-bottom: 8px; }
+    #text-input {
+      flex: 1; padding: 8px; font-family: inherit; font-size: 14px;
+      border: 1px solid #ccc; outline: none;
+    }
+    #text-input:focus { border-color: #000; }
+    #fake-input {
+      display: none;
+      flex: 1; padding: 8px; font-family: inherit; font-size: 14px;
+      border: 1px solid #000; color: #000;
+      overflow: hidden; white-space: nowrap;
+      align-items: center; line-height: 1.4;
+    }
+    #fake-placeholder { color: #999; }
+    #fake-cursor {
+      display: inline-block; width: 2px; height: 1em;
+      background: #000; vertical-align: text-bottom; margin-left: 1px;
+      animation: blink-caret 1s step-end infinite;
+    }
+    @keyframes blink-caret { 50% { opacity: 0; } }
+    #send-btn {
+      padding: 8px 14px; font-family: inherit; font-size: 14px;
+      border: 1px solid #000; background: #000; color: #fff; cursor: pointer;
+    }
+    #send-btn:disabled { background: #ccc; border-color: #ccc; cursor: not-allowed; }
+
+    /* ── YES/NO ── */
+    #yn-bar {
+      display: none;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #fff; border-top: 1px solid #ccc;
+      padding: 10px 16px; gap: 12px; justify-content: center; z-index: 100;
+    }
+    #yn-bar button {
+      flex: 1; max-width: 140px;
+      padding: 12px 20px; font-family: inherit; font-size: 15px; font-weight: bold;
+      border: 2px solid #000; background: #fff; color: #000; cursor: pointer;
+    }
+    #yn-bar button:active { background: #000; color: #fff; }
+
+    /* ── Draw bar ── */
+    #draw-bar {
+      display: none;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #fff; border-top: 1px solid #ccc;
+      padding: 10px 16px; justify-content: center; z-index: 100;
+    }
+    #draw-bar button {
+      flex: 1; max-width: 200px;
+      padding: 12px 20px; font-family: inherit; font-size: 15px; font-weight: bold;
+      border: 2px solid #000; background: #fff; color: #000; cursor: pointer;
+    }
+    #draw-bar button:active { background: #000; color: #fff; }
+
+    /* ── Proof display ── */
+    #proof-display {
+      min-height: 1.6em;
+      font-style: italic; font-size: 12px; color: #444;
+      border-left: 2px solid #16a34a; padding: 4px 10px;
+      margin-bottom: 8px; opacity: 0; transition: opacity 0.4s;
+    }
+    #proof-display.visible { opacity: 1; }
+    #proof-display .proof-just { font-style: normal; font-size: 10px; color: #888; margin-left: 8px; }
+
+    /* ── Custom keyboard (mobile only) ── */
+    #kb-bar {
+      display: none;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #f0f0f0; border-top: 1px solid #ccc;
+      padding: 8px 6px 14px; flex-direction: column;
+      gap: 6px; z-index: 100;
+    }
+    .kb-row { display: flex; justify-content: center; gap: 5px; width: 100%; }
+    #kb-alpha, #kb-num { display: flex; flex-direction: column; gap: 6px; }
+    .kb-key {
+      font-family: inherit; font-size: 15px; font-weight: bold;
+      height: 42px; flex: 1;
+      border: none; border-radius: 4px;
+      background: #fff; color: #000;
+      box-shadow: 0 1px 2px rgba(0,0,0,.25);
+      cursor: pointer; padding: 0;
+    }
+    .kb-key:active { background: #ccc; }
+    .kb-key.kb-wide  { flex: 1.4; font-size: 12px; }
+    .kb-key.kb-space { flex: 5; }
+    .kb-key.kb-enter { flex: 2; font-size: 13px; }
+
+    @media (max-width: 600px) {
+      html { overflow: hidden; }
+      body {
+        height: 100vh; height: 100dvh; min-height: unset;
+        overflow: hidden; padding: 8px 10px 0;
+        font-size: 13px; max-width: 100%;
+      }
+      h1 { font-size: 13px; margin-bottom: 6px; flex-shrink: 0; }
+      #left-panel, #side-panel { display: none; }
+      #diagram-row { flex-shrink: 0; margin-bottom: 6px; }
+      #diagram { height: clamp(110px, 22vh, 180px); }
+      #proof-display { font-size: 11px; flex-shrink: 0; }
+      #chat { flex: 1; min-height: 0; max-height: none; font-size: 13px; }
+      #input-row { flex-shrink: 0; }
+      #text-input, #fake-input { font-size: 16px; }
+      #yn-bar, #draw-bar, #kb-bar { position: static; flex-shrink: 0; }
+      #kb-bar { padding-bottom: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<h1>Euclid I.5</h1>
+
+<div id="diagram-row">
+<div id="diagram-wrap">
+  <svg id="diagram"
+       viewBox="0 0 800 530"
+       preserveAspectRatio="xMidYMid meet"
+       xmlns="http://www.w3.org/2000/svg">
+    <g id="canvas">
+      <!-- === Triangle ABC (isosceles), always visible === -->
+<g id="dc-given" class="de">
+  <line x1="400" y1="70" x2="220" y2="360" stroke="#000" stroke-width="2.5"/>
+  <line x1="400" y1="70" x2="580" y2="360" stroke="#000" stroke-width="2.5"/>
+  <line x1="220" y1="360" x2="580" y2="360" stroke="#000" stroke-width="2.5"/>
+  <circle cx="400" cy="70" r="5" fill="#000"/>
+  <circle cx="220" cy="360" r="5" fill="#000"/>
+  <circle cx="580" cy="360" r="5" fill="#000"/>
+  <text x="393" y="58" font-family="inherit" font-size="17" fill="#000">A</text>
+  <text x="200" y="383" font-family="inherit" font-size="17" fill="#000">B</text>
+  <text x="575" y="383" font-family="inherit" font-size="17" fill="#000">C</text>
+  <!-- Single tick on AB (midpoint 310,215) -->
+  <line x1="307" y1="213" x2="313" y2="217" stroke="#000" stroke-width="2"/>
+  <!-- Single tick on AC (midpoint 490,215) -->
+  <line x1="487" y1="217" x2="493" y2="213" stroke="#000" stroke-width="2"/>
+</g>
+
+<!-- === Extension AB → F (step 3) === -->
+<g id="dc-f" class="de">
+  <line x1="220" y1="360" x2="148" y2="476" stroke="#000" stroke-width="2"/>
+  <circle cx="148" cy="476" r="5" fill="#000"/>
+  <text x="127" y="496" font-family="inherit" font-size="17" fill="#000">F</text>
+</g>
+
+<!-- === Extension AC → G (step 4) === -->
+<g id="dc-g" class="de">
+  <line x1="580" y1="360" x2="652" y2="476" stroke="#000" stroke-width="2"/>
+  <circle cx="652" cy="476" r="5" fill="#000"/>
+  <text x="647" y="496" font-family="inherit" font-size="17" fill="#000">G</text>
+</g>
+
+<!-- === Auxiliary lines FC and GB (step 5) === -->
+<g id="dc-aux" class="de">
+  <line x1="148" y1="476" x2="580" y2="360" stroke="#555" stroke-width="1.5" stroke-dasharray="6,4"/>
+  <line x1="652" y1="476" x2="220" y2="360" stroke="#555" stroke-width="1.5" stroke-dasharray="6,4"/>
+</g>
+
+<!-- === First congruence label (step 9) === -->
+<g id="dc-cong1" class="de">
+  <text x="400" y="508" font-family="inherit" font-size="13" fill="#2563eb" text-anchor="middle">△FAC ≅ △GAB  (I.4)</text>
+</g>
+
+<!-- === Tick marks on BF and CG (step 11, BF=CG proved) === -->
+<g id="dc-bf-cg" class="de">
+  <!-- Tick on BF at midpoint (184,418) -->
+  <line x1="181" y1="416" x2="187" y2="420" stroke="#000" stroke-width="2"/>
+  <!-- Tick on CG at midpoint (616,418) -->
+  <line x1="613" y1="420" x2="619" y2="416" stroke="#000" stroke-width="2"/>
+</g>
+
+<!-- === Second congruence label (step 13) === -->
+<g id="dc-cong2" class="de">
+  <text x="400" y="522" font-family="inherit" font-size="13" fill="#2563eb" text-anchor="middle">△BFC ≅ △CGB  (I.4)</text>
+</g>
+
+<!-- === Base angle arcs and equality label (step 15) === -->
+<g id="dc-base-arcs" class="de">
+  <!-- Arc at B: from BC direction (246,360) to BA direction (234,338) -->
+  <path d="M 246 360 A 26 26 0 0 0 234 338" fill="none" stroke="#16a34a" stroke-width="2"/>
+  <!-- Arc at C: from CA direction (566,338) to CB direction (554,360) -->
+  <path d="M 566 338 A 26 26 0 0 0 554 360" fill="none" stroke="#16a34a" stroke-width="2"/>
+  <text x="400" y="345" font-family="inherit" font-size="13" fill="#16a34a" text-anchor="middle">∠ABC = ∠ACB ✓</text>
+</g>
+    </g>
+  </svg>
+  <div id="rc-l" class="resize-corner"></div>
+  <div id="rc-r" class="resize-corner"></div>
+  <div id="diagram-controls">
+    <button onclick="zoomCenter(1.5)">+</button>
+    <button onclick="zoomCenter(1/1.5)">−</button>
+    <button onclick="resetView()">&#x2302;</button>
+  </div>
+</div>
+<div id="side-panel"></div>
+<div id="left-panel"></div>
+</div>
+
+<div id="proof-display"></div>
+<div id="chat"></div>
+
+<div id="input-row">
+  <div id="fake-input"><span id="fake-placeholder">Your answer…</span><span id="fake-cursor"></span></div>
+  <input id="text-input" type="text" placeholder="Your answer…" autocomplete="off" inputmode="none">
+  <button id="send-btn">→</button>
+</div>
+
+<div id="dashboard-btn" style="display:none;margin-bottom:8px;">
+  <a href="/welcome" style="text-decoration:none;"><button style="width:100%;padding:10px;font-family:inherit;font-size:14px;font-weight:bold;border:2px solid #000;background:#fff;color:#000;cursor:pointer;">&gt; Go to Dashboard</button></a>
+</div>
+
+<div id="yn-bar">
+  <button id="btn-no">NO</button>
+  <button id="btn-yes">YES</button>
+</div>
+
+<div id="draw-bar">
+  <button id="btn-draw">Yes / Draw</button>
+</div>
+
+<div id="kb-bar">
+  <div id="kb-alpha">
+    <div class="kb-row">
+      <button class="kb-key" onclick="kbTap('q')">Q</button><button class="kb-key" onclick="kbTap('w')">W</button><button class="kb-key" onclick="kbTap('e')">E</button><button class="kb-key" onclick="kbTap('r')">R</button><button class="kb-key" onclick="kbTap('t')">T</button><button class="kb-key" onclick="kbTap('y')">Y</button><button class="kb-key" onclick="kbTap('u')">U</button><button class="kb-key" onclick="kbTap('i')">I</button><button class="kb-key" onclick="kbTap('o')">O</button><button class="kb-key" onclick="kbTap('p')">P</button>
+    </div>
+    <div class="kb-row">
+      <button class="kb-key" onclick="kbTap('a')">A</button><button class="kb-key" onclick="kbTap('s')">S</button><button class="kb-key" onclick="kbTap('d')">D</button><button class="kb-key" onclick="kbTap('f')">F</button><button class="kb-key" onclick="kbTap('g')">G</button><button class="kb-key" onclick="kbTap('h')">H</button><button class="kb-key" onclick="kbTap('j')">J</button><button class="kb-key" onclick="kbTap('k')">K</button><button class="kb-key" onclick="kbTap('l')">L</button>
+    </div>
+    <div class="kb-row">
+      <button class="kb-key kb-wide" onclick="kbToggleNum()">123</button><button class="kb-key" onclick="kbTap('z')">Z</button><button class="kb-key" onclick="kbTap('x')">X</button><button class="kb-key" onclick="kbTap('c')">C</button><button class="kb-key" onclick="kbTap('v')">V</button><button class="kb-key" onclick="kbTap('b')">B</button><button class="kb-key" onclick="kbTap('n')">N</button><button class="kb-key" onclick="kbTap('m')">M</button><button class="kb-key kb-wide" onclick="kbBack()">⌫</button>
+    </div>
+    <div class="kb-row">
+      <button class="kb-key" onclick="kbTap('.')">.</button>
+      <button class="kb-key kb-space" onclick="kbTap(' ')">space</button>
+      <button class="kb-key kb-enter" onclick="kbEnter()">Enter</button>
+    </div>
+  </div>
+  <div id="kb-num" style="display:none">
+    <div class="kb-row">
+      <button class="kb-key" onclick="kbTap('1')">1</button><button class="kb-key" onclick="kbTap('2')">2</button><button class="kb-key" onclick="kbTap('3')">3</button>
+    </div>
+    <div class="kb-row">
+      <button class="kb-key" onclick="kbTap('4')">4</button><button class="kb-key" onclick="kbTap('5')">5</button><button class="kb-key" onclick="kbTap('6')">6</button>
+    </div>
+    <div class="kb-row">
+      <button class="kb-key" onclick="kbTap('7')">7</button><button class="kb-key" onclick="kbTap('8')">8</button><button class="kb-key" onclick="kbTap('9')">9</button>
+    </div>
+    <div class="kb-row">
+      <button class="kb-key kb-wide" onclick="kbToggleNum()">ABC</button><button class="kb-key" onclick="kbTap('.')">.</button><button class="kb-key" onclick="kbTap('0')">0</button><button class="kb-key kb-wide" onclick="kbBack()">⌫</button>
+    </div>
+    <div class="kb-row">
+      <button class="kb-key kb-enter" onclick="kbEnter()">Enter</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// Data — injected by generate_prop.py at build time
+// step types: yn / open / draw / say
+// open steps advance on any non-empty answer
+// ─────────────────────────────────────────────────────────────────────────────
+
+const STEPS    = [{"type": "yn", "q": "Triangle ABC is isosceles: AB = AC (single tick marks on each side). Can you see both equal sides?", "no": "Triangle ABC has A at the apex. The two equal sides AB and AC each carry a single tick mark. The base BC at the bottom has no tick.", "text": "Let ABC be an isosceles triangle with AB = AC.", "just": null, "side": "Given: AB=AC", "reveal": [], "criteria": null, "hint": null, "hint_linked_idx": null, "display_linked_idx": null}, {"type": "yn", "q": "Goal: prove that ∠ABC = ∠ACB — the two base angles are equal. Ready?", "no": "We need to show the angle at B and the angle at C are equal to one another.", "text": "I say that ∠ABC = ∠ACB.", "just": null, "side": "Goal: ∠ABC=∠ACB", "reveal": [], "criteria": null, "hint": null, "hint_linked_idx": null, "display_linked_idx": null}, {"type": "draw", "q": "Euclid extends AB beyond B and picks a point F anywhere on that extension. Shall we place F?", "reveal": ["dc-f"], "text": "Let AB be produced to F.", "just": "Post. 2", "side": "F on AB extended", "criteria": null, "hint": null, "no": null, "hint_linked_idx": null, "display_linked_idx": null}, {"type": "draw", "q": "Using I.3, cut off AG = AF from AC extended beyond C. Shall we place G?", "reveal": ["dc-g"], "text": "Let AG = AF be cut off from AC produced to G.", "just": "I.3", "side": "AG=AF, G on AC extended", "criteria": null, "hint": null, "no": null, "hint_linked_idx": null, "display_linked_idx": null}, {"type": "draw", "q": "Now join F to C and G to B. Shall we draw those lines?", "reveal": ["dc-aux"], "text": "Let FC and GB be joined.", "just": "Post. 1", "side": "FC, GB joined", "criteria": null, "hint": null, "no": null, "hint_linked_idx": null, "display_linked_idx": null}, {"type": "open", "q": "FA and GA both run from vertex A. Why are they equal?", "criteria": "By construction — we used I.3 to cut off AG = AF, so FA and GA are equal by design.", "hint": "How was G placed? What condition did I.3 impose on AG?", "ok_regex": "construct|i\\.?3|cut|ag.*af|af.*ag|equal.*construct|by.*design|made|defin", "ok_targets": ["construction", "constructed", "AF", "AG", "FA", "GA", "I.3", "equal", "cut", "made"], "text": "FA = GA.", "just": "Constr.", "side": "FA=GA (constr.)", "reveal": [], "no": null, "hint_linked_idx": 3, "display_linked_idx": null}, {"type": "open", "q": "Why are AC and AB equal?", "criteria": "Given — triangle ABC is isosceles, so AB = AC by hypothesis.", "hint": "What was given about triangle ABC at the outset?", "ok_regex": "isosceles|given|hyp|ab.*ac|ac.*ab|equal.*sides?|sides?.*equal|original", "ok_targets": ["isosceles", "given", "hypothesis", "AB", "AC", "equal", "sides"], "text": "AC = AB.", "just": "Hyp.", "side": "AC=AB (given)", "reveal": [], "no": null, "hint_linked_idx": 0, "display_linked_idx": null}, {"type": "open", "q": "What angle do △FAC and △GAB share at A?", "criteria": "They are the same angle — ∠FAC and ∠GAB both open from vertex A across the same span, so they are equal.", "hint": "F lies on line AB extended, so AF and AB point the same way from A. G lies on AC extended, same idea. The angle between those two directions is both ∠FAC and ∠GAB.", "ok_regex": "same|equal|common|shared|∠fac|∠gab|∠bac|∠cab|fac.*gab|gab.*fac|bac.*cab|cab.*bac|angle.*a\\b|\\ba.*angle|identical|^a$|∠a|\\bfac\\b|\\bgab\\b|\\bbac\\b|\\bcab\\b|\\bcaf\\b|\\bbag\\b", "ok_targets": ["same", "equal", "common", "shared", "FAC", "GAB", "BAC", "CAB", "CAF", "BAG", "angle", "identical"], "text": "∠FAC = ∠GAB.", "just": "Common", "side": "∠FAC=∠GAB (common)", "reveal": [], "no": null, "hint_linked_idx": null, "display_linked_idx": null}, {"type": "draw", "q": "FA = GA, AC = AB, ∠FAC = ∠GAB — two sides and included angle. By I.4, △FAC ≅ △GAB. Shall we record this?", "reveal": ["dc-cong1"], "text": "△FAC ≅ △GAB.", "just": "I.4", "side": "△FAC≅△GAB ✓", "criteria": null, "hint": null, "no": null, "hint_linked_idx": null, "display_linked_idx": null}, {"type": "open", "q": "△FAC ≅ △GAB. What angle at C equals what angle at B?", "criteria": "∠ABG = ∠ACF — the angle at B in △GAB equals the angle at C in △FAC.", "hint": "In △FAC ≅ △GAB the correspondence is F↔G, A↔A, C↔B. So the angle at C in △FAC matches the angle at B in △GAB. Write both with three letters.", "ok_regex": "abg.*acf|acf.*abg|gba.*fca|fca.*gba|\\babg\\b|\\bacf\\b|\\bgba\\b|\\bfca\\b", "ok_targets": ["ABG", "ACF", "GBA", "FCA", "equal", "angle"], "text": "∠ABG = ∠ACF.", "just": "I.4", "side": "∠ABG=∠ACF", "reveal": [], "no": null, "hint_linked_idx": 8, "display_linked_idx": null}, {"type": "open", "q": "AF = AG and AB = AC. What does that tell us about BF and CG?", "criteria": "BF = CG — equal quantities subtracted from equal quantities leave equal remainders.", "hint": "F is beyond B on line AB, so BF = AF − AB. G is beyond C on AC, so CG = AG − AC. Now subtract.", "ok_regex": "bf.*cg|cg.*bf|\\bbf\\b|\\bcg\\b|equal|subtract|af.*ab|ag.*ac", "ok_targets": ["BF", "CG", "equal", "subtract", "same", "remainder"], "text": "BF = CG.", "just": "C.N. 3", "side": "BF=CG", "reveal": ["dc-bf-cg"], "no": null, "hint_linked_idx": null, "display_linked_idx": null}, {"type": "open", "q": "We have BF = CG and FC = GB. What angle connects △BFC to △CGB?", "criteria": "∠BFC = ∠CGB — this is the same angle equality as ∠AFC = ∠AGB, which came from △FAC ≅ △GAB.", "hint": "△FAC ≅ △GAB gave you ∠AFC = ∠AGB. At vertex F, ∠AFC and ∠BFC are the same angle. Same at G.", "ok_regex": "bfc.*cgb|cgb.*bfc|\\bbfc\\b|\\bcgb\\b|afc.*agb|agb.*afc|\\bafc\\b|\\bagb\\b", "ok_targets": ["BFC", "CGB", "AFC", "AGB", "equal", "angle"], "text": "∠BFC = ∠CGB.", "just": "I.4 above", "side": "∠BFC=∠CGB", "reveal": [], "no": null, "hint_linked_idx": 8, "display_linked_idx": null}, {"type": "draw", "q": "BF = CG, FC = GB, ∠BFC = ∠CGB — two sides and the included angle. By I.4: △BFC ≅ △CGB. Shall we record this?", "reveal": ["dc-cong2"], "text": "△BFC ≅ △CGB.", "just": "I.4", "side": "△BFC≅△CGB ✓", "criteria": null, "hint": null, "no": null, "hint_linked_idx": null, "display_linked_idx": null}, {"type": "open", "q": "△BFC ≅ △CGB. What angle at B equals what angle at C?", "criteria": "∠CBG = ∠BCF — equal parts, which we will subtract from the equal whole angles.", "hint": "In △BFC ≅ △CGB the correspondence is B↔C, F↔G, C↔B. The angle at B in △BFC is ∠FBC. What is the matching angle at C?", "ok_regex": "cbg.*bcf|bcf.*cbg|gbc.*fcb|fcb.*gbc|\\bcbg\\b|\\bbcf\\b|\\bgbc\\b|\\bfcb\\b|fbc.*gcb|gcb.*fbc|cbf.*bcg|bcg.*cbf|\\bfbc\\b|\\bgcb\\b|\\bcbf\\b|\\bbcg\\b", "ok_targets": ["CBG", "BCF", "GBC", "FCB", "FBC", "GCB", "CBF", "BCG", "equal", "angle"], "text": "∠CBG = ∠BCF.", "just": "I.4", "side": "∠CBG=∠BCF", "reveal": [], "no": null, "hint_linked_idx": 12, "display_linked_idx": null}, {"type": "open", "q": "∠ABG = ∠ACF and ∠CBG = ∠BCF. Subtract the parts from the wholes — what remains?", "criteria": "∠ABC = ∠ACB — subtracting equal parts from equal wholes leaves equal remainders.", "hint": "∠ABG − ∠CBG = ∠ABC. ∠ACF − ∠BCF = ∠ACB. Both differences come from equal wholes minus equal parts.", "ok_regex": "\\babc\\b.*\\bacb\\b|\\bacb\\b.*\\babc\\b|base.*angle|angle.*base|equal|\\babc\\b|\\bacb\\b|subtract|remain", "ok_targets": ["ABC", "ACB", "equal", "base", "angles", "subtract", "remainder"], "text": "∠ABC = ∠ABG − ∠CBG = ∠ACF − ∠BCF = ∠ACB.", "just": "C.N. 3", "side": "∠ABC=∠ACB ✓", "reveal": ["dc-base-arcs"], "no": null, "hint_linked_idx": null, "display_linked_idx": null}, {"type": "open", "q": "Q.E.D. or Q.E.F.?", "criteria": "Q.E.D. — this is a theorem (a claim proved), not a construction.", "hint": "Did we construct something or prove a claim is true?", "ok_regex": "q\\.?e\\.?d\\.?|qed|quod.?erat.?demon|demonstrand|proved?|demonstrated?|theorem|proof", "ok_targets": ["qed", "demonstrated", "theorem", "proved", "proof", "demonstrandum", "demonstrate"], "text": "(Being) what it was required to demonstrate.", "just": "Q.E.D.", "side": "Q.E.D.", "reveal": [], "no": null, "hint_linked_idx": null, "display_linked_idx": null}];
+const PROP_NUM = 5;
+const CONCLUSION = "Congratulations! You have completed Euclid's Elements Book I, Proposition 5.";
+
+// ─── Fuzzy matching helpers ───────────────────────────────────────────────────
+function lev(a,b){
+  const m=a.length,n=b.length;
+  if(!m)return n; if(!n)return m;
+  const dp=Array.from({length:m+1},(_,i)=>[i]);
+  for(let j=1;j<=n;j++) dp[0][j]=j;
+  for(let i=1;i<=m;i++) for(let j=1;j<=n;j++)
+    dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j-1],dp[i-1][j],dp[i][j-1]);
+  return dp[m][n];
+}
+function hasNear(response, targets){
+  const words=response.toLowerCase().split(/[\s,.;!?]+/).filter(w=>w.length>=3);
+  return words.some(w=>targets.some(t=>{
+    const d=t.length<=7?1:2; return lev(w,t)<=d;
+  }));
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ─────────────────────────────────────────────────────────────────────────────
+// State
+// ─────────────────────────────────────────────────────────────────────────────
+
+let step     = 0;
+let attempts = 0;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Pan / Zoom
+// ─────────────────────────────────────────────────────────────────────────────
+
+const diagramEl = document.getElementById('diagram');
+const canvas    = document.getElementById('canvas');
+let pan = { tx:0, ty:0, s:1 };
+const MIN_S=0.12, MAX_S=12;
+
+function clientToVB(cx,cy){
+  const r=diagramEl.getBoundingClientRect(), v=diagramEl.viewBox.baseVal;
+  return { x:(cx-r.left)/r.width*v.width+v.x, y:(cy-r.top)/r.height*v.height+v.y };
+}
+function applyTransform(){ canvas.setAttribute('transform',`translate(${pan.tx},${pan.ty}) scale(${pan.s})`); }
+function zoomAt(px,py,f){
+  const ns=Math.max(MIN_S,Math.min(MAX_S,pan.s*f)), r=ns/pan.s;
+  pan.tx=px-(px-pan.tx)*r; pan.ty=py-(py-pan.ty)*r; pan.s=ns; applyTransform();
+}
+function zoomCenter(f){ const v=diagramEl.viewBox.baseVal; zoomAt(v.x+v.width/2,v.y+v.height/2,f); }
+function animatePan(t,ms=420){
+  const from={...pan}, t0=performance.now();
+  (function tick(now){
+    let p=Math.min((now-t0)/ms,1); p=p<.5?2*p*p:-1+(4-2*p)*p;
+    pan.tx=from.tx+(t.tx-from.tx)*p; pan.ty=from.ty+(t.ty-from.ty)*p; pan.s=from.s+(t.s-from.s)*p;
+    applyTransform(); if(p<1) requestAnimationFrame(tick); else pan={...t};
+  })(performance.now());
+}
+function resetView(){ animatePan({tx:0,ty:0,s:1}); }
+
+diagramEl.addEventListener('wheel',e=>{
+  e.preventDefault(); const p=clientToVB(e.clientX,e.clientY);
+  zoomAt(p.x,p.y,e.deltaY<0?1.12:1/1.12);
+},{passive:false});
+
+let dragging=false, lastPt=null;
+diagramEl.addEventListener('mousedown',e=>{
+  if(e.button!==0) return; dragging=true; lastPt=clientToVB(e.clientX,e.clientY);
+  diagramEl.classList.add('panning'); e.preventDefault();
+});
+window.addEventListener('mousemove',e=>{
+  if(!dragging) return;
+  const pt=clientToVB(e.clientX,e.clientY);
+  pan.tx+=pt.x-lastPt.x; pan.ty+=pt.y-lastPt.y; lastPt=pt; applyTransform();
+});
+window.addEventListener('mouseup',()=>{ dragging=false; diagramEl.classList.remove('panning'); });
+
+let lastTouches=[];
+diagramEl.addEventListener('touchstart',e=>{ lastTouches=Array.from(e.touches); e.preventDefault(); },{passive:false});
+diagramEl.addEventListener('touchmove',e=>{
+  e.preventDefault(); const ts=Array.from(e.touches);
+  if(ts.length===1&&lastTouches.length>=1){
+    const c=clientToVB(ts[0].clientX,ts[0].clientY), p=clientToVB(lastTouches[0].clientX,lastTouches[0].clientY);
+    pan.tx+=c.x-p.x; pan.ty+=c.y-p.y; applyTransform();
+  } else if(ts.length===2&&lastTouches.length>=2){
+    const d1=Math.hypot(ts[1].clientX-ts[0].clientX,ts[1].clientY-ts[0].clientY);
+    const d2=Math.hypot(lastTouches[1].clientX-lastTouches[0].clientX,lastTouches[1].clientY-lastTouches[0].clientY);
+    if(d2>0){ const p=clientToVB((ts[0].clientX+ts[1].clientX)/2,(ts[0].clientY+ts[1].clientY)/2); zoomAt(p.x,p.y,d1/d2); }
+  }
+  lastTouches=ts;
+},{passive:false});
+diagramEl.addEventListener('touchend',e=>{ lastTouches=Array.from(e.touches); },{passive:false});
+
+let resizing=false, rSide=null, rStartY=0, rStartH=0, rStartX=0, rStartW=0, rStartML=0;
+const rowEl=document.getElementById('diagram-row');
+function startResize(side,cx,cy){
+  resizing=true; rSide=side; rStartY=cy; rStartX=cx;
+  const r=diagramEl.getBoundingClientRect(); rStartH=r.height; rStartW=r.width;
+  rStartML=parseFloat(rowEl.style.marginLeft)||0;
+}
+['rc-l','rc-r'].forEach(id=>{
+  const side=id.endsWith('-l')?'l':'r';
+  document.getElementById(id).addEventListener('mousedown',e=>{ startResize(side,e.clientX,e.clientY); e.preventDefault(); });
+  document.getElementById(id).addEventListener('touchstart',e=>{ startResize(side,e.touches[0].clientX,e.touches[0].clientY); e.preventDefault(); },{passive:false});
+});
+window.addEventListener('mousemove',e=>{ if(resizing) applyResize(e.clientX,e.clientY); });
+window.addEventListener('touchmove',e=>{ if(resizing) applyResize(e.touches[0].clientX,e.touches[0].clientY); },{passive:false});
+window.addEventListener('mouseup',()=>{ resizing=false; });
+window.addEventListener('touchend',()=>{ resizing=false; });
+function applyResize(cx,cy){
+  const h=Math.max(80,Math.min(600,rStartH+cy-rStartY)); diagramEl.style.height=h+'px';
+  const dx=cx-rStartX, dw=rSide==='r'?dx:-dx;
+  const w=Math.max(200,Math.min(window.innerWidth-40,rStartW+dw));
+  rowEl.style.width=w+'px'; if(rSide==='l') rowEl.style.marginLeft=(rStartML-(w-rStartW))+'px';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Side & Left panels — built from STEPS data
+// ─────────────────────────────────────────────────────────────────────────────
+
+function buildPanels(){
+  const side = document.getElementById('side-panel');
+  const left = document.getElementById('left-panel');
+
+  left.innerHTML = `<div class="prop-label">I.5</div>
+    <div class="prop-enunc">In isosceles triangles the angles at the base equal one another, and if the equal straight lines are produced further the angles under the base will equal one another.</div>`;
+
+  STEPS.forEach((s,i)=>{
+    if(s.side){
+      const el=document.createElement('div');
+      el.id=`si-${i}`; el.className='side-item';
+      el.textContent=s.side; side.appendChild(el);
+    }
+    if(s.text){
+      const el=document.createElement('div');
+      el.id=`pl-${i}`; el.className='proof-line';
+      el.appendChild(document.createTextNode(s.text));
+      if(s.just){ const sp=document.createElement('span'); sp.className='just'; sp.textContent=s.just; el.appendChild(sp); }
+      left.appendChild(el);
+    }
+  });
+}
+
+function getDisplayStep(){
+  const s=STEPS[step];
+  if(s && s.display_linked_idx != null) return s.display_linked_idx;
+  for(let i=step; i>=0; i--){ if(STEPS[i] && STEPS[i].text) return i; }
+  return -1;
+}
+
+function setProofDisplay(idx){
+  const pd=document.getElementById('proof-display');
+  if(!pd) return;
+  if(idx<0){ pd.classList.remove('visible'); return; }
+  const s=STEPS[idx];
+  if(s && s.text){
+    pd.innerHTML=s.text+(s.just?`<span class="proof-just">${s.just}</span>`:'');
+    pd.classList.add('visible');
+  } else {
+    pd.classList.remove('visible');
+  }
+}
+
+function updatePanels(){
+  const ds=getDisplayStep();
+  STEPS.forEach((s,i)=>{
+    const pl=document.getElementById(`pl-${i}`);
+    if(pl){ pl.classList.toggle('active',i===ds); pl.classList.toggle('past',i<ds); }
+  });
+  setProofDisplay(ds);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Diagram reveal
+// ─────────────────────────────────────────────────────────────────────────────
+
+function show(id){ const el=document.getElementById(id); if(el) el.classList.add('on'); }
+
+function revealStep(s){
+  if(s.reveal) s.reveal.forEach(id=>show(id));
+  if(s.side){ const el=document.getElementById(`si-${step}`); if(el) el.classList.add('on'); }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Chat
+// ─────────────────────────────────────────────────────────────────────────────
+
+const chatEl    = document.getElementById('chat');
+const textInput = document.getElementById('text-input');
+const sendBtn   = document.getElementById('send-btn');
+const ynBar     = document.getElementById('yn-bar');
+const drawBar   = document.getElementById('draw-bar');
+const inputRow  = document.getElementById('input-row');
+const kbBar     = document.getElementById('kb-bar');
+const fakeInputEl   = document.getElementById('fake-input');
+const fakePlaceholder = document.getElementById('fake-placeholder');
+
+const isMobile = () => navigator.maxTouchPoints > 0;
+
+function addMsg(text, who){
+  const d=document.createElement('div');
+  d.className = who==='user' ? 'msg-user' : 'msg-bot';
+  d.textContent=text; chatEl.appendChild(d);
+  chatEl.scrollTop=chatEl.scrollHeight;
+  if(who==='bot') logEvent('bot', text);
+  return d;
+}
+
+
+function logEvent(role, message){
+  fetch('/api/event',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({proposition:PROP_NUM,step,role,message})});
+}
+
+function updateFake(){
+  const v=textInput.value;
+  if(v){ fakePlaceholder.textContent=v; fakePlaceholder.style.color=''; }
+  else { fakePlaceholder.textContent='Your answer…'; fakePlaceholder.style.color='#999'; }
+}
+
+function setMode(type){
+  if(type==='done'){
+    ynBar.style.display='none'; drawBar.style.display='none'; kbBar.style.display='none';
+    inputRow.style.display='none'; document.getElementById('dashboard-btn').style.display=''; return;
+  }
+  ynBar.style.display   = type==='yn'   ? 'flex' : 'none';
+  drawBar.style.display = type==='draw' ? 'flex' : 'none';
+  kbBar.style.display   = (type==='open' && isMobile()) ? 'flex' : 'none';
+  if(type==='open' && isMobile()){
+    document.getElementById('kb-alpha').style.display='';
+    document.getElementById('kb-num').style.display='none';
+    setTimeout(()=>{ chatEl.scrollTop=chatEl.scrollHeight; }, 80);
+    fakeInputEl.style.display='flex'; textInput.style.display='none'; updateFake();
+  } else {
+    fakeInputEl.style.display='none'; textInput.style.display='';
+  }
+  inputRow.style.display = type==='draw' ? 'none' : 'flex';
+  sendBtn.disabled = type==='draw'; textInput.disabled = type==='draw';
+  if(type==='open' && !isMobile()) textInput.focus();
+}
+
+function kbTap(ch){ textInput.value+=ch; updateFake(); }
+function kbBack(){ textInput.value=textInput.value.slice(0,-1); updateFake(); }
+function kbEnter(){ submit(textInput.value); }
+function kbToggleNum(){
+  const a=document.getElementById('kb-alpha'), n=document.getElementById('kb-num');
+  const toNum=a.style.display!=='none';
+  a.style.display=toNum?'none':''; n.style.display=toNum?'':'none';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Flow
+// ─────────────────────────────────────────────────────────────────────────────
+
+function advance(){ attempts=0; step++; showStep(); }
+
+function showStep(){
+  updatePanels();
+  if(step>=STEPS.length){
+    addMsg(CONCLUSION,'bot'); setMode('done');
+    fetch('/api/complete',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({proposition:PROP_NUM})})
+      .then(r=>{
+        if(r.ok){
+          addMsg('✓ Your completion has been recorded.','bot');
+          const d=document.createElement('div');
+          d.className='msg-bot';
+          d.innerHTML='<a href="/survey?prop='+PROP_NUM+'" style="color:#7c3aed;text-decoration:underline;">Share your experience →</a>';
+          chatEl.appendChild(d); chatEl.scrollTop=chatEl.scrollHeight;
+        }
+      });
+    return;
+  }
+  const s=STEPS[step];
+
+  if(s.type==='say'){
+    revealStep(s); addMsg(s.q,'bot'); setTimeout(advance,700); return;
+  }
+  if(s.type==='draw'){
+    addMsg(s.q,'bot'); setMode('draw'); return;
+  }
+  addMsg(s.q,'bot'); setMode(s.type);
+}
+
+function submit(raw){
+  const answer=raw.trim(); if(!answer) return;
+  textInput.value=''; updateFake();
+  addMsg(answer,'user');
+  logEvent('user',answer);
+  const s=STEPS[step];
+
+  if(s.type==='yn'){
+    if(/^y/i.test(answer)){
+      revealStep(s); advance();
+    } else {
+      addMsg(s.no,'bot');
+      setTimeout(()=>addMsg(s.q,'bot'),600);
+    }
+    return;
+  }
+
+  if(s.type==='open'){
+    const ok = !s.ok_regex
+      || new RegExp(s.ok_regex,'i').test(answer)
+      || (s.ok_targets && hasNear(answer, s.ok_targets));
+    if(!ok){
+      attempts++;
+      if(attempts>=2 && s.hint){ addMsg(s.hint,'bot'); if(s.hint_linked_idx!=null) setProofDisplay(s.hint_linked_idx); }
+      else { addMsg('Not quite — try again.','bot'); }
+      if(attempts>=3){ revealStep(s); setTimeout(advance,800); }
+      return;
+    }
+    revealStep(s); advance();
+  }
+}
+
+sendBtn.addEventListener('click',()=>submit(textInput.value));
+textInput.addEventListener('keydown',e=>{ if(e.key==='Enter') submit(textInput.value); });
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&drawBar.style.display==='flex'&&e.target!==textInput){
+    e.preventDefault(); document.getElementById('btn-draw').click();
+  }
+});
+document.getElementById('btn-yes').addEventListener('click',()=>{
+  addMsg('Yes','user'); logEvent('user','Yes'); const s=STEPS[step]; revealStep(s); advance();
+});
+document.getElementById('btn-no').addEventListener('click',()=>{
+  addMsg('No','user'); logEvent('user','No'); addMsg(STEPS[step].no,'bot');
+  setTimeout(()=>addMsg(STEPS[step].q,'bot'),600);
+});
+document.getElementById('btn-draw').addEventListener('click',()=>{
+  addMsg('Yes / Draw','user'); logEvent('user','[drew]'); const s=STEPS[step]; revealStep(s); advance();
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Init
+// ─────────────────────────────────────────────────────────────────────────────
+
+buildPanels();
+["dc-given"].forEach(id=>show(id));
+showStep();
+</script>
+</body>
+</html>
