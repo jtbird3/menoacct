@@ -1,0 +1,898 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Euclid I.11</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; touch-action: manipulation; }
+    body {
+      background: #fff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      font-size: 14px;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 16px 16px 110px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    h1 { font-size: 15px; font-weight: bold; margin-bottom: 10px; }
+    #diagram-row { position: relative; margin-bottom: 10px; }
+    #diagram-wrap { position: relative; }
+    #diagram {
+      border: 1px solid #ccc;
+      background: #fff;
+      display: block;
+      width: 100%;
+      height: clamp(160px, 38vh, 380px);
+      cursor: grab;
+    }
+    #diagram.panning { cursor: grabbing; }
+    #diagram-controls {
+      position: absolute; bottom: 22px; right: 8px;
+      display: flex; flex-direction: column; gap: 2px; z-index: 10;
+    }
+    #diagram-controls button {
+      font-family: inherit; font-size: 15px;
+      width: 28px; height: 28px;
+      border: 1px solid #ccc; background: rgba(255,255,255,0.9);
+      cursor: pointer; padding: 0; line-height: 1;
+    }
+    #diagram-controls button:hover { background: #f0f0f0; }
+    .resize-corner {
+      position: absolute; bottom: 0; width: 16px; height: 16px;
+      user-select: none; z-index: 10; opacity: 0.5;
+      background: repeating-linear-gradient(-45deg,#bbb 0,#bbb 1px,transparent 1px,transparent 3px);
+    }
+    .resize-corner:hover { opacity: 1; }
+    #rc-l { left: 0; cursor: sw-resize; }
+    #rc-r { right: 0; cursor: se-resize; }
+    #side-panel {
+      position: absolute; left: calc(100% + 10px); top: 0;
+      width: 118px; font-size: 13px;
+    }
+    .side-item { opacity: 0; transition: opacity 0.5s; line-height: 1.6; color: #16a34a; }
+    .side-item.on { opacity: 1; }
+    #left-panel {
+      position: absolute; right: calc(100% + 12px); top: 0;
+      width: 190px; font-size: 11.5px; line-height: 1.5;
+    }
+    #left-panel .prop-label {
+      font-size: 10px; text-transform: uppercase; letter-spacing: .06em;
+      opacity: .4; margin-bottom: 4px;
+    }
+    #left-panel .prop-enunc {
+      font-style: italic; opacity: .55; font-size: 11px;
+      border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 10px;
+    }
+    .proof-line {
+      opacity: .22; margin-bottom: 6px; transition: opacity .4s, color .4s;
+    }
+    .proof-line .just { display: block; font-size: 10px; opacity: .65; margin-top: 1px; }
+    .proof-line.past { opacity: .48; }
+    .proof-line.active { opacity: 1; color: #16a34a; }
+    .de { opacity: 0; transition: opacity 0.5s; }
+    .de.on { opacity: 1; }
+    #chat {
+      border: 1px solid #ccc; padding: 10px;
+      flex: 1; min-height: 120px; max-height: 260px;
+      overflow-y: auto; overflow-x: hidden;
+      display: flex; flex-direction: column;
+      gap: 8px; margin-bottom: 10px;
+    }
+    .msg-bot, .msg-user {
+      white-space: pre-wrap; word-break: break-word;
+      overflow-wrap: break-word; min-width: 0; max-width: 100%;
+    }
+    .msg-bot  { color: #000; }
+    .msg-user { color: #777; text-align: right; }
+    #input-row { display: flex; gap: 8px; margin-bottom: 8px; }
+    #text-input {
+      flex: 1; padding: 8px; font-family: inherit; font-size: 14px;
+      border: 1px solid #ccc; outline: none;
+    }
+    #text-input:focus { border-color: #000; }
+    #fake-input {
+      display: none;
+      flex: 1; padding: 8px; font-family: inherit; font-size: 14px;
+      border: 1px solid #000; color: #000;
+      overflow: hidden; white-space: nowrap;
+      align-items: center; line-height: 1.4;
+    }
+    #fake-placeholder { color: #999; }
+    #fake-cursor {
+      display: inline-block; width: 2px; height: 1em;
+      background: #000; vertical-align: text-bottom; margin-left: 1px;
+      animation: blink-caret 1s step-end infinite;
+    }
+    @keyframes blink-caret { 50% { opacity: 0; } }
+    #send-btn {
+      padding: 8px 14px; font-family: inherit; font-size: 14px;
+      border: 1px solid #000; background: #000; color: #fff; cursor: pointer;
+    }
+    #send-btn:disabled { background: #ccc; border-color: #ccc; cursor: not-allowed; }
+    #yn-bar {
+      display: none;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #fff; border-top: 1px solid #ccc;
+      padding: 10px 16px; gap: 12px; justify-content: center; z-index: 100;
+    }
+    #yn-bar button {
+      flex: 1; max-width: 140px;
+      padding: 12px 20px; font-family: inherit; font-size: 15px; font-weight: bold;
+      border: 2px solid #000; background: #fff; color: #000; cursor: pointer;
+    }
+    #yn-bar button:active { background: #000; color: #fff; }
+    #draw-bar {
+      display: none;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #fff; border-top: 1px solid #ccc;
+      padding: 10px 16px; justify-content: center; z-index: 100;
+    }
+    #draw-bar button {
+      flex: 1; max-width: 200px;
+      padding: 12px 20px; font-family: inherit; font-size: 15px; font-weight: bold;
+      border: 2px solid #000; background: #fff; color: #000; cursor: pointer;
+    }
+    #draw-bar button:active { background: #000; color: #fff; }
+    #proof-display {
+      min-height: 1.6em;
+      font-style: italic; font-size: 12px; color: #444;
+      border-left: 2px solid #16a34a; padding: 4px 10px;
+      margin-bottom: 8px; opacity: 0; transition: opacity 0.4s;
+    }
+    #proof-display.visible { opacity: 1; }
+    #proof-display .proof-just { font-style: normal; font-size: 10px; color: #888; margin-left: 8px; }
+    #kb-bar {
+      display: none;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #f0f0f0; border-top: 1px solid #ccc;
+      padding: 8px 6px 14px; flex-direction: column;
+      gap: 6px; z-index: 100;
+    }
+    .kb-row { display: flex; justify-content: center; gap: 5px; width: 100%; }
+    #kb-alpha, #kb-num { display: flex; flex-direction: column; gap: 6px; }
+    .kb-key {
+      font-family: inherit; font-size: 15px; font-weight: bold;
+      height: 42px; flex: 1;
+      border: none; border-radius: 4px;
+      background: #fff; color: #000;
+      box-shadow: 0 1px 2px rgba(0,0,0,.25);
+      cursor: pointer; padding: 0;
+    }
+    .kb-key:active { background: #ccc; }
+    .kb-key.kb-wide  { flex: 1.4; font-size: 12px; }
+    .kb-key.kb-space { flex: 5; }
+    .kb-key.kb-enter { flex: 2; font-size: 13px; }
+    @media (max-width: 600px) {
+      html { overflow: hidden; }
+      body {
+        height: 100vh; height: 100dvh; min-height: unset;
+        overflow: hidden; padding: 8px 10px 0;
+        font-size: 13px; max-width: 100%;
+      }
+      h1 { font-size: 13px; margin-bottom: 6px; flex-shrink: 0; }
+      #left-panel, #side-panel { display: none; }
+      #diagram-row { flex-shrink: 0; margin-bottom: 6px; }
+      #diagram { height: clamp(110px, 22vh, 180px); }
+      #proof-display { font-size: 11px; flex-shrink: 0; }
+      #chat { flex: 1; min-height: 0; max-height: none; font-size: 13px; }
+      #input-row { flex-shrink: 0; }
+      #text-input, #fake-input { font-size: 16px; }
+      #yn-bar, #draw-bar, #kb-bar { position: static; flex-shrink: 0; }
+      #kb-bar { padding-bottom: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<h1>Euclid I.11 — To draw a straight line at right angles to a given straight line from a given point on it</h1>
+
+<div id="diagram-row">
+<div id="diagram-wrap">
+  <svg id="diagram" viewBox="0 0 800 470" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg">
+    <g id="canvas">
+      <g id="dc-given" class="de">
+        <line x1="130" y1="330" x2="600" y2="330" stroke="#000" stroke-width="2.6"/>
+        <circle cx="130" cy="330" r="5" fill="#000"/>
+        <circle cx="330" cy="330" r="5" fill="#000"/>
+        <circle cx="600" cy="330" r="5" fill="#000"/>
+        <text x="118" y="352" font-family="inherit" font-size="17" fill="#000">A</text>
+        <text x="604" y="352" font-family="inherit" font-size="17" fill="#000">B</text>
+        <text x="324" y="352" font-family="inherit" font-size="17" fill="#000">C</text>
+        <text x="362" y="320" font-family="inherit" font-size="12" fill="#666">AB</text>
+      </g>
+
+      <g id="dc-d" class="de">
+        <circle cx="250" cy="330" r="5" fill="#000"/>
+        <text x="244" y="352" font-family="inherit" font-size="17" fill="#000">D</text>
+        <line x1="286" y1="323" x2="286" y2="337" stroke="#16a34a" stroke-width="2.2"/>
+        <text x="267" y="314" font-family="inherit" font-size="12" fill="#16a34a">CD</text>
+      </g>
+
+      <g id="dc-e" class="de">
+        <circle cx="410" cy="330" r="5" fill="#000"/>
+        <text x="414" y="352" font-family="inherit" font-size="17" fill="#000">E</text>
+        <line x1="374" y1="323" x2="374" y2="337" stroke="#16a34a" stroke-width="2.2"/>
+        <text x="357" y="314" font-family="inherit" font-size="12" fill="#16a34a">CE</text>
+        <text x="82" y="396" font-family="inherit" font-size="12" fill="#16a34a">CD = CE</text>
+      </g>
+
+      <g id="dc-eqtri" class="de">
+        <polygon points="250,330 410,330 330,191.4" fill="rgba(8,145,178,0.08)" stroke="none"/>
+        <line x1="250" y1="330" x2="330" y2="191.4" stroke="#0891b2" stroke-width="2.5"/>
+        <line x1="410" y1="330" x2="330" y2="191.4" stroke="#0891b2" stroke-width="2.5"/>
+        <circle cx="330" cy="191.4" r="5" fill="#000"/>
+        <text x="334" y="188" font-family="inherit" font-size="17" fill="#000">F</text>
+        <line x1="286" y1="255" x2="296" y2="260" stroke="#0891b2" stroke-width="2.2"/>
+        <line x1="290" y1="247" x2="300" y2="252" stroke="#0891b2" stroke-width="2.2"/>
+        <line x1="374" y1="255" x2="364" y2="260" stroke="#0891b2" stroke-width="2.2"/>
+        <line x1="370" y1="247" x2="360" y2="252" stroke="#0891b2" stroke-width="2.2"/>
+        <line x1="324" y1="330" x2="336" y2="330" stroke="#0891b2" stroke-width="2.2"/>
+        <line x1="324" y1="322" x2="336" y2="322" stroke="#0891b2" stroke-width="2.2"/>
+        <text x="334" y="170" font-family="inherit" font-size="12" fill="#0891b2">equilateral FDE</text>
+      </g>
+
+      <g id="dc-fc" class="de">
+        <line x1="330" y1="191.4" x2="330" y2="330" stroke="#dc2626" stroke-width="2.6"/>
+        <text x="340" y="260" font-family="inherit" font-size="12" fill="#dc2626">FC</text>
+      </g>
+
+      <g id="dc-common" class="de">
+        <text x="344" y="246" font-family="inherit" font-size="12" fill="#dc2626">CF common</text>
+      </g>
+
+      <g id="dc-angleeq" class="de">
+        <path d="M309 330 A34 34 0 0 1 321 304" fill="none" stroke="#16a34a" stroke-width="1.6"/>
+        <path d="M351 330 A34 34 0 0 0 339 304" fill="none" stroke="#16a34a" stroke-width="1.6"/>
+        <text x="146" y="118" font-family="inherit" font-size="12" fill="#16a34a">∠DCF = ∠ECF</text>
+      </g>
+
+      <g id="dc-adjacent" class="de">
+        <text x="138" y="138" font-family="inherit" font-size="12" fill="#666">and they are adjacent angles</text>
+      </g>
+
+      <g id="dc-right" class="de">
+        <path d="M330 330 l0 -18 l18 0" fill="none" stroke="#16a34a" stroke-width="1.8"/>
+        <path d="M330 330 l0 -18 l-18 0" fill="none" stroke="#16a34a" stroke-width="1.8"/>
+        <text x="114" y="160" font-family="inherit" font-size="12" fill="#16a34a">Each of ∠DCF and ∠FCE is right</text>
+      </g>
+
+      <g id="dc-result" class="de">
+        <text x="428" y="120" font-family="inherit" font-size="13" fill="#16a34a">CF is at right angles to AB at C</text>
+      </g>
+    </g>
+  </svg>
+  <div id="diagram-controls">
+    <button onclick="zoomCenter(1.12)">+</button>
+    <button onclick="zoomCenter(1/1.12)">−</button>
+    <button onclick="resetView()">⟲</button>
+  </div>
+  <div id="rc-l" class="resize-corner"></div>
+  <div id="rc-r" class="resize-corner"></div>
+  <div id="left-panel"></div>
+  <div id="side-panel"></div>
+</div>
+</div>
+
+<div id="proof-display"></div>
+<div id="chat"></div>
+
+<div id="input-row">
+  <input id="text-input" autocomplete="off" placeholder="Your answer…">
+  <div id="fake-input"><span id="fake-placeholder">Your answer…</span><span id="fake-cursor"></span></div>
+  <button id="send-btn">Send</button>
+</div>
+
+<div id="yn-bar">
+  <button id="btn-no">No</button>
+  <button id="btn-yes">Yes</button>
+</div>
+
+<div id="draw-bar">
+  <button id="btn-draw">Yes / Draw</button>
+</div>
+
+<div id="kb-bar">
+  <div id="kb-alpha">
+    <div class="kb-row">
+      <button class="kb-key" onclick="kbTap('A')">A</button><button class="kb-key" onclick="kbTap('B')">B</button><button class="kb-key" onclick="kbTap('C')">C</button><button class="kb-key" onclick="kbTap('D')">D</button><button class="kb-key" onclick="kbTap('E')">E</button><button class="kb-key" onclick="kbTap('F')">F</button><button class="kb-key kb-wide" onclick="kbBack()">⌫</button>
+    </div>
+    <div class="kb-row">
+      <button class="kb-key" onclick="kbTap('=')">=</button><button class="kb-key" onclick="kbTap('∠')">∠</button><button class="kb-key" onclick="kbTap('right')">right</button><button class="kb-key" onclick="kbTap('common')">common</button><button class="kb-key" onclick="kbTap('equal')">equal</button><button class="kb-key kb-wide" onclick="kbToggleNum()">123</button>
+    </div>
+    <div class="kb-row">
+      <button class="kb-key kb-space" onclick="kbTap(' ')">space</button><button class="kb-key kb-enter" onclick="kbEnter()">enter</button>
+    </div>
+  </div>
+  <div id="kb-num" style="display:none;">
+    <div class="kb-row">
+      <button class="kb-key" onclick="kbTap('1')">1</button><button class="kb-key" onclick="kbTap('2')">2</button><button class="kb-key" onclick="kbTap('3')">3</button><button class="kb-key" onclick="kbTap('4')">4</button><button class="kb-key" onclick="kbTap('5')">5</button><button class="kb-key" onclick="kbTap('6')">6</button><button class="kb-key kb-wide" onclick="kbBack()">⌫</button>
+    </div>
+    <div class="kb-row">
+      <button class="kb-key" onclick="kbTap('7')">7</button><button class="kb-key" onclick="kbTap('8')">8</button><button class="kb-key" onclick="kbTap('9')">9</button><button class="kb-key" onclick="kbTap('0')">0</button><button class="kb-key" onclick="kbTap('.')">.</button><button class="kb-key" onclick="kbTap('?')">?</button><button class="kb-key kb-wide" onclick="kbToggleNum()">ABC</button>
+    </div>
+    <div class="kb-row">
+      <button class="kb-key kb-space" onclick="kbTap(' ')">space</button><button class="kb-key kb-enter" onclick="kbEnter()">enter</button>
+    </div>
+  </div>
+</div>
+
+<p style="margin-top:10px;">
+  <a id="dashboard-btn" href="/welcome" style="display:none;color:#7c3aed;text-decoration:underline;">Back to dashboard →</a>
+</p>
+
+<script>
+const STEPS = [
+  {
+    type: 'yn',
+    q: 'Let AB be the given straight line, and C the given point on it. Do you see that setup in the figure?',
+    no: 'C is the given point lying on the straight line AB.',
+    text: 'Let AB be the given straight line, and C the given point on it.',
+    just: null,
+    side: 'Given: AB, point C on it',
+    reveal: ['dc-given']
+  },
+  {
+    type: 'yn',
+    q: 'And our task is to draw from the point C a straight line at right angles to AB. Does that make sense?',
+    no: 'We want a new line through C that is perpendicular to AB.',
+    text: 'Thus it is required to draw from the point C a straight line at right angles to the straight line AB.',
+    just: null,
+    side: 'Goal: draw a perpendicular at C',
+    reveal: []
+  },
+  {
+    type: 'draw',
+    q: 'Let a point D be taken at random on AC. Shall we place it?',
+    text: 'Let a point D be taken at random on AC;',
+    just: null,
+    side: 'Take D on AC',
+    reveal: ['dc-d']
+  },
+  {
+    type: 'draw',
+    q: 'Now let CE be made equal to CD. Shall we show that?',
+    text: 'let CE be made equal to CD;',
+    just: 'I.3',
+    side: 'Make CE = CD',
+    reveal: ['dc-e']
+  },
+  {
+    type: 'draw',
+    q: 'On DE let the equilateral triangle FDE be constructed, and let FC be joined. Shall we draw that construction?',
+    text: 'on DE let the equilateral triangle FDE be constructed, and let FC be joined;',
+    just: 'I.1',
+    side: 'Construct equilateral FDE; join FC',
+    reveal: ['dc-eqtri','dc-fc']
+  },
+  {
+    type: 'yn',
+    q: 'Euclid now claims that FC has been drawn at right angles to AB from C. Is that the claim we are proving?',
+    no: 'Yes. The goal is that FC be perpendicular to the given straight line AB at the point C.',
+    text: 'I say that the straight line FC has been drawn at right angles to the given straight line AB from C the given point on it.',
+    just: null,
+    side: 'Claim: FC is perpendicular to AB',
+    reveal: []
+  },
+  {
+    type: 'open',
+    q: 'Since DC is equal to CE, and CF is common, what two sides in triangle DCF are equal respectively to two sides in triangle ECF?',
+    criteria: 'DC and CF are equal respectively to EC and CF.',
+    hint: 'One equality comes from the cut-off on AB, and the other is the common side CF.',
+    ok_regex: 'dc.*cf.*ec.*cf|ec.*cf.*dc.*cf|dc.*cf.*ce.*cf|ce.*cf.*dc.*cf|cd.*cf.*ce.*cf|ce.*cf.*cd.*cf|cd.*cf.*ec.*cf|ec.*cf.*cd.*cf|common',
+    ok_targets: ['DC','CD','EC','CE','CF','common'],
+    text: 'For, since DC is equal to CE, and CF is common, the two sides DC, CF are equal to the two sides EC, CF respectively;',
+    just: 'Hyp.',
+    side: 'DC, CF = EC, CF',
+    reveal: ['dc-common']
+  },
+  {
+    type: 'open',
+    q: 'And because FDE is equilateral, what can we say about the base DF and the base FE?',
+    criteria: 'DF is equal to FE.',
+    hint: 'Every side of an equilateral triangle is equal.',
+    ok_regex: 'df.*fe|fe.*df|equal|same',
+    ok_targets: ['DF','FE','equal','same'],
+    text: 'and the base DF is equal to the base FE;',
+    just: 'Def. equilateral',
+    side: 'DF = FE',
+    reveal: []
+  },
+  {
+    type: 'open',
+    q: 'Therefore, by I.8, what follows about angles DCF and ECF?',
+    criteria: 'The angle DCF is equal to the angle ECF.',
+    hint: 'I.8 gives equality of the contained angles when two sides and the base are equal.',
+    ok_regex: 'dcf.*ecf|ecf.*dcf|equal.*angle|equal|same',
+    ok_targets: ['DCF','ECF','equal','same','angle'],
+    text: 'therefore the angle DCF is equal to the angle ECF;',
+    just: 'I.8',
+    side: '∠DCF = ∠ECF',
+    reveal: ['dc-angleeq']
+  },
+  {
+    type: 'yn',
+    q: 'And are those two angles adjacent angles?',
+    no: 'Yes. They sit next to each other on the straight line through D, C, and E.',
+    text: 'and they are adjacent angles.',
+    just: null,
+    side: 'Adjacent angles',
+    reveal: ['dc-adjacent']
+  },
+  {
+    type: 'open',
+    q: 'If a straight line set up on a straight line makes the adjacent angles equal to one another, what must each angle be?',
+    criteria: 'Each angle is right.',
+    hint: 'This is Definition 10 in Euclid: equal adjacent angles made by a straight line standing on another are right angles.',
+    ok_regex: 'right|right angle|perpendicular',
+    ok_targets: ['right','angle','perpendicular'],
+    text: 'But, when a straight line set up on a straight line makes the adjacent angles equal to one another, each of the equal angles is right;',
+    just: 'Def. 10',
+    side: 'Each equal adjacent angle is right',
+    reveal: ['dc-right']
+  },
+  {
+    type: 'open',
+    q: 'So what follows about angles DCF and FCE?',
+    criteria: 'Each of the angles DCF and FCE is right.',
+    hint: 'The previous step applies directly to these two adjacent equal angles at C.',
+    ok_regex: 'dcf.*fce.*right|fce.*dcf.*right|each.*right|both.*right',
+    ok_targets: ['DCF','FCE','right','each','both'],
+    text: 'therefore each of the angles DCF, FCE is right.',
+    just: null,
+    side: '∠DCF and ∠FCE are right',
+    reveal: []
+  },
+  {
+    type: 'open',
+    q: 'If the angles made by FC with AB at C are right, what does that mean about FC and AB?',
+    criteria: 'FC is at right angles to AB at C.',
+    hint: 'A line making a right angle with a straight line is perpendicular to it.',
+    ok_regex: 'right.*angle|perpendicular|fc.*ab|ab.*fc',
+    ok_targets: ['right','angle','perpendicular','FC','AB'],
+    text: 'Therefore the straight line CF has been drawn at right angles to the given straight line AB from the given point C on it.',
+    just: null,
+    side: 'CF ⟂ AB at C',
+    reveal: ['dc-result']
+  },
+  {
+    type: 'open',
+    q: 'Q.E.D. or Q.E.F.?',
+    criteria: 'Q.E.F., because a construction has been completed.',
+    hint: 'This proposition required us to draw a perpendicular from a given point on a line.',
+    ok_regex: 'q\.?e\.?f\.?|qef|faciendum|construct|construction|done',
+    ok_targets: ['QEF','faciendum','construct','construction','done'],
+    text: 'Q.E.F.',
+    just: 'Q.E.F.',
+    side: 'Q.E.F.',
+    reveal: []
+  }
+];
+
+const PROP_NUM = 11;
+const CONCLUSION = "Congratulations! You have completed Euclid's Elements Book I, Proposition 11.";
+function lev(a,b){
+  const m=a.length,n=b.length;
+  if(!m) return n;
+  if(!n) return m;
+  const dp=Array.from({length:m+1},(_,i)=>[i]);
+  for(let j=1;j<=n;j++) dp[0][j]=j;
+  for(let i=1;i<=m;i++) for(let j=1;j<=n;j++)
+    dp[i][j]=a[i-1]===b[j-1] ? dp[i-1][j-1] : 1+Math.min(dp[i-1][j-1],dp[i-1][j],dp[i][j-1]);
+  return dp[m][n];
+}
+function hasNear(response, targets){
+  const words=response.toLowerCase().split(/[\s,.;!?]+/).filter(w=>w.length>=3);
+  return words.some(w=>targets.some(t=>{
+    const d=t.length<=7 ? 1 : 2;
+    return lev(w, String(t).toLowerCase()) <= d;
+  }));
+}
+
+let step = 0;
+let attempts = 0;
+
+const diagramEl = document.getElementById('diagram');
+const canvas = document.getElementById('canvas');
+let pan = { tx:0, ty:0, s:1 };
+const MIN_S = 0.12;
+const MAX_S = 12;
+
+function clientToVB(cx,cy){
+  const r=diagramEl.getBoundingClientRect(), v=diagramEl.viewBox.baseVal;
+  return { x:(cx-r.left)/r.width*v.width+v.x, y:(cy-r.top)/r.height*v.height+v.y };
+}
+function applyTransform(){ canvas.setAttribute('transform',`translate(${pan.tx},${pan.ty}) scale(${pan.s})`); }
+function zoomAt(px,py,f){
+  const ns=Math.max(MIN_S,Math.min(MAX_S,pan.s*f)), r=ns/pan.s;
+  pan.tx=px-(px-pan.tx)*r;
+  pan.ty=py-(py-pan.ty)*r;
+  pan.s=ns;
+  applyTransform();
+}
+function zoomCenter(f){
+  const v=diagramEl.viewBox.baseVal;
+  zoomAt(v.x+v.width/2,v.y+v.height/2,f);
+}
+function animatePan(t,ms=420){
+  const from={...pan}, t0=performance.now();
+  (function tick(now){
+    let p=Math.min((now-t0)/ms,1);
+    p=p<.5 ? 2*p*p : -1+(4-2*p)*p;
+    pan.tx=from.tx+(t.tx-from.tx)*p;
+    pan.ty=from.ty+(t.ty-from.ty)*p;
+    pan.s=from.s+(t.s-from.s)*p;
+    applyTransform();
+    if(p<1) requestAnimationFrame(tick);
+    else pan={...t};
+  })(performance.now());
+}
+function resetView(){ animatePan({tx:0,ty:0,s:1}); }
+
+diagramEl.addEventListener('wheel',e=>{
+  e.preventDefault();
+  const p=clientToVB(e.clientX,e.clientY);
+  zoomAt(p.x,p.y,e.deltaY<0?1.12:1/1.12);
+},{passive:false});
+
+let dragging=false, lastPt=null;
+diagramEl.addEventListener('mousedown',e=>{
+  if(e.button!==0) return;
+  dragging=true;
+  lastPt=clientToVB(e.clientX,e.clientY);
+  diagramEl.classList.add('panning');
+  e.preventDefault();
+});
+window.addEventListener('mousemove',e=>{
+  if(!dragging) return;
+  const pt=clientToVB(e.clientX,e.clientY);
+  pan.tx+=pt.x-lastPt.x;
+  pan.ty+=pt.y-lastPt.y;
+  lastPt=pt;
+  applyTransform();
+});
+window.addEventListener('mouseup',()=>{
+  dragging=false;
+  diagramEl.classList.remove('panning');
+});
+
+let lastTouches=[];
+diagramEl.addEventListener('touchstart',e=>{
+  lastTouches=Array.from(e.touches);
+  e.preventDefault();
+},{passive:false});
+diagramEl.addEventListener('touchmove',e=>{
+  e.preventDefault();
+  const ts=Array.from(e.touches);
+  if(ts.length===1 && lastTouches.length>=1){
+    const c=clientToVB(ts[0].clientX,ts[0].clientY), p=clientToVB(lastTouches[0].clientX,lastTouches[0].clientY);
+    pan.tx+=c.x-p.x;
+    pan.ty+=c.y-p.y;
+    applyTransform();
+  } else if(ts.length===2 && lastTouches.length>=2){
+    const d1=Math.hypot(ts[1].clientX-ts[0].clientX,ts[1].clientY-ts[0].clientY);
+    const d2=Math.hypot(lastTouches[1].clientX-lastTouches[0].clientX,lastTouches[1].clientY-lastTouches[0].clientY);
+    if(d2>0){
+      const p=clientToVB((ts[0].clientX+ts[1].clientX)/2,(ts[0].clientY+ts[1].clientY)/2);
+      zoomAt(p.x,p.y,d1/d2);
+    }
+  }
+  lastTouches=ts;
+},{passive:false});
+diagramEl.addEventListener('touchend',e=>{ lastTouches=Array.from(e.touches); },{passive:false});
+
+let resizing=false, rSide=null, rStartY=0, rStartH=0, rStartX=0, rStartW=0, rStartML=0;
+const rowEl=document.getElementById('diagram-row');
+function startResize(side,cx,cy){
+  resizing=true;
+  rSide=side;
+  rStartY=cy;
+  rStartX=cx;
+  const r=diagramEl.getBoundingClientRect();
+  rStartH=r.height;
+  rStartW=r.width;
+  rStartML=parseFloat(rowEl.style.marginLeft)||0;
+}
+['rc-l','rc-r'].forEach(id=>{
+  const side=id.endsWith('-l')?'l':'r';
+  document.getElementById(id).addEventListener('mousedown',e=>{
+    startResize(side,e.clientX,e.clientY);
+    e.preventDefault();
+  });
+  document.getElementById(id).addEventListener('touchstart',e=>{
+    startResize(side,e.touches[0].clientX,e.touches[0].clientY);
+    e.preventDefault();
+  },{passive:false});
+});
+window.addEventListener('mousemove',e=>{ if(resizing) applyResize(e.clientX,e.clientY); });
+window.addEventListener('touchmove',e=>{ if(resizing) applyResize(e.touches[0].clientX,e.touches[0].clientY); },{passive:false});
+window.addEventListener('mouseup',()=>{ resizing=false; });
+window.addEventListener('touchend',()=>{ resizing=false; });
+function applyResize(cx,cy){
+  const h=Math.max(80,Math.min(600,rStartH+cy-rStartY));
+  diagramEl.style.height=h+'px';
+  const dx=cx-rStartX, dw=rSide==='r'?dx:-dx;
+  const w=Math.max(200,Math.min(window.innerWidth-40,rStartW+dw));
+  rowEl.style.width=w+'px';
+  if(rSide==='l') rowEl.style.marginLeft=(rStartML-(w-rStartW))+'px';
+}
+
+function buildPanels(){
+  const side=document.getElementById('side-panel');
+  const left=document.getElementById('left-panel');
+
+  left.innerHTML = `<div class="prop-label">I.9</div>
+    <div class="prop-enunc">To bisect a given rectilineal angle.</div>`;
+
+  STEPS.forEach((s,i)=>{
+    if(s.side){
+      const el=document.createElement('div');
+      el.id=`si-${i}`;
+      el.className='side-item';
+      el.textContent=s.side;
+      side.appendChild(el);
+    }
+    if(s.text){
+      const el=document.createElement('div');
+      el.id=`pl-${i}`;
+      el.className='proof-line';
+      el.appendChild(document.createTextNode(s.text));
+      if(s.just){
+        const sp=document.createElement('span');
+        sp.className='just';
+        sp.textContent=s.just;
+        el.appendChild(sp);
+      }
+      left.appendChild(el);
+    }
+  });
+}
+
+function getDisplayStep(){
+  const s=STEPS[step];
+  if(s && s.display_linked_idx != null) return s.display_linked_idx;
+  for(let i=step;i>=0;i--) if(STEPS[i] && STEPS[i].text) return i;
+  return -1;
+}
+
+function setProofDisplay(idx){
+  const pd=document.getElementById('proof-display');
+  if(!pd) return;
+  if(idx<0){ pd.classList.remove('visible'); return; }
+  const s=STEPS[idx];
+  if(s && s.text){
+    pd.innerHTML=s.text+(s.just?`<span class="proof-just">${s.just}</span>`:'');
+    pd.classList.add('visible');
+  } else {
+    pd.classList.remove('visible');
+  }
+}
+
+function updatePanels(){
+  const ds=getDisplayStep();
+  STEPS.forEach((s,i)=>{
+    const pl=document.getElementById(`pl-${i}`);
+    if(pl){
+      pl.classList.toggle('active',i===ds);
+      pl.classList.toggle('past',i<ds);
+    }
+  });
+  setProofDisplay(ds);
+}
+
+function show(id){
+  const el=document.getElementById(id);
+  if(el) el.classList.add('on');
+}
+
+function revealStep(s){
+  if(s.reveal) s.reveal.forEach(id=>show(id));
+  if(s.side){
+    const el=document.getElementById(`si-${step}`);
+    if(el) el.classList.add('on');
+  }
+}
+
+const chatEl=document.getElementById('chat');
+const textInput=document.getElementById('text-input');
+const sendBtn=document.getElementById('send-btn');
+const ynBar=document.getElementById('yn-bar');
+const drawBar=document.getElementById('draw-bar');
+const inputRow=document.getElementById('input-row');
+const kbBar=document.getElementById('kb-bar');
+const fakeInputEl=document.getElementById('fake-input');
+const fakePlaceholder=document.getElementById('fake-placeholder');
+
+const isMobile=()=>navigator.maxTouchPoints>0;
+
+function addMsg(text, who){
+  const d=document.createElement('div');
+  d.className=who==='user' ? 'msg-user' : 'msg-bot';
+  d.textContent=text;
+  chatEl.appendChild(d);
+  chatEl.scrollTop=chatEl.scrollHeight;
+  if(who==='bot') logEvent('bot', text);
+  return d;
+}
+
+function logEvent(role, message){
+  fetch('/api/event',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({proposition:PROP_NUM,step,role,message})
+  });
+}
+
+function updateFake(){
+  const v=textInput.value;
+  if(v){
+    fakePlaceholder.textContent=v;
+    fakePlaceholder.style.color='';
+  } else {
+    fakePlaceholder.textContent='Your answer…';
+    fakePlaceholder.style.color='#999';
+  }
+}
+
+function setMode(type){
+  if(type==='done'){
+    ynBar.style.display='none';
+    drawBar.style.display='none';
+    kbBar.style.display='none';
+    inputRow.style.display='none';
+    document.getElementById('dashboard-btn').style.display='';
+    return;
+  }
+  ynBar.style.display = type==='yn' ? 'flex' : 'none';
+  drawBar.style.display = type==='draw' ? 'flex' : 'none';
+  kbBar.style.display = (type==='open' && isMobile()) ? 'flex' : 'none';
+  if(type==='open' && isMobile()){
+    document.getElementById('kb-alpha').style.display='';
+    document.getElementById('kb-num').style.display='none';
+    setTimeout(()=>{ chatEl.scrollTop=chatEl.scrollHeight; }, 80);
+    fakeInputEl.style.display='flex';
+    textInput.style.display='none';
+    updateFake();
+  } else {
+    fakeInputEl.style.display='none';
+    textInput.style.display='';
+  }
+  inputRow.style.display = type==='draw' ? 'none' : 'flex';
+  sendBtn.disabled = type==='draw';
+  textInput.disabled = type==='draw';
+  if(type==='open' && !isMobile()) textInput.focus();
+}
+
+function kbTap(ch){ textInput.value+=ch; updateFake(); }
+function kbBack(){ textInput.value=textInput.value.slice(0,-1); updateFake(); }
+function kbEnter(){ submit(textInput.value); }
+function kbToggleNum(){
+  const a=document.getElementById('kb-alpha'), n=document.getElementById('kb-num');
+  const toNum=a.style.display!=='none';
+  a.style.display=toNum?'none':'';
+  n.style.display=toNum?'':'none';
+}
+
+function advance(){
+  attempts=0;
+  step++;
+  showStep();
+}
+
+function showStep(){
+  updatePanels();
+  if(step>=STEPS.length){
+    addMsg(CONCLUSION,'bot');
+    setMode('done');
+    fetch('/api/complete',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({proposition:PROP_NUM})
+    }).then(r=>{
+      if(r.ok){
+        addMsg('✓ Your completion has been recorded.','bot');
+        const d=document.createElement('div');
+        d.className='msg-bot';
+        d.innerHTML='<a href="/survey?prop='+PROP_NUM+'" style="color:#7c3aed;text-decoration:underline;">Share your experience →</a>';
+        chatEl.appendChild(d);
+        chatEl.scrollTop=chatEl.scrollHeight;
+      }
+    });
+    return;
+  }
+
+  const s=STEPS[step];
+  if(s.type==='say'){
+    revealStep(s);
+    addMsg(s.q,'bot');
+    setTimeout(advance,700);
+    return;
+  }
+  if(s.type==='draw'){
+    addMsg(s.q,'bot');
+    setMode('draw');
+    return;
+  }
+  addMsg(s.q,'bot');
+  setMode(s.type);
+}
+
+function submit(raw){
+  const answer=raw.trim();
+  if(!answer) return;
+  textInput.value='';
+  updateFake();
+  addMsg(answer,'user');
+  logEvent('user',answer);
+  const s=STEPS[step];
+
+  if(s.type==='yn'){
+    if(/^y/i.test(answer)){
+      revealStep(s);
+      advance();
+    } else {
+      addMsg(s.no,'bot');
+      setTimeout(()=>addMsg(s.q,'bot'),600);
+    }
+    return;
+  }
+
+  if(s.type==='open'){
+    const ok = !s.ok_regex || new RegExp(s.ok_regex,'i').test(answer) || (s.ok_targets && hasNear(answer, s.ok_targets));
+    if(!ok){
+      attempts++;
+      if(attempts>=2 && s.hint){
+        addMsg(s.hint,'bot');
+        if(s.hint_linked_idx!=null) setProofDisplay(s.hint_linked_idx);
+      } else {
+        addMsg('Not quite — try again.','bot');
+      }
+      if(attempts>=3){
+        revealStep(s);
+        setTimeout(advance,800);
+      }
+      return;
+    }
+    revealStep(s);
+    advance();
+  }
+}
+
+sendBtn.addEventListener('click',()=>submit(textInput.value));
+textInput.addEventListener('keydown',e=>{ if(e.key==='Enter') submit(textInput.value); });
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter' && drawBar.style.display==='flex' && e.target!==textInput){
+    e.preventDefault();
+    document.getElementById('btn-draw').click();
+  }
+});
+document.getElementById('btn-yes').addEventListener('click',()=>{
+  addMsg('Yes','user');
+  logEvent('user','Yes');
+  const s=STEPS[step];
+  revealStep(s);
+  advance();
+});
+document.getElementById('btn-no').addEventListener('click',()=>{
+  addMsg('No','user');
+  logEvent('user','No');
+  addMsg(STEPS[step].no,'bot');
+  setTimeout(()=>addMsg(STEPS[step].q,'bot'),600);
+});
+document.getElementById('btn-draw').addEventListener('click',()=>{
+  addMsg('Yes / Draw','user');
+  logEvent('user','[drew]');
+  const s=STEPS[step];
+  revealStep(s);
+  advance();
+});
+
+buildPanels();
+show('dc-given');
+showStep();
+</script>
+</body>
+</html>
