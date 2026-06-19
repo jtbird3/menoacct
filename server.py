@@ -519,9 +519,16 @@ async def api_complete(request: Request):
     if not user:
         raise HTTPException(status_code=401, detail='Not logged in.')
     body = await request.json()
+    proposition = int(body.get('proposition', 1))
     with db() as con:
-        con.execute('INSERT INTO completions (user_id, proposition) VALUES (?,?)',
-                    (user['id'], body.get('proposition', 1)))
+        con.execute(
+            '''INSERT INTO completions (user_id, proposition)
+               SELECT ?, ?
+               WHERE NOT EXISTS (
+                   SELECT 1 FROM completions WHERE user_id=? AND proposition=?
+               )''',
+            (user['id'], proposition, user['id'], proposition)
+        )
     return {'ok': True}
 
 @app.post('/api/survey')

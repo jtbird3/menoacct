@@ -240,9 +240,13 @@
   <button id="send-btn">→</button>
 </div>
 
+<div id="dashboard-btn" style="display:none;margin-bottom:8px;">
+  <a href="/welcome" style="text-decoration:none;"><button style="width:100%;padding:10px;font-family:inherit;font-size:14px;font-weight:bold;border:2px solid #000;background:#fff;color:#000;cursor:pointer;">&gt; Go to Dashboard</button></a>
+</div>
+
 <div id="yn-bar">
-  <button id="btn-yes">YES</button>
   <button id="btn-no">NO</button>
+  <button id="btn-yes">YES</button>
 </div>
 
 <div id="draw-bar">
@@ -498,6 +502,47 @@ function addMsg(text, who){
   return d;
 }
 
+let completionRecorded=false;
+let completionRetryScheduled=false;
+
+function showDashboardLink(){
+  document.getElementById('dashboard-btn').style.display='';
+}
+
+async function recordCompletion(){
+  if(completionRecorded) return true;
+  try{
+    const r=await fetch('/api/complete',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      credentials:'same-origin',
+      keepalive:true,
+      body:JSON.stringify({proposition:PROP_NUM})
+    });
+    if(!r.ok) throw new Error(`HTTP ${r.status}`);
+    completionRecorded=true;
+    completionRetryScheduled=false;
+    addMsg('✓ Your completion has been recorded.','bot');
+    const d=document.createElement('div');
+    d.className='msg-bot';
+    d.innerHTML='<a href="/survey?prop='+PROP_NUM+'" style="color:#7c3aed;text-decoration:underline;">Share your experience →</a>';
+    chatEl.appendChild(d);
+    chatEl.scrollTop=chatEl.scrollHeight;
+    showDashboardLink();
+    return true;
+  } catch(err){
+    console.error('Failed to record completion', err);
+    if(!completionRetryScheduled){
+      completionRetryScheduled=true;
+      addMsg('Saving your completion is taking a moment, so I am retrying automatically. Please keep this page open for a second.','bot');
+      setTimeout(()=>{
+        completionRetryScheduled=false;
+        recordCompletion();
+      },1500);
+    }
+    return false;
+  }
+}
 
 function logEvent(role, message){
   fetch('/api/event',{method:'POST',headers:{'Content-Type':'application/json'},
@@ -550,21 +595,7 @@ function showStep(){
   updatePanels();
   if(step>=STEPS.length){
     addMsg(CONCLUSION,'bot'); setMode('done');
-    fetch('/api/complete',{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({proposition:PROP_NUM})})
-      .then(r=>{
-        if(r.ok){
-          addMsg('✓ Your completion has been recorded.','bot');
-          const d=document.createElement('div');
-          d.className='msg-bot';
-          d.innerHTML='<a href="/survey?prop='+PROP_NUM+'" style="color:#7c3aed;text-decoration:underline;">Share your experience →</a>';
-          chatEl.appendChild(d);
-          const b=document.createElement('div');
-          b.className='msg-bot';
-          b.innerHTML='<a href="/welcome" style="color:#000;text-decoration:none;font-size:12px;opacity:.5;">← dashboard</a>';
-          chatEl.appendChild(b); chatEl.scrollTop=chatEl.scrollHeight;
-        }
-      });
+    recordCompletion();
     return;
   }
   const s=STEPS[step];

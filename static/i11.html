@@ -624,8 +624,8 @@ function buildPanels(){
   const side=document.getElementById('side-panel');
   const left=document.getElementById('left-panel');
 
-  left.innerHTML = `<div class="prop-label">I.9</div>
-    <div class="prop-enunc">To bisect a given rectilineal angle.</div>`;
+  left.innerHTML = `<div class="prop-label">I.11</div>
+    <div class="prop-enunc">To draw a straight line at right angles to a given straight line from a given point on it.</div>`;
 
   STEPS.forEach((s,i)=>{
     if(s.side){
@@ -718,6 +718,48 @@ function addMsg(text, who){
   return d;
 }
 
+let completionRecorded=false;
+let completionRetryScheduled=false;
+
+function showDashboardLink(){
+  document.getElementById('dashboard-btn').style.display='';
+}
+
+async function recordCompletion(){
+  if(completionRecorded) return true;
+  try{
+    const r=await fetch('/api/complete',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      credentials:'same-origin',
+      keepalive:true,
+      body:JSON.stringify({proposition:PROP_NUM})
+    });
+    if(!r.ok) throw new Error(`HTTP ${r.status}`);
+    completionRecorded=true;
+    completionRetryScheduled=false;
+    addMsg('✓ Your completion has been recorded.','bot');
+    const d=document.createElement('div');
+    d.className='msg-bot';
+    d.innerHTML='<a href="/survey?prop='+PROP_NUM+'" style="color:#7c3aed;text-decoration:underline;">Share your experience →</a>';
+    chatEl.appendChild(d);
+    chatEl.scrollTop=chatEl.scrollHeight;
+    showDashboardLink();
+    return true;
+  } catch(err){
+    console.error('Failed to record completion', err);
+    if(!completionRetryScheduled){
+      completionRetryScheduled=true;
+      addMsg('Saving your completion is taking a moment, so I am retrying automatically. Please keep this page open for a second.','bot');
+      setTimeout(()=>{
+        completionRetryScheduled=false;
+        recordCompletion();
+      },1500);
+    }
+    return false;
+  }
+}
+
 function logEvent(role, message){
   fetch('/api/event',{
     method:'POST',
@@ -743,7 +785,6 @@ function setMode(type){
     drawBar.style.display='none';
     kbBar.style.display='none';
     inputRow.style.display='none';
-    document.getElementById('dashboard-btn').style.display='';
     return;
   }
   ynBar.style.display = type==='yn' ? 'flex' : 'none';
@@ -787,20 +828,7 @@ function showStep(){
   if(step>=STEPS.length){
     addMsg(CONCLUSION,'bot');
     setMode('done');
-    fetch('/api/complete',{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({proposition:PROP_NUM})
-    }).then(r=>{
-      if(r.ok){
-        addMsg('✓ Your completion has been recorded.','bot');
-        const d=document.createElement('div');
-        d.className='msg-bot';
-        d.innerHTML='<a href="/survey?prop='+PROP_NUM+'" style="color:#7c3aed;text-decoration:underline;">Share your experience →</a>';
-        chatEl.appendChild(d);
-        chatEl.scrollTop=chatEl.scrollHeight;
-      }
-    });
+    recordCompletion();
     return;
   }
 
