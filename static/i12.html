@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>{{ title }}</title>
+  <title>Euclid I.12 — To a given infinite straight line, from a given point which is not on it, to draw a perpendicular straight line</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; touch-action: manipulation; }
@@ -207,16 +207,90 @@
 </head>
 <body>
 
-<h1>{{ h1 }}</h1>
+<h1>Euclid I.12 — To a given infinite straight line, from a given point which is not on it, to draw a perpendicular straight line</h1>
 
 <div id="diagram-row">
 <div id="diagram-wrap">
   <svg id="diagram"
-       viewBox="{{ viewbox }}"
+       viewBox="0 0 800 470"
        preserveAspectRatio="xMidYMid meet"
        xmlns="http://www.w3.org/2000/svg">
     <g id="canvas">
-      {{ svg_canvas }}
+      <g id="dc-given" class="de">
+  <line x1="80" y1="300" x2="720" y2="300" stroke="#000" stroke-width="2.6"/>
+  <path d="M96 294 l-16 6 l16 6" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M704 294 l16 6 l-16 6" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="88" y="322" font-family="inherit" font-size="17" fill="#000">A</text>
+  <text x="706" y="322" font-family="inherit" font-size="17" fill="#000">B</text>
+  <circle cx="400" cy="120" r="5" fill="#000"/>
+  <text x="408" y="116" font-family="inherit" font-size="17" fill="#000">C</text>
+  <text x="338" y="338" font-family="inherit" font-size="12" fill="#666">AB</text>
+</g>
+
+<g id="dc-d" class="de">
+  <circle cx="260" cy="360" r="5" fill="#000"/>
+  <text x="248" y="382" font-family="inherit" font-size="17" fill="#000">D</text>
+  <line x1="330" y1="240" x2="323" y2="252" stroke="#16a34a" stroke-width="2.2"/>
+  <text x="298" y="244" font-family="inherit" font-size="12" fill="#16a34a">CD</text>
+</g>
+
+<g id="dc-circle" class="de">
+  <circle cx="400" cy="120" r="278.57" fill="none" stroke="#0891b2" stroke-width="2.5"/>
+  <circle cx="190" cy="300" r="5" fill="#000"/>
+  <circle cx="610" cy="300" r="5" fill="#000"/>
+  <circle cx="574" cy="337.5" r="5" fill="#000"/>
+  <text x="178" y="322" font-family="inherit" font-size="17" fill="#000">E</text>
+  <text x="614" y="322" font-family="inherit" font-size="17" fill="#000">G</text>
+  <text x="582" y="352" font-family="inherit" font-size="17" fill="#000">F</text>
+  <text x="540" y="78" font-family="inherit" font-size="12" fill="#0891b2">circle EFG</text>
+</g>
+
+<g id="dc-h" class="de">
+  <circle cx="400" cy="300" r="5" fill="#000"/>
+  <text x="408" y="322" font-family="inherit" font-size="17" fill="#000">H</text>
+  <line x1="295" y1="293" x2="295" y2="307" stroke="#16a34a" stroke-width="2.2"/>
+  <line x1="505" y1="293" x2="505" y2="307" stroke="#16a34a" stroke-width="2.2"/>
+  <text x="280" y="284" font-family="inherit" font-size="12" fill="#16a34a">GH</text>
+  <text x="492" y="284" font-family="inherit" font-size="12" fill="#16a34a">HE</text>
+  <text x="92" y="392" font-family="inherit" font-size="12" fill="#16a34a">GH = HE</text>
+</g>
+
+<g id="dc-joins" class="de">
+  <line x1="400" y1="120" x2="190" y2="300" stroke="#dc2626" stroke-width="2.6"/>
+  <line x1="400" y1="120" x2="610" y2="300" stroke="#dc2626" stroke-width="2.6"/>
+  <line x1="400" y1="120" x2="400" y2="300" stroke="#dc2626" stroke-width="2.8"/>
+  <text x="270" y="206" font-family="inherit" font-size="12" fill="#dc2626">CE</text>
+  <text x="522" y="206" font-family="inherit" font-size="12" fill="#dc2626">CG</text>
+  <text x="410" y="214" font-family="inherit" font-size="12" fill="#dc2626">CH</text>
+</g>
+
+<g id="dc-common" class="de">
+  <text x="418" y="214" font-family="inherit" font-size="12" fill="#dc2626">HC common</text>
+</g>
+
+<g id="dc-radii" class="de">
+  <text x="88" y="410" font-family="inherit" font-size="12" fill="#16a34a">CG = CE</text>
+</g>
+
+<g id="dc-angleeq" class="de">
+  <path d="M372 300 A28 28 0 0 1 388 276" fill="none" stroke="#16a34a" stroke-width="1.6"/>
+  <path d="M428 300 A28 28 0 0 0 412 276" fill="none" stroke="#16a34a" stroke-width="1.6"/>
+  <text x="116" y="108" font-family="inherit" font-size="12" fill="#16a34a">∠CHG = ∠EHC</text>
+</g>
+
+<g id="dc-adjacent" class="de">
+  <text x="138" y="128" font-family="inherit" font-size="12" fill="#666">and they are adjacent angles</text>
+</g>
+
+<g id="dc-right" class="de">
+  <path d="M400 300 l0 -18 l18 0" fill="none" stroke="#16a34a" stroke-width="1.8"/>
+  <path d="M400 300 l0 -18 l-18 0" fill="none" stroke="#16a34a" stroke-width="1.8"/>
+  <text x="96" y="152" font-family="inherit" font-size="12" fill="#16a34a">Each of ∠CHG and ∠EHC is right</text>
+</g>
+
+<g id="dc-result" class="de">
+  <text x="438" y="136" font-family="inherit" font-size="13" fill="#16a34a">CH is perpendicular to AB</text>
+</g>
     </g>
   </svg>
   <div id="rc-l" class="resize-corner"></div>
@@ -296,9 +370,9 @@
 // open steps advance on any non-empty answer
 // ─────────────────────────────────────────────────────────────────────────────
 
-const STEPS    = {{ steps_json }};
-const PROP_NUM = {{ prop_num }};
-const CONCLUSION = {{ conclusion_json }};
+const STEPS    = [{"type": "yn", "q": "Let AB be the given infinite straight line, and C the given point not on it. Do you see that setup in the figure?", "no": "AB is the long horizontal straight line, extended in both directions, and C is the point above it.", "text": "Let AB be the given infinite straight line, and C the given point not on it.", "just": null, "side": "Given: infinite AB, point C off it", "reveal": [], "criteria": null, "hint": null, "hint_linked_idx": null, "display_linked_idx": null}, {"type": "yn", "q": "And our task is to draw from C to AB a straight line perpendicular to AB. Does that make sense?", "no": "We want a line from the outside point C that meets AB at a right angle.", "text": "Thus it is required to draw from the given point C to the given infinite straight line AB a perpendicular straight line.", "just": null, "side": "Goal: draw a perpendicular from C", "reveal": [], "criteria": null, "hint": null, "hint_linked_idx": null, "display_linked_idx": null}, {"type": "draw", "q": "Let a point D be taken at random on the other side of AB from C. Shall we place it?", "no": null, "criteria": null, "hint": null, "hint_linked_idx": null, "display_linked_idx": null, "text": "Let a point D be taken at random on the other side of AB from C.", "just": null, "side": "Take D below AB", "reveal": ["dc-d"]}, {"type": "draw", "q": "Now with center C and distance CD, let the circle EFG be described. Shall we draw it?", "no": null, "criteria": null, "hint": null, "hint_linked_idx": null, "display_linked_idx": null, "text": "With center C and distance CD let the circle EFG be described.", "just": "Post. 3", "side": "Draw circle centered at C", "reveal": ["dc-circle"]}, {"type": "draw", "q": "Let the straight line EG be bisected at H. Shall we mark the midpoint H?", "no": null, "criteria": null, "hint": null, "hint_linked_idx": null, "display_linked_idx": null, "text": "Let the straight line EG be bisected at H.", "just": "I.10", "side": "Bisect EG at H", "reveal": ["dc-h"]}, {"type": "draw", "q": "And let the straight lines CG, CH, and CE be joined. Shall we draw them?", "no": null, "criteria": null, "hint": null, "hint_linked_idx": null, "display_linked_idx": null, "text": "And let the straight lines CG, CH, and CE be joined.", "just": "Post. 1", "side": "Join CG, CH, CE", "reveal": ["dc-joins"]}, {"type": "yn", "q": "Euclid now claims that CH has been drawn perpendicular to AB from the given point C. Is that the claim we are proving?", "no": "Yes. The whole point of the construction is to show that CH meets AB at a right angle.", "text": "I say that CH has been drawn perpendicular to the given infinite straight line AB from the given point C.", "just": null, "side": "Claim: CH is perpendicular to AB", "reveal": [], "criteria": null, "hint": null, "hint_linked_idx": null, "display_linked_idx": null}, {"type": "open", "q": "Since EG was bisected at H, what follows about GH and HE?", "no": null, "criteria": "GH is equal to HE.", "hint": "A point that bisects a line cuts it into two equal parts.", "hint_linked_idx": 4, "display_linked_idx": null, "text": "For, since GH is equal to HE,", "just": "I.10", "side": "GH = HE", "reveal": [], "ok_regex": "gh.*he|he.*gh|equal|same|half|bisect", "ok_targets": ["GH", "HE", "equal", "same", "bisect", "half"]}, {"type": "open", "q": "What side is common to triangles GHC and EHC?", "no": null, "criteria": "HC is common to both triangles.", "hint": "Both triangles use the segment from H to C.", "hint_linked_idx": 5, "display_linked_idx": null, "text": "And HC is common,", "just": "Common", "side": "HC common", "reveal": ["dc-common"], "ok_regex": "^\\s*(hc|ch)\\s*$|(hc|ch).*common|common.*(hc|ch)|shared|same side", "ok_targets": ["HC", "CH", "common", "shared", "same"]}, {"type": "open", "q": "And because G and E lie on the same circle with center C, what can we say about CG and CE?", "no": null, "criteria": "CG is equal to CE, since they are radii of the same circle.", "hint": "Any two radii of the same circle are equal.", "hint_linked_idx": 3, "display_linked_idx": null, "text": "And the base CG is equal to the base CE,", "just": "Radii of same circle", "side": "CG = CE", "reveal": ["dc-radii"], "ok_regex": "cg.*ce|ce.*cg|radii|radius|equal|same circle", "ok_targets": ["CG", "CE", "radii", "radius", "equal", "circle"]}, {"type": "open", "q": "So if GH = HE, HC is common, and CG = CE, what follows about angles CHG and EHC?", "no": null, "criteria": "The angle CHG is equal to the angle EHC.", "hint": "Apply I.8: equal sides in the two triangles give equality of the contained opposite angles.", "hint_linked_idx": 9, "display_linked_idx": null, "text": "Therefore the angle CHG is equal to the angle EHC.", "just": "I.8", "side": "∠CHG = ∠EHC", "reveal": ["dc-angleeq"], "ok_regex": "chg.*ehc|ehc.*chg|equal.*angle|same angle|i\\.?8", "ok_targets": ["CHG", "EHC", "equal", "angle", "I.8", "same"]}, {"type": "yn", "q": "And are those equal angles adjacent angles?", "no": "Yes. They sit next to one another on the straight line EHG.", "text": "And they are adjacent angles.", "just": null, "side": "Adjacent angles", "reveal": ["dc-adjacent"], "criteria": null, "hint": null, "hint_linked_idx": null, "display_linked_idx": null}, {"type": "open", "q": "When a straight line standing on another makes the adjacent angles equal, what must each of those angles be?", "no": null, "criteria": "Each of them is right.", "hint": "This is Euclid's Definition 10: equal adjacent angles made this way are right angles.", "hint_linked_idx": null, "display_linked_idx": null, "text": "But when a straight line standing on a straight line makes the adjacent angles equal to one another, each of the equal angles is right.", "just": "Def. 10", "side": "Equal adjacent angles are right", "reveal": ["dc-right"], "ok_regex": "right|right angles?|each.*right|def\\.?\\s*10", "ok_targets": ["right", "each", "angle", "Def. 10"]}, {"type": "open", "q": "Therefore, what follows about CH with respect to AB?", "no": null, "criteria": "CH has been drawn perpendicular to AB from the point C.", "hint": "A line that makes a right angle with another line is perpendicular to it.", "hint_linked_idx": 12, "display_linked_idx": null, "text": "Therefore CH has been drawn perpendicular to the given infinite straight line AB from the given point C.", "just": null, "side": "CH ⟂ AB", "reveal": ["dc-result"], "ok_regex": "perpendicular|ch.*ab|ab.*ch|right angles?", "ok_targets": ["perpendicular", "CH", "AB", "right"]}, {"type": "open", "q": "Q.E.D. or Q.E.F.?", "no": null, "criteria": "Q.E.F., because this proposition is a construction.", "hint": "We were asked to draw something. Euclid closes constructions with Q.E.F.", "hint_linked_idx": null, "display_linked_idx": null, "text": "Q.E.F.", "just": "Q.E.F.", "side": "Q.E.F.", "reveal": [], "ok_regex": "q\\.?e\\.?f\\.?|qef|faciendum|construction", "ok_targets": ["QEF", "faciendum", "construction"]}];
+const PROP_NUM = 12;
+const CONCLUSION = "Congratulations! You have completed Euclid's Elements Book I, Proposition 12.";
 
 // ─── Fuzzy matching helpers ───────────────────────────────────────────────────
 function lev(a,b){
@@ -418,8 +492,8 @@ function buildPanels(){
   const side = document.getElementById('side-panel');
   const left = document.getElementById('left-panel');
 
-  left.innerHTML = `<div class="prop-label">{{ prop_label }}</div>
-    <div class="prop-enunc">{{ prop_enunc }}</div>`;
+  left.innerHTML = `<div class="prop-label">I.12</div>
+    <div class="prop-enunc">To a given infinite straight line, from a given point which is not on it, to draw a perpendicular straight line.</div>`;
 
   STEPS.forEach((s,i)=>{
     if(s.side){
@@ -635,7 +709,7 @@ document.getElementById('btn-draw').addEventListener('click',()=>{
 // ─────────────────────────────────────────────────────────────────────────────
 
 buildPanels();
-{{ initial_visible_json }}.forEach(id=>show(id));
+["dc-given"].forEach(id=>show(id));
 showStep();
 </script>
 </body>

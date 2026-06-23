@@ -368,7 +368,7 @@ async def reset_post(token: str, password: str = Form(...), confirm: str = Form(
 
 # ── App pages ──────────────────────────────────────────────────────────────────
 
-PROP_URLS = {1: '/i1', 2: '/i2', 3: '/i3', 4: '/i4', 5: '/i5', 6: '/i6', 7: '/i7', 8: '/i8', 9: '/i9', 10: '/i10', 11: '/i11'}
+PROP_URLS = {1: '/i1', 2: '/i2', 3: '/i3', 4: '/i4', 5: '/i5', 6: '/i6', 7: '/i7', 8: '/i8', 9: '/i9', 10: '/i10', 11: '/i11', 12: '/i12'}
 TOTAL_PROPS = 48
 
 def fmt_date(dt_str):
@@ -504,6 +504,11 @@ async def i10(request: Request):
 async def i11(request: Request):
     gate = prop_gate(request)
     return gate or FileResponse('static/i11.html')
+
+@app.get('/i12', response_class=HTMLResponse)
+async def i12(request: Request):
+    gate = prop_gate(request)
+    return gate or FileResponse('static/i12.html')
 
 @app.get('/survey', response_class=HTMLResponse)
 async def survey(request: Request):
