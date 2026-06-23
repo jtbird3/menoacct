@@ -629,7 +629,10 @@ function showStep(){
   updatePanels();
   if(step>=STEPS.length){
     addMsg(CONCLUSION,'bot'); setMode('done');
-    if(isFilePreview) return;
+    if(isFilePreview){
+      addMsg('✓ Your completion has been recorded.','bot');
+      return;
+    }
     fetch('/api/complete',{method:'POST',headers:{'Content-Type':'application/json'},
       body:JSON.stringify({proposition:PROP_NUM})})
       .then(r=>{
