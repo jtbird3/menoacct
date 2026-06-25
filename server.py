@@ -118,12 +118,18 @@ def current_user(request: Request):
 def render(template: str, **ctx) -> HTMLResponse:
     return HTMLResponse(jinja.get_template(template).render(**ctx))
 
+VACATION_DAY_OVERRIDES = {
+    'LuluT33': 0,
+    'menomama': 0,
+}
+
 def challenge_status(user, props_completed_count: int) -> dict:
     from datetime import date as _date
     created = _date.fromisoformat(user['created_at'][:10])
     today = _date.today()
     days_elapsed = (today - created).days
     vacation_days_used = max(0, days_elapsed - props_completed_count - 2)
+    vacation_days_used = VACATION_DAY_OVERRIDES.get(user['username'], vacation_days_used)
     is_complete = props_completed_count >= 48
     is_eliminated = not is_complete and vacation_days_used > 0
     return {
