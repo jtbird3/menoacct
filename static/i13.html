@@ -1,0 +1,706 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Euclid I.13 — If a straight line set up on a straight line make angles, it will make either two right angles or angles equal to two right angles</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; touch-action: manipulation; }
+    body {
+      background: #fff;
+      color: #000;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Courier New", monospace;
+      font-size: 14px;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 16px 16px 110px;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    h1 { font-size: 15px; font-weight: bold; margin-bottom: 10px; }
+
+    /* ── Diagram ── */
+    #diagram-row { position: relative; margin-bottom: 10px; }
+    #diagram-wrap { position: relative; }
+    #diagram {
+      border: 1px solid #ccc;
+      background: #fff;
+      display: block;
+      width: 100%;
+      height: clamp(160px, 38vh, 380px);
+      cursor: grab;
+    }
+    #diagram.panning { cursor: grabbing; }
+    #diagram-controls {
+      position: absolute; bottom: 22px; right: 8px;
+      display: flex; flex-direction: column; gap: 2px; z-index: 10;
+    }
+    #diagram-controls button {
+      font-family: inherit; font-size: 15px;
+      width: 28px; height: 28px;
+      border: 1px solid #ccc; background: rgba(255,255,255,0.9);
+      cursor: pointer; padding: 0; line-height: 1;
+    }
+    #diagram-controls button:hover { background: #f0f0f0; }
+    .resize-corner {
+      position: absolute; bottom: 0; width: 16px; height: 16px;
+      user-select: none; z-index: 10; opacity: 0.5;
+      background: repeating-linear-gradient(-45deg,#bbb 0,#bbb 1px,transparent 1px,transparent 3px);
+    }
+    .resize-corner:hover { opacity: 1; }
+    #rc-l { left: 0; cursor: sw-resize; }
+    #rc-r { right: 0; cursor: se-resize; }
+
+    /* side panels */
+    #side-panel {
+      position: absolute; left: calc(100% + 10px); top: 0;
+      width: 110px; font-size: 13px;
+    }
+    .side-item { opacity: 0; transition: opacity 0.5s; line-height: 1.6; color: #16a34a; }
+    .side-item.on { opacity: 1; }
+    #left-panel {
+      position: absolute; right: calc(100% + 12px); top: 0;
+      width: 190px; font-size: 11.5px; line-height: 1.5;
+    }
+    #left-panel .prop-label {
+      font-size: 10px; text-transform: uppercase; letter-spacing: .06em;
+      opacity: .4; margin-bottom: 4px;
+    }
+    #left-panel .prop-enunc {
+      font-style: italic; opacity: .55; font-size: 11px;
+      border-bottom: 1px solid #eee; padding-bottom: 8px; margin-bottom: 10px;
+    }
+    .proof-line {
+      opacity: .22; margin-bottom: 6px; transition: opacity .4s, color .4s;
+    }
+    .proof-line .just { display: block; font-size: 10px; opacity: .65; margin-top: 1px; }
+    .proof-line.past { opacity: .48; }
+    .proof-line.active { opacity: 1; color: #16a34a; }
+
+    /* SVG elements */
+    .de { opacity: 0; transition: opacity 0.5s; }
+    .de.on { opacity: 1; }
+
+    /* ── Chat ── */
+    #chat {
+      border: 1px solid #ccc; padding: 10px;
+      flex: 1; min-height: 120px; max-height: 260px;
+      overflow-y: auto; overflow-x: hidden;
+      display: flex; flex-direction: column;
+      gap: 8px; margin-bottom: 10px;
+    }
+    .msg-bot, .msg-user {
+      white-space: pre-wrap; word-break: break-word;
+      overflow-wrap: break-word; min-width: 0; max-width: 100%;
+    }
+    .msg-bot  { color: #000; }
+    .msg-user { color: #777; text-align: right; }
+
+    /* ── Input ── */
+    #input-row { display: flex; gap: 8px; margin-bottom: 8px; }
+    #text-input {
+      flex: 1; padding: 8px; font-family: inherit; font-size: 14px;
+      border: 1px solid #ccc; outline: none;
+    }
+    #text-input:focus { border-color: #000; }
+    #fake-input {
+      display: none;
+      flex: 1; padding: 8px; font-family: inherit; font-size: 14px;
+      border: 1px solid #000; color: #000;
+      overflow: hidden; white-space: nowrap;
+      align-items: center; line-height: 1.4;
+    }
+    #fake-placeholder { color: #999; }
+    #fake-cursor {
+      display: inline-block; width: 2px; height: 1em;
+      background: #000; vertical-align: text-bottom; margin-left: 1px;
+      animation: blink-caret 1s step-end infinite;
+    }
+    @keyframes blink-caret { 50% { opacity: 0; } }
+    #send-btn {
+      padding: 8px 14px; font-family: inherit; font-size: 14px;
+      border: 1px solid #000; background: #000; color: #fff; cursor: pointer;
+    }
+    #send-btn:disabled { background: #ccc; border-color: #ccc; cursor: not-allowed; }
+
+    /* ── YES/NO ── */
+    #yn-bar {
+      display: none;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #fff; border-top: 1px solid #ccc;
+      padding: 10px 16px; gap: 12px; justify-content: center; z-index: 100;
+    }
+    #yn-bar button {
+      flex: 1; max-width: 140px;
+      padding: 12px 20px; font-family: inherit; font-size: 15px; font-weight: bold;
+      border: 2px solid #000; background: #fff; color: #000; cursor: pointer;
+    }
+    #yn-bar button:active { background: #000; color: #fff; }
+
+    /* ── Draw bar ── */
+    #draw-bar {
+      display: none;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #fff; border-top: 1px solid #ccc;
+      padding: 10px 16px; justify-content: center; z-index: 100;
+    }
+    #draw-bar button {
+      flex: 1; max-width: 200px;
+      padding: 12px 20px; font-family: inherit; font-size: 15px; font-weight: bold;
+      border: 2px solid #000; background: #fff; color: #000; cursor: pointer;
+    }
+    #draw-bar button:active { background: #000; color: #fff; }
+
+    /* ── Proof display ── */
+    #proof-display {
+      min-height: 1.6em;
+      font-style: italic; font-size: 12px; color: #444;
+      border-left: 2px solid #16a34a; padding: 4px 10px;
+      margin-bottom: 8px; opacity: 0; transition: opacity 0.4s;
+    }
+    #proof-display.visible { opacity: 1; }
+    #proof-display .proof-just { font-style: normal; font-size: 10px; color: #888; margin-left: 8px; }
+
+    /* ── Custom keyboard (mobile only) ── */
+    #kb-bar {
+      display: none;
+      position: fixed; bottom: 0; left: 0; right: 0;
+      background: #f0f0f0; border-top: 1px solid #ccc;
+      padding: 8px 6px 14px; flex-direction: column;
+      gap: 6px; z-index: 100;
+    }
+    .kb-row { display: flex; justify-content: center; gap: 5px; width: 100%; }
+    #kb-alpha, #kb-num { display: flex; flex-direction: column; gap: 6px; }
+    .kb-key {
+      font-family: inherit; font-size: 15px; font-weight: bold;
+      height: 42px; flex: 1;
+      border: none; border-radius: 4px;
+      background: #fff; color: #000;
+      box-shadow: 0 1px 2px rgba(0,0,0,.25);
+      cursor: pointer; padding: 0;
+    }
+    .kb-key:active { background: #ccc; }
+    .kb-key.kb-wide  { flex: 1.4; font-size: 12px; }
+    .kb-key.kb-space { flex: 5; }
+    .kb-key.kb-enter { flex: 2; font-size: 13px; }
+
+    @media (max-width: 600px) {
+      html { overflow: hidden; }
+      body {
+        height: 100vh; height: 100dvh; min-height: unset;
+        overflow: hidden; padding: 8px 10px 0;
+        font-size: 13px; max-width: 100%;
+      }
+      h1 { font-size: 13px; margin-bottom: 6px; flex-shrink: 0; }
+      #left-panel, #side-panel { display: none; }
+      #diagram-row { flex-shrink: 0; margin-bottom: 6px; }
+      #diagram { height: clamp(110px, 22vh, 180px); }
+      #proof-display { font-size: 11px; flex-shrink: 0; }
+      #chat { flex: 1; min-height: 0; max-height: none; font-size: 13px; }
+      #input-row { flex-shrink: 0; }
+      #text-input, #fake-input { font-size: 16px; }
+      #yn-bar, #draw-bar, #kb-bar { position: static; flex-shrink: 0; }
+      #kb-bar { padding-bottom: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<h1>Euclid I.13 — If a straight line set up on a straight line make angles, it will make either two right angles or angles equal to two right angles</h1>
+
+<div id="diagram-row">
+<div id="diagram-wrap">
+  <svg id="diagram"
+       viewBox="0 0 800 470"
+       preserveAspectRatio="xMidYMid meet"
+       xmlns="http://www.w3.org/2000/svg">
+    <g id="canvas">
+      <g id="dc-given" class="de">
+  <line x1="110" y1="310" x2="690" y2="310" stroke="#000" stroke-width="2.6"/>
+  <circle cx="200" cy="310" r="5" fill="#000"/>
+  <circle cx="400" cy="310" r="5" fill="#000"/>
+  <circle cx="620" cy="310" r="5" fill="#000"/>
+  <line x1="400" y1="310" x2="305" y2="130" stroke="#000" stroke-width="2.6"/>
+  <circle cx="305" cy="130" r="5" fill="#000"/>
+  <text x="188" y="332" font-family="inherit" font-size="17" fill="#000">C</text>
+  <text x="396" y="332" font-family="inherit" font-size="17" fill="#000">B</text>
+  <text x="624" y="332" font-family="inherit" font-size="17" fill="#000">D</text>
+  <text x="294" y="122" font-family="inherit" font-size="17" fill="#000">A</text>
+  <text x="378" y="346" font-family="inherit" font-size="12" fill="#666">CD</text>
+  <text x="344" y="208" font-family="inherit" font-size="12" fill="#666">AB</text>
+</g>
+
+<g id="dc-angles" class="de">
+  <path d="M375 300 A28 28 0 0 1 363 285" fill="none" stroke="#16a34a" stroke-width="1.6"/>
+  <path d="M426 294 A38 38 0 0 0 377 278" fill="none" stroke="#16a34a" stroke-width="1.6"/>
+  <text x="200" y="154" font-family="inherit" font-size="12" fill="#16a34a">∠CBA and ∠ABD</text>
+</g>
+
+<g id="dc-e" class="de">
+  <line x1="400" y1="310" x2="400" y2="120" stroke="#dc2626" stroke-width="2.8"/>
+  <circle cx="400" cy="120" r="5" fill="#000"/>
+  <text x="408" y="116" font-family="inherit" font-size="17" fill="#000">E</text>
+  <text x="410" y="216" font-family="inherit" font-size="12" fill="#dc2626">BE</text>
+  <path d="M400 310 l0 -18 l18 0" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <path d="M400 310 l0 -18 l-18 0" fill="none" stroke="#dc2626" stroke-width="1.8"/>
+  <text x="94" y="388" font-family="inherit" font-size="12" fill="#dc2626">BE ⟂ CD</text>
+</g>
+
+<g id="dc-rights" class="de">
+  <text x="96" y="112" font-family="inherit" font-size="12" fill="#16a34a">∠CBE and ∠EBD are two right angles</text>
+</g>
+
+<g id="dc-split-left" class="de">
+  <path d="M373 302 A30 30 0 0 1 364 289" fill="none" stroke="#0891b2" stroke-width="1.6"/>
+  <path d="M389 275 A36 36 0 0 1 365 250" fill="none" stroke="#0891b2" stroke-width="1.6"/>
+  <text x="86" y="136" font-family="inherit" font-size="12" fill="#0891b2">∠CBE = ∠CBA + ∠ABE</text>
+</g>
+
+<g id="dc-sum-left" class="de">
+  <text x="84" y="156" font-family="inherit" font-size="12" fill="#0891b2">∠CBE + ∠EBD = ∠CBA + ∠ABE + ∠EBD</text>
+</g>
+
+<g id="dc-split-right" class="de">
+  <path d="M430 296 A42 42 0 0 0 389 248" fill="none" stroke="#0891b2" stroke-width="1.6"/>
+  <path d="M408 274 A26 26 0 0 0 380 253" fill="none" stroke="#0891b2" stroke-width="1.6"/>
+  <text x="82" y="178" font-family="inherit" font-size="12" fill="#0891b2">∠DBA = ∠DBE + ∠EBA</text>
+</g>
+
+<g id="dc-sum-right" class="de">
+  <text x="82" y="198" font-family="inherit" font-size="12" fill="#0891b2">∠DBA + ∠ABC = ∠DBE + ∠EBA + ∠ABC</text>
+</g>
+
+<g id="dc-same-three" class="de">
+  <text x="80" y="220" font-family="inherit" font-size="12" fill="#16a34a">Both are equal to the same three angles</text>
+</g>
+
+<g id="dc-result" class="de">
+  <text x="448" y="122" font-family="inherit" font-size="13" fill="#16a34a">∠DBA + ∠ABC = two right angles</text>
+</g>
+    </g>
+  </svg>
+  <div id="rc-l" class="resize-corner"></div>
+  <div id="rc-r" class="resize-corner"></div>
+  <div id="diagram-controls">
+    <button onclick="zoomCenter(1.5)">+</button>
+    <button onclick="zoomCenter(1/1.5)">−</button>
+    <button onclick="resetView()">&#x2302;</button>
+  </div>
+</div>
+<div id="side-panel"></div>
+<div id="left-panel"></div>
+</div>
+
+<div id="proof-display"></div>
+<div id="chat"></div>
+
+<div id="input-row">
+  <div id="fake-input"><span id="fake-placeholder">Your answer…</span><span id="fake-cursor"></span></div>
+  <input id="text-input" type="text" placeholder="Your answer…" autocomplete="off" inputmode="none">
+  <button id="send-btn">→</button>
+</div>
+
+<p style="margin-top:10px;">
+  <a id="dashboard-btn" href="/welcome" style="display:none;color:#7c3aed;text-decoration:underline;">Back to dashboard →</a>
+</p>
+
+<div id="yn-bar">
+  <button id="btn-no">NO</button>
+  <button id="btn-yes">YES</button>
+</div>
+
+<div id="draw-bar">
+  <button id="btn-draw">Yes / Draw</button>
+</div>
+
+<div id="kb-bar">
+  <div id="kb-alpha">
+    <div class="kb-row">
+      <button class="kb-key" onclick="kbTap('q')">Q</button><button class="kb-key" onclick="kbTap('w')">W</button><button class="kb-key" onclick="kbTap('e')">E</button><button class="kb-key" onclick="kbTap('r')">R</button><button class="kb-key" onclick="kbTap('t')">T</button><button class="kb-key" onclick="kbTap('y')">Y</button><button class="kb-key" onclick="kbTap('u')">U</button><button class="kb-key" onclick="kbTap('i')">I</button><button class="kb-key" onclick="kbTap('o')">O</button><button class="kb-key" onclick="kbTap('p')">P</button>
+    </div>
+    <div class="kb-row">
+      <button class="kb-key" onclick="kbTap('a')">A</button><button class="kb-key" onclick="kbTap('s')">S</button><button class="kb-key" onclick="kbTap('d')">D</button><button class="kb-key" onclick="kbTap('f')">F</button><button class="kb-key" onclick="kbTap('g')">G</button><button class="kb-key" onclick="kbTap('h')">H</button><button class="kb-key" onclick="kbTap('j')">J</button><button class="kb-key" onclick="kbTap('k')">K</button><button class="kb-key" onclick="kbTap('l')">L</button>
+    </div>
+    <div class="kb-row">
+      <button class="kb-key kb-wide" onclick="kbToggleNum()">123</button><button class="kb-key" onclick="kbTap('z')">Z</button><button class="kb-key" onclick="kbTap('x')">X</button><button class="kb-key" onclick="kbTap('c')">C</button><button class="kb-key" onclick="kbTap('v')">V</button><button class="kb-key" onclick="kbTap('b')">B</button><button class="kb-key" onclick="kbTap('n')">N</button><button class="kb-key" onclick="kbTap('m')">M</button><button class="kb-key kb-wide" onclick="kbBack()">⌫</button>
+    </div>
+    <div class="kb-row">
+      <button class="kb-key" onclick="kbTap('.')">.</button>
+      <button class="kb-key kb-space" onclick="kbTap(' ')">space</button>
+      <button class="kb-key kb-enter" onclick="kbEnter()">Enter</button>
+    </div>
+  </div>
+  <div id="kb-num" style="display:none">
+    <div class="kb-row">
+      <button class="kb-key" onclick="kbTap('1')">1</button><button class="kb-key" onclick="kbTap('2')">2</button><button class="kb-key" onclick="kbTap('3')">3</button>
+    </div>
+    <div class="kb-row">
+      <button class="kb-key" onclick="kbTap('4')">4</button><button class="kb-key" onclick="kbTap('5')">5</button><button class="kb-key" onclick="kbTap('6')">6</button>
+    </div>
+    <div class="kb-row">
+      <button class="kb-key" onclick="kbTap('7')">7</button><button class="kb-key" onclick="kbTap('8')">8</button><button class="kb-key" onclick="kbTap('9')">9</button>
+    </div>
+    <div class="kb-row">
+      <button class="kb-key kb-wide" onclick="kbToggleNum()">ABC</button><button class="kb-key" onclick="kbTap('.')">.</button><button class="kb-key" onclick="kbTap('0')">0</button><button class="kb-key kb-wide" onclick="kbBack()">⌫</button>
+    </div>
+    <div class="kb-row">
+      <button class="kb-key kb-enter" onclick="kbEnter()">Enter</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// Data — injected by generate_prop.py at build time
+// step types: yn / open / draw / say
+// open steps advance on any non-empty answer
+// ─────────────────────────────────────────────────────────────────────────────
+
+const STEPS    = [{"type": "yn", "q": "Let AB be a straight line set up on the straight line CD, making the adjacent angles CBA and ABD. Do you see that setup in the figure?", "no": "CD is the horizontal straight line through B, and AB is the slanting line rising from B to A. Those form the adjacent angles CBA and ABD.", "text": "Let any straight line AB set up on the straight line CD make the angles CBA, ABD.", "just": null, "side": "Given: AB set up on CD", "reveal": ["dc-angles"], "criteria": null, "hint": null, "hint_linked_idx": null, "display_linked_idx": null}, {"type": "yn", "q": "And Euclid's claim is that these two angles are either two right angles or equal to two right angles. Does that make sense as the goal?", "no": "Yes. We want to show that the two adjacent angles together make a straight angle, that is, two right angles.", "text": "I say that the angles CBA, ABD are either two right angles or equal to two right angles.", "just": null, "side": "Goal: the two angles make two right angles", "reveal": [], "criteria": null, "hint": null, "hint_linked_idx": null, "display_linked_idx": null}, {"type": "open", "q": "If the angle CBA is equal to the angle ABD, what follows at once?", "criteria": "Then they are two right angles.", "hint": "Definition 10 says that when a line standing on another makes the adjacent angles equal, each is a right angle.", "hint_linked_idx": null, "display_linked_idx": null, "text": "Now, if the angle CBA is equal to the angle ABD, they are two right angles.", "just": "Def. 10", "side": "If equal, both are right", "reveal": [], "ok_regex": "two right|right angles?|both right|each right", "ok_targets": ["two right", "right", "both", "each"], "no": null}, {"type": "draw", "q": "But if not, let BE be drawn from B at right angles to CD. Shall we draw that perpendicular?", "no": null, "criteria": null, "hint": null, "hint_linked_idx": null, "display_linked_idx": null, "text": "But, if not, let BE be drawn from the point B at right angles to CD.", "just": "I.11", "side": "Draw BE perpendicular to CD", "reveal": ["dc-e"]}, {"type": "yn", "q": "Since BE is at right angles to CD, are the angles CBE and EBD two right angles?", "no": "Yes. BE makes a right angle with BC and also with BD, so the two adjacent angles CBE and EBD are two right angles.", "text": "Therefore the angles CBE, EBD are two right angles.", "just": "Def. 10", "side": "∠CBE and ∠EBD are two right angles", "reveal": ["dc-rights"], "criteria": null, "hint": null, "hint_linked_idx": null, "display_linked_idx": null}, {"type": "open", "q": "Why is the angle CBE equal to the two angles CBA and ABE together?", "criteria": "Because BA lies within angle CBE, so angle CBE is split into the two adjacent angles CBA and ABE.", "hint": "The ray BA sits inside the right angle from BC to BE, dividing it into two smaller adjacent angles.", "hint_linked_idx": null, "display_linked_idx": null, "text": "Then, since the angle CBE is equal to the two angles CBA, ABE,", "just": null, "side": "∠CBE = ∠CBA + ∠ABE", "reveal": ["dc-split-left"], "ok_regex": "cbe.*cba.*abe|cba.*abe.*cbe|split|divid|inside|adjacent|^\\s*add\\s*$|^\\s*together\\s*$|^\\s*both\\s*$", "ok_targets": ["CBE", "CBA", "ABE", "split", "divide", "inside", "adjacent", "add", "together", "both"], "no": null}, {"type": "open", "q": "If the angle EBD is added to each side of that equality, what follows?", "criteria": "The angles CBE and EBD together are equal to the three angles CBA, ABE, and EBD.", "hint": "Use Common Notion 2: if equals are added to equals, the wholes are equal.", "hint_linked_idx": 5, "display_linked_idx": null, "text": "Let the angle EBD be added to each; therefore the angles CBE, EBD are equal to the three angles CBA, ABE, EBD.", "just": "C.N. 2", "side": "Add ∠EBD to both", "reveal": ["dc-sum-left"], "ok_regex": "cbe.*ebd.*cba.*abe.*ebd|three angles|add|equal.*same", "ok_targets": ["CBE", "EBD", "CBA", "ABE", "three", "add", "equal"], "no": null}, {"type": "open", "q": "And why is the angle DBA equal to the two angles DBE and EBA together?", "criteria": "Because BE lies within angle DBA, splitting it into the adjacent angles DBE and EBA.", "hint": "The ray BE stands inside the larger angle from BD to BA.", "hint_linked_idx": null, "display_linked_idx": null, "text": "Again, since the angle DBA is equal to the two angles DBE, EBA,", "just": null, "side": "∠DBA = ∠DBE + ∠EBA", "reveal": ["dc-split-right"], "ok_regex": "dba.*dbe.*eba|dbe.*eba.*dba|split|divid|inside|adjacent|^\\s*add\\s*$|^\\s*together\\s*$|^\\s*both\\s*$", "ok_targets": ["DBA", "DBE", "EBA", "split", "divide", "inside", "adjacent", "add", "together", "both"], "no": null}, {"type": "open", "q": "If the angle ABC is added to each side of that equality, what follows?", "criteria": "The angles DBA and ABC together are equal to the three angles DBE, EBA, and ABC.", "hint": "Again use Common Notion 2: adding the same angle to equals gives equal wholes.", "hint_linked_idx": 7, "display_linked_idx": null, "text": "Let the angle ABC be added to each; therefore the angles DBA, ABC are equal to the three angles DBE, EBA, ABC.", "just": "C.N. 2", "side": "Add ∠ABC to both", "reveal": ["dc-sum-right"], "ok_regex": "dba.*abc.*dbe.*eba.*abc|three angles|add|equal.*same", "ok_targets": ["DBA", "ABC", "DBE", "EBA", "three", "add", "equal"], "no": null}, {"type": "open", "q": "Since the angles CBE and EBD were also proved equal to the same three angles, what can we conclude?", "criteria": "The angles CBE and EBD are equal to the angles DBA and ABC.", "hint": "Things equal to the same thing are equal to one another.", "hint_linked_idx": 8, "display_linked_idx": null, "text": "But the angles CBE, EBD were also proved equal to the same three angles; and things which are equal to the same thing are equal to one another; therefore the angles CBE, EBD are also equal to the angles DBA, ABC.", "just": "C.N. 1", "side": "Both equal the same thing", "reveal": ["dc-same-three"], "ok_regex": "cbe.*ebd.*dba.*abc|same thing|equal to one another|cn\\.? ?1", "ok_targets": ["CBE", "EBD", "DBA", "ABC", "same", "equal", "C.N. 1"], "no": null}, {"type": "open", "q": "But the angles CBE and EBD are two right angles. Therefore what follows about the angles DBA and ABC?", "criteria": "The angles DBA and ABC are also equal to two right angles.", "hint": "Replace CBE and EBD by their equal pair DBA and ABC.", "hint_linked_idx": 9, "display_linked_idx": null, "text": "But the angles CBE, EBD are two right angles; therefore the angles DBA, ABC are also equal to two right angles.", "just": null, "side": "∠DBA + ∠ABC = two right angles", "reveal": ["dc-result"], "ok_regex": "dba.*abc.*two right|two right.*dba.*abc|right angles?", "ok_targets": ["DBA", "ABC", "two right", "right"], "no": null}, {"type": "open", "q": "Q.E.D. or Q.E.F.?", "criteria": "Q.E.D., because this proposition proves a theorem rather than constructing a figure.", "hint": "Nothing new was constructed as the final objective; the proposition establishes a truth.", "hint_linked_idx": null, "display_linked_idx": null, "text": "Therefore etc. Q.E.D.", "just": "Q.E.D.", "side": "Q.E.D.", "reveal": [], "ok_regex": "q\\.?e\\.?d\\.?|qed|demonstrandum|theorem|proved", "ok_targets": ["QED", "demonstrandum", "theorem", "proved"], "no": null}];
+const PROP_NUM = 13;
+const CONCLUSION = "Congratulations! You have completed Euclid's Elements Book I, Proposition 13.";
+
+// ─── Fuzzy matching helpers ───────────────────────────────────────────────────
+function lev(a,b){
+  const m=a.length,n=b.length;
+  if(!m)return n; if(!n)return m;
+  const dp=Array.from({length:m+1},(_,i)=>[i]);
+  for(let j=1;j<=n;j++) dp[0][j]=j;
+  for(let i=1;i<=m;i++) for(let j=1;j<=n;j++)
+    dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j-1],dp[i-1][j],dp[i][j-1]);
+  return dp[m][n];
+}
+function hasNear(response, targets){
+  const words=response.toLowerCase().split(/[\s,.;!?]+/).filter(w=>w.length>=3);
+  return words.some(w=>targets.some(t=>{
+    const d=t.length<=7?1:2; return lev(w,t)<=d;
+  }));
+}
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ─────────────────────────────────────────────────────────────────────────────
+// State
+// ─────────────────────────────────────────────────────────────────────────────
+
+let step     = 0;
+let attempts = 0;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Pan / Zoom
+// ─────────────────────────────────────────────────────────────────────────────
+
+const diagramEl = document.getElementById('diagram');
+const canvas    = document.getElementById('canvas');
+let pan = { tx:0, ty:0, s:1 };
+const MIN_S=0.12, MAX_S=12;
+
+function clientToVB(cx,cy){
+  const r=diagramEl.getBoundingClientRect(), v=diagramEl.viewBox.baseVal;
+  return { x:(cx-r.left)/r.width*v.width+v.x, y:(cy-r.top)/r.height*v.height+v.y };
+}
+function applyTransform(){ canvas.setAttribute('transform',`translate(${pan.tx},${pan.ty}) scale(${pan.s})`); }
+function zoomAt(px,py,f){
+  const ns=Math.max(MIN_S,Math.min(MAX_S,pan.s*f)), r=ns/pan.s;
+  pan.tx=px-(px-pan.tx)*r; pan.ty=py-(py-pan.ty)*r; pan.s=ns; applyTransform();
+}
+function zoomCenter(f){ const v=diagramEl.viewBox.baseVal; zoomAt(v.x+v.width/2,v.y+v.height/2,f); }
+function animatePan(t,ms=420){
+  const from={...pan}, t0=performance.now();
+  (function tick(now){
+    let p=Math.min((now-t0)/ms,1); p=p<.5?2*p*p:-1+(4-2*p)*p;
+    pan.tx=from.tx+(t.tx-from.tx)*p; pan.ty=from.ty+(t.ty-from.ty)*p; pan.s=from.s+(t.s-from.s)*p;
+    applyTransform(); if(p<1) requestAnimationFrame(tick); else pan={...t};
+  })(performance.now());
+}
+function resetView(){ animatePan({tx:0,ty:0,s:1}); }
+
+diagramEl.addEventListener('wheel',e=>{
+  e.preventDefault(); const p=clientToVB(e.clientX,e.clientY);
+  zoomAt(p.x,p.y,e.deltaY<0?1.12:1/1.12);
+},{passive:false});
+
+let dragging=false, lastPt=null;
+diagramEl.addEventListener('mousedown',e=>{
+  if(e.button!==0) return; dragging=true; lastPt=clientToVB(e.clientX,e.clientY);
+  diagramEl.classList.add('panning'); e.preventDefault();
+});
+window.addEventListener('mousemove',e=>{
+  if(!dragging) return;
+  const pt=clientToVB(e.clientX,e.clientY);
+  pan.tx+=pt.x-lastPt.x; pan.ty+=pt.y-lastPt.y; lastPt=pt; applyTransform();
+});
+window.addEventListener('mouseup',()=>{ dragging=false; diagramEl.classList.remove('panning'); });
+
+let lastTouches=[];
+diagramEl.addEventListener('touchstart',e=>{ lastTouches=Array.from(e.touches); e.preventDefault(); },{passive:false});
+diagramEl.addEventListener('touchmove',e=>{
+  e.preventDefault(); const ts=Array.from(e.touches);
+  if(ts.length===1&&lastTouches.length>=1){
+    const c=clientToVB(ts[0].clientX,ts[0].clientY), p=clientToVB(lastTouches[0].clientX,lastTouches[0].clientY);
+    pan.tx+=c.x-p.x; pan.ty+=c.y-p.y; applyTransform();
+  } else if(ts.length===2&&lastTouches.length>=2){
+    const d1=Math.hypot(ts[1].clientX-ts[0].clientX,ts[1].clientY-ts[0].clientY);
+    const d2=Math.hypot(lastTouches[1].clientX-lastTouches[0].clientX,lastTouches[1].clientY-lastTouches[0].clientY);
+    if(d2>0){ const p=clientToVB((ts[0].clientX+ts[1].clientX)/2,(ts[0].clientY+ts[1].clientY)/2); zoomAt(p.x,p.y,d1/d2); }
+  }
+  lastTouches=ts;
+},{passive:false});
+diagramEl.addEventListener('touchend',e=>{ lastTouches=Array.from(e.touches); },{passive:false});
+
+let resizing=false, rSide=null, rStartY=0, rStartH=0, rStartX=0, rStartW=0, rStartML=0;
+const rowEl=document.getElementById('diagram-row');
+function startResize(side,cx,cy){
+  resizing=true; rSide=side; rStartY=cy; rStartX=cx;
+  const r=diagramEl.getBoundingClientRect(); rStartH=r.height; rStartW=r.width;
+  rStartML=parseFloat(rowEl.style.marginLeft)||0;
+}
+['rc-l','rc-r'].forEach(id=>{
+  const side=id.endsWith('-l')?'l':'r';
+  document.getElementById(id).addEventListener('mousedown',e=>{ startResize(side,e.clientX,e.clientY); e.preventDefault(); });
+  document.getElementById(id).addEventListener('touchstart',e=>{ startResize(side,e.touches[0].clientX,e.touches[0].clientY); e.preventDefault(); },{passive:false});
+});
+window.addEventListener('mousemove',e=>{ if(resizing) applyResize(e.clientX,e.clientY); });
+window.addEventListener('touchmove',e=>{ if(resizing) applyResize(e.touches[0].clientX,e.touches[0].clientY); },{passive:false});
+window.addEventListener('mouseup',()=>{ resizing=false; });
+window.addEventListener('touchend',()=>{ resizing=false; });
+function applyResize(cx,cy){
+  const h=Math.max(80,Math.min(600,rStartH+cy-rStartY)); diagramEl.style.height=h+'px';
+  const dx=cx-rStartX, dw=rSide==='r'?dx:-dx;
+  const w=Math.max(200,Math.min(window.innerWidth-40,rStartW+dw));
+  rowEl.style.width=w+'px'; if(rSide==='l') rowEl.style.marginLeft=(rStartML-(w-rStartW))+'px';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Side & Left panels — built from STEPS data
+// ─────────────────────────────────────────────────────────────────────────────
+
+function buildPanels(){
+  const side = document.getElementById('side-panel');
+  const left = document.getElementById('left-panel');
+
+  left.innerHTML = `<div class="prop-label">I.13</div>
+    <div class="prop-enunc">If a straight line set up on a straight line make angles, it will make either two right angles or angles equal to two right angles.</div>`;
+
+  STEPS.forEach((s,i)=>{
+    if(s.side){
+      const el=document.createElement('div');
+      el.id=`si-${i}`; el.className='side-item';
+      el.textContent=s.side; side.appendChild(el);
+    }
+    if(s.text){
+      const el=document.createElement('div');
+      el.id=`pl-${i}`; el.className='proof-line';
+      el.appendChild(document.createTextNode(s.text));
+      if(s.just){ const sp=document.createElement('span'); sp.className='just'; sp.textContent=s.just; el.appendChild(sp); }
+      left.appendChild(el);
+    }
+  });
+}
+
+function getDisplayStep(){
+  const s=STEPS[step];
+  if(s && s.display_linked_idx != null) return s.display_linked_idx;
+  for(let i=step; i>=0; i--){ if(STEPS[i] && STEPS[i].text) return i; }
+  return -1;
+}
+
+function setProofDisplay(idx){
+  const pd=document.getElementById('proof-display');
+  if(!pd) return;
+  if(idx<0){ pd.classList.remove('visible'); return; }
+  const s=STEPS[idx];
+  if(s && s.text){
+    pd.innerHTML=s.text+(s.just?`<span class="proof-just">${s.just}</span>`:'');
+    pd.classList.add('visible');
+  } else {
+    pd.classList.remove('visible');
+  }
+}
+
+function updatePanels(){
+  const ds=getDisplayStep();
+  STEPS.forEach((s,i)=>{
+    const pl=document.getElementById(`pl-${i}`);
+    if(pl){ pl.classList.toggle('active',i===ds); pl.classList.toggle('past',i<ds); }
+  });
+  setProofDisplay(ds);
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Diagram reveal
+// ─────────────────────────────────────────────────────────────────────────────
+
+function show(id){ const el=document.getElementById(id); if(el) el.classList.add('on'); }
+
+function revealStep(s){
+  if(s.reveal) s.reveal.forEach(id=>show(id));
+  if(s.side){ const el=document.getElementById(`si-${step}`); if(el) el.classList.add('on'); }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Chat
+// ─────────────────────────────────────────────────────────────────────────────
+
+const chatEl    = document.getElementById('chat');
+const textInput = document.getElementById('text-input');
+const sendBtn   = document.getElementById('send-btn');
+const ynBar     = document.getElementById('yn-bar');
+const drawBar   = document.getElementById('draw-bar');
+const inputRow  = document.getElementById('input-row');
+const kbBar     = document.getElementById('kb-bar');
+const fakeInputEl   = document.getElementById('fake-input');
+const fakePlaceholder = document.getElementById('fake-placeholder');
+
+const isMobile = () => navigator.maxTouchPoints > 0;
+const isFilePreview = window.location.protocol === 'file:';
+
+function addMsg(text, who){
+  const d=document.createElement('div');
+  d.className = who==='user' ? 'msg-user' : 'msg-bot';
+  d.textContent=text; chatEl.appendChild(d);
+  chatEl.scrollTop=chatEl.scrollHeight;
+  if(who==='bot') logEvent('bot', text);
+  return d;
+}
+
+function logEvent(role, message){
+  if(isFilePreview) return;
+  fetch('/api/event',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({proposition:PROP_NUM,step,role,message})});
+}
+
+function updateFake(){
+  const v=textInput.value;
+  if(v){ fakePlaceholder.textContent=v; fakePlaceholder.style.color=''; }
+  else { fakePlaceholder.textContent='Your answer…'; fakePlaceholder.style.color='#999'; }
+}
+
+function setMode(type){
+  if(type==='done'){
+    ynBar.style.display='none'; drawBar.style.display='none'; kbBar.style.display='none';
+    inputRow.style.display='none'; document.getElementById('dashboard-btn').style.display=''; return;
+  }
+  ynBar.style.display   = type==='yn'   ? 'flex' : 'none';
+  drawBar.style.display = type==='draw' ? 'flex' : 'none';
+  kbBar.style.display   = (type==='open' && isMobile()) ? 'flex' : 'none';
+  if(type==='open' && isMobile()){
+    document.getElementById('kb-alpha').style.display='';
+    document.getElementById('kb-num').style.display='none';
+    setTimeout(()=>{ chatEl.scrollTop=chatEl.scrollHeight; }, 80);
+    fakeInputEl.style.display='flex'; textInput.style.display='none'; updateFake();
+  } else {
+    fakeInputEl.style.display='none'; textInput.style.display='';
+  }
+  inputRow.style.display = type==='draw' ? 'none' : 'flex';
+  sendBtn.disabled = type==='draw'; textInput.disabled = type==='draw';
+  if(type==='open' && !isMobile()) textInput.focus();
+}
+
+function kbTap(ch){ textInput.value+=ch; updateFake(); }
+function kbBack(){ textInput.value=textInput.value.slice(0,-1); updateFake(); }
+function kbEnter(){ submit(textInput.value); }
+function kbToggleNum(){
+  const a=document.getElementById('kb-alpha'), n=document.getElementById('kb-num');
+  const toNum=a.style.display!=='none';
+  a.style.display=toNum?'none':''; n.style.display=toNum?'':'none';
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Flow
+// ─────────────────────────────────────────────────────────────────────────────
+
+function advance(){ attempts=0; step++; showStep(); }
+
+function showStep(){
+  updatePanels();
+  if(step>=STEPS.length){
+    addMsg(CONCLUSION,'bot'); setMode('done');
+    if(isFilePreview){
+      addMsg('✓ Your completion has been recorded.','bot');
+      return;
+    }
+    fetch('/api/complete',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({proposition:PROP_NUM})})
+      .then(r=>{
+        if(r.ok){
+          addMsg('✓ Your completion has been recorded.','bot');
+          const d=document.createElement('div');
+          d.className='msg-bot';
+          d.innerHTML='<a href="/survey?prop='+PROP_NUM+'" style="color:#7c3aed;text-decoration:underline;">Share your experience →</a>';
+          chatEl.appendChild(d); chatEl.scrollTop=chatEl.scrollHeight;
+        }
+      });
+    return;
+  }
+  const s=STEPS[step];
+
+  if(s.type==='say'){
+    revealStep(s); addMsg(s.q,'bot'); setTimeout(advance,700); return;
+  }
+  if(s.type==='draw'){
+    addMsg(s.q,'bot'); setMode('draw'); return;
+  }
+  addMsg(s.q,'bot'); setMode(s.type);
+}
+
+function submit(raw){
+  const answer=raw.trim(); if(!answer) return;
+  textInput.value=''; updateFake();
+  addMsg(answer,'user');
+  logEvent('user',answer);
+  const s=STEPS[step];
+
+  if(s.type==='yn'){
+    if(/^y/i.test(answer)){
+      revealStep(s); advance();
+    } else {
+      addMsg(s.no,'bot');
+      setTimeout(()=>addMsg(s.q,'bot'),600);
+    }
+    return;
+  }
+
+  if(s.type==='open'){
+    const ok = !s.ok_regex
+      || new RegExp(s.ok_regex,'i').test(answer)
+      || (s.ok_targets && hasNear(answer, s.ok_targets));
+    if(!ok){
+      attempts++;
+      if(attempts>=2 && s.hint){ addMsg(s.hint,'bot'); if(s.hint_linked_idx!=null) setProofDisplay(s.hint_linked_idx); }
+      else { addMsg('Not quite — try again.','bot'); }
+      if(attempts>=3){ revealStep(s); setTimeout(advance,800); }
+      return;
+    }
+    revealStep(s); advance();
+  }
+}
+
+sendBtn.addEventListener('click',()=>submit(textInput.value));
+textInput.addEventListener('keydown',e=>{ if(e.key==='Enter') submit(textInput.value); });
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&drawBar.style.display==='flex'&&e.target!==textInput){
+    e.preventDefault(); document.getElementById('btn-draw').click();
+  }
+});
+document.getElementById('btn-yes').addEventListener('click',()=>{
+  addMsg('Yes','user'); logEvent('user','Yes'); const s=STEPS[step]; revealStep(s); advance();
+});
+document.getElementById('btn-no').addEventListener('click',()=>{
+  addMsg('No','user'); logEvent('user','No'); addMsg(STEPS[step].no,'bot');
+  setTimeout(()=>addMsg(STEPS[step].q,'bot'),600);
+});
+document.getElementById('btn-draw').addEventListener('click',()=>{
+  addMsg('Yes / Draw','user'); logEvent('user','[drew]'); const s=STEPS[step]; revealStep(s); advance();
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Init
+// ─────────────────────────────────────────────────────────────────────────────
+
+buildPanels();
+["dc-given"].forEach(id=>show(id));
+showStep();
+</script>
+</body>
+</html>

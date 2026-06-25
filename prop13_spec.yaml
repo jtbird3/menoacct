@@ -1,0 +1,280 @@
+number: 13
+title: Euclid I.13 — If a straight line set up on a straight line make angles, it
+  will make either two right angles or angles equal to two right angles
+enunciation: If a straight line set up on a straight line make angles, it will make
+  either two right angles or angles equal to two right angles.
+conclusion: Congratulations! You have completed Euclid's Elements Book I, Proposition
+  13.
+viewbox: 0 0 800 470
+initial_visible:
+- dc-given
+svg_canvas: "<g id=\"dc-given\" class=\"de\">\n  <line x1=\"110\" y1=\"310\" x2=\"\
+  690\" y2=\"310\" stroke=\"#000\" stroke-width=\"2.6\"/>\n  <circle cx=\"200\" cy=\"\
+  310\" r=\"5\" fill=\"#000\"/>\n  <circle cx=\"400\" cy=\"310\" r=\"5\" fill=\"#000\"\
+  />\n  <circle cx=\"620\" cy=\"310\" r=\"5\" fill=\"#000\"/>\n  <line x1=\"400\"\
+  \ y1=\"310\" x2=\"305\" y2=\"130\" stroke=\"#000\" stroke-width=\"2.6\"/>\n  <circle\
+  \ cx=\"305\" cy=\"130\" r=\"5\" fill=\"#000\"/>\n  <text x=\"188\" y=\"332\" font-family=\"\
+  inherit\" font-size=\"17\" fill=\"#000\">C</text>\n  <text x=\"396\" y=\"332\" font-family=\"\
+  inherit\" font-size=\"17\" fill=\"#000\">B</text>\n  <text x=\"624\" y=\"332\" font-family=\"\
+  inherit\" font-size=\"17\" fill=\"#000\">D</text>\n  <text x=\"294\" y=\"122\" font-family=\"\
+  inherit\" font-size=\"17\" fill=\"#000\">A</text>\n  <text x=\"378\" y=\"346\" font-family=\"\
+  inherit\" font-size=\"12\" fill=\"#666\">CD</text>\n  <text x=\"344\" y=\"208\"\
+  \ font-family=\"inherit\" font-size=\"12\" fill=\"#666\">AB</text>\n</g>\n\n<g id=\"\
+  dc-angles\" class=\"de\">\n  <path d=\"M375 300 A28 28 0 0 1 363 285\" fill=\"none\"\
+  \ stroke=\"#16a34a\" stroke-width=\"1.6\"/>\n  <path d=\"M426 294 A38 38 0 0 0 377\
+  \ 278\" fill=\"none\" stroke=\"#16a34a\" stroke-width=\"1.6\"/>\n  <text x=\"200\"\
+  \ y=\"154\" font-family=\"inherit\" font-size=\"12\" fill=\"#16a34a\">∠CBA and ∠ABD</text>\n\
+  </g>\n\n<g id=\"dc-e\" class=\"de\">\n  <line x1=\"400\" y1=\"310\" x2=\"400\" y2=\"\
+  120\" stroke=\"#dc2626\" stroke-width=\"2.8\"/>\n  <circle cx=\"400\" cy=\"120\"\
+  \ r=\"5\" fill=\"#000\"/>\n  <text x=\"408\" y=\"116\" font-family=\"inherit\" font-size=\"\
+  17\" fill=\"#000\">E</text>\n  <text x=\"410\" y=\"216\" font-family=\"inherit\"\
+  \ font-size=\"12\" fill=\"#dc2626\">BE</text>\n  <path d=\"M400 310 l0 -18 l18 0\"\
+  \ fill=\"none\" stroke=\"#dc2626\" stroke-width=\"1.8\"/>\n  <path d=\"M400 310\
+  \ l0 -18 l-18 0\" fill=\"none\" stroke=\"#dc2626\" stroke-width=\"1.8\"/>\n  <text\
+  \ x=\"94\" y=\"388\" font-family=\"inherit\" font-size=\"12\" fill=\"#dc2626\">BE\
+  \ ⟂ CD</text>\n</g>\n\n<g id=\"dc-rights\" class=\"de\">\n  <text x=\"96\" y=\"\
+  112\" font-family=\"inherit\" font-size=\"12\" fill=\"#16a34a\">∠CBE and ∠EBD are\
+  \ two right angles</text>\n</g>\n\n<g id=\"dc-split-left\" class=\"de\">\n  <path\
+  \ d=\"M373 302 A30 30 0 0 1 364 289\" fill=\"none\" stroke=\"#0891b2\" stroke-width=\"\
+  1.6\"/>\n  <path d=\"M389 275 A36 36 0 0 1 365 250\" fill=\"none\" stroke=\"#0891b2\"\
+  \ stroke-width=\"1.6\"/>\n  <text x=\"86\" y=\"136\" font-family=\"inherit\" font-size=\"\
+  12\" fill=\"#0891b2\">∠CBE = ∠CBA + ∠ABE</text>\n</g>\n\n<g id=\"dc-sum-left\" class=\"\
+  de\">\n  <text x=\"84\" y=\"156\" font-family=\"inherit\" font-size=\"12\" fill=\"\
+  #0891b2\">∠CBE + ∠EBD = ∠CBA + ∠ABE + ∠EBD</text>\n</g>\n\n<g id=\"dc-split-right\"\
+  \ class=\"de\">\n  <path d=\"M430 296 A42 42 0 0 0 389 248\" fill=\"none\" stroke=\"\
+  #0891b2\" stroke-width=\"1.6\"/>\n  <path d=\"M408 274 A26 26 0 0 0 380 253\" fill=\"\
+  none\" stroke=\"#0891b2\" stroke-width=\"1.6\"/>\n  <text x=\"82\" y=\"178\" font-family=\"\
+  inherit\" font-size=\"12\" fill=\"#0891b2\">∠DBA = ∠DBE + ∠EBA</text>\n</g>\n\n\
+  <g id=\"dc-sum-right\" class=\"de\">\n  <text x=\"82\" y=\"198\" font-family=\"\
+  inherit\" font-size=\"12\" fill=\"#0891b2\">∠DBA + ∠ABC = ∠DBE + ∠EBA + ∠ABC</text>\n\
+  </g>\n\n<g id=\"dc-same-three\" class=\"de\">\n  <text x=\"80\" y=\"220\" font-family=\"\
+  inherit\" font-size=\"12\" fill=\"#16a34a\">Both are equal to the same three angles</text>\n\
+  </g>\n\n<g id=\"dc-result\" class=\"de\">\n  <text x=\"448\" y=\"122\" font-family=\"\
+  inherit\" font-size=\"13\" fill=\"#16a34a\">∠DBA + ∠ABC = two right angles</text>\n\
+  </g>\n"
+steps:
+- type: yn
+  q: Let AB be a straight line set up on the straight line CD, making the adjacent
+    angles CBA and ABD. Do you see that setup in the figure?
+  false: CD is the horizontal straight line through B, and AB is the slanting line
+    rising from B to A. Those form the adjacent angles CBA and ABD.
+  text: Let any straight line AB set up on the straight line CD make the angles CBA,
+    ABD.
+  just: null
+  side: 'Given: AB set up on CD'
+  reveal:
+  - dc-angles
+  criteria: null
+  hint: null
+  hint_linked_idx: null
+  display_linked_idx: null
+- type: yn
+  q: And Euclid's claim is that these two angles are either two right angles or equal
+    to two right angles. Does that make sense as the goal?
+  false: Yes. We want to show that the two adjacent angles together make a straight
+    angle, that is, two right angles.
+  text: I say that the angles CBA, ABD are either two right angles or equal to two
+    right angles.
+  just: null
+  side: 'Goal: the two angles make two right angles'
+  reveal: []
+  criteria: null
+  hint: null
+  hint_linked_idx: null
+  display_linked_idx: null
+- type: open
+  q: If the angle CBA is equal to the angle ABD, what follows at once?
+  criteria: Then they are two right angles.
+  hint: Definition 10 says that when a line standing on another makes the adjacent
+    angles equal, each is a right angle.
+  hint_linked_idx: null
+  display_linked_idx: null
+  text: Now, if the angle CBA is equal to the angle ABD, they are two right angles.
+  just: Def. 10
+  side: If equal, both are right
+  reveal: []
+  ok_regex: two right|right angles?|both right|each right
+  ok_targets:
+  - two right
+  - right
+  - both
+  - each
+- type: draw
+  q: But if not, let BE be drawn from B at right angles to CD. Shall we draw that
+    perpendicular?
+  false: null
+  criteria: null
+  hint: null
+  hint_linked_idx: null
+  display_linked_idx: null
+  text: But, if not, let BE be drawn from the point B at right angles to CD.
+  just: I.11
+  side: Draw BE perpendicular to CD
+  reveal:
+  - dc-e
+- type: yn
+  q: Since BE is at right angles to CD, are the angles CBE and EBD two right angles?
+  false: Yes. BE makes a right angle with BC and also with BD, so the two adjacent
+    angles CBE and EBD are two right angles.
+  text: Therefore the angles CBE, EBD are two right angles.
+  just: Def. 10
+  side: ∠CBE and ∠EBD are two right angles
+  reveal:
+  - dc-rights
+  criteria: null
+  hint: null
+  hint_linked_idx: null
+  display_linked_idx: null
+- type: open
+  q: Why is the angle CBE equal to the two angles CBA and ABE together?
+  criteria: Because BA lies within angle CBE, so angle CBE is split into the two adjacent
+    angles CBA and ABE.
+  hint: The ray BA sits inside the right angle from BC to BE, dividing it into two
+    smaller adjacent angles.
+  hint_linked_idx: null
+  display_linked_idx: null
+  text: Then, since the angle CBE is equal to the two angles CBA, ABE,
+  just: null
+  side: ∠CBE = ∠CBA + ∠ABE
+  reveal:
+  - dc-split-left
+  ok_regex: cbe.*cba.*abe|cba.*abe.*cbe|split|divid|inside|adjacent|^\s*add\s*$|^\s*together\s*$|^\s*both\s*$
+  ok_targets:
+  - CBE
+  - CBA
+  - ABE
+  - split
+  - divide
+  - inside
+  - adjacent
+  - add
+  - together
+  - both
+- type: open
+  q: If the angle EBD is added to each side of that equality, what follows?
+  criteria: The angles CBE and EBD together are equal to the three angles CBA, ABE,
+    and EBD.
+  hint: 'Use Common Notion 2: if equals are added to equals, the wholes are equal.'
+  hint_linked_idx: 5
+  display_linked_idx: null
+  text: Let the angle EBD be added to each; therefore the angles CBE, EBD are equal
+    to the three angles CBA, ABE, EBD.
+  just: C.N. 2
+  side: Add ∠EBD to both
+  reveal:
+  - dc-sum-left
+  ok_regex: cbe.*ebd.*cba.*abe.*ebd|three angles|add|equal.*same
+  ok_targets:
+  - CBE
+  - EBD
+  - CBA
+  - ABE
+  - three
+  - add
+  - equal
+- type: open
+  q: And why is the angle DBA equal to the two angles DBE and EBA together?
+  criteria: Because BE lies within angle DBA, splitting it into the adjacent angles
+    DBE and EBA.
+  hint: The ray BE stands inside the larger angle from BD to BA.
+  hint_linked_idx: null
+  display_linked_idx: null
+  text: Again, since the angle DBA is equal to the two angles DBE, EBA,
+  just: null
+  side: ∠DBA = ∠DBE + ∠EBA
+  reveal:
+  - dc-split-right
+  ok_regex: dba.*dbe.*eba|dbe.*eba.*dba|split|divid|inside|adjacent|^\s*add\s*$|^\s*together\s*$|^\s*both\s*$
+  ok_targets:
+  - DBA
+  - DBE
+  - EBA
+  - split
+  - divide
+  - inside
+  - adjacent
+  - add
+  - together
+  - both
+- type: open
+  q: If the angle ABC is added to each side of that equality, what follows?
+  criteria: The angles DBA and ABC together are equal to the three angles DBE, EBA,
+    and ABC.
+  hint: 'Again use Common Notion 2: adding the same angle to equals gives equal wholes.'
+  hint_linked_idx: 7
+  display_linked_idx: null
+  text: Let the angle ABC be added to each; therefore the angles DBA, ABC are equal
+    to the three angles DBE, EBA, ABC.
+  just: C.N. 2
+  side: Add ∠ABC to both
+  reveal:
+  - dc-sum-right
+  ok_regex: dba.*abc.*dbe.*eba.*abc|three angles|add|equal.*same
+  ok_targets:
+  - DBA
+  - ABC
+  - DBE
+  - EBA
+  - three
+  - add
+  - equal
+- type: open
+  q: Since the angles CBE and EBD were also proved equal to the same three angles,
+    what can we conclude?
+  criteria: The angles CBE and EBD are equal to the angles DBA and ABC.
+  hint: Things equal to the same thing are equal to one another.
+  hint_linked_idx: 8
+  display_linked_idx: null
+  text: But the angles CBE, EBD were also proved equal to the same three angles; and
+    things which are equal to the same thing are equal to one another; therefore the
+    angles CBE, EBD are also equal to the angles DBA, ABC.
+  just: C.N. 1
+  side: Both equal the same thing
+  reveal:
+  - dc-same-three
+  ok_regex: cbe.*ebd.*dba.*abc|same thing|equal to one another|cn\.? ?1
+  ok_targets:
+  - CBE
+  - EBD
+  - DBA
+  - ABC
+  - same
+  - equal
+  - C.N. 1
+- type: open
+  q: But the angles CBE and EBD are two right angles. Therefore what follows about
+    the angles DBA and ABC?
+  criteria: The angles DBA and ABC are also equal to two right angles.
+  hint: Replace CBE and EBD by their equal pair DBA and ABC.
+  hint_linked_idx: 9
+  display_linked_idx: null
+  text: But the angles CBE, EBD are two right angles; therefore the angles DBA, ABC
+    are also equal to two right angles.
+  just: null
+  side: ∠DBA + ∠ABC = two right angles
+  reveal:
+  - dc-result
+  ok_regex: dba.*abc.*two right|two right.*dba.*abc|right angles?
+  ok_targets:
+  - DBA
+  - ABC
+  - two right
+  - right
+- type: open
+  q: Q.E.D. or Q.E.F.?
+  criteria: Q.E.D., because this proposition proves a theorem rather than constructing
+    a figure.
+  hint: Nothing new was constructed as the final objective; the proposition establishes
+    a truth.
+  hint_linked_idx: null
+  display_linked_idx: null
+  text: Therefore etc. Q.E.D.
+  just: Q.E.D.
+  side: Q.E.D.
+  reveal: []
+  ok_regex: q\.?e\.?d\.?|qed|demonstrandum|theorem|proved
+  ok_targets:
+  - QED
+  - demonstrandum
+  - theorem
+  - proved
