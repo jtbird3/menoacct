@@ -122,6 +122,7 @@ VACATION_DAY_OVERRIDES = {
     'LuluT33': 0,
     'menomama': 0,
     'raidersfootball': 0,
+    'bcbirdsong': 0,
 }
 
 def challenge_status(user, props_completed_count: int) -> dict:
