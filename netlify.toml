@@ -281,6 +281,18 @@ force = true
 [redirects.headers]
 
 [[redirects]]
+from = "/i14"
+to = "https://menoacct-production.up.railway.app/i14"
+status = 200.0
+force = true
+
+[redirects.query]
+
+[redirects.conditions]
+
+[redirects.headers]
+
+[[redirects]]
 from = "/survey"
 to = "https://menoacct-production.up.railway.app/survey"
 status = 200.0
