@@ -1,0 +1,219 @@
+number: 18
+title: Euclid I.18 — In any triangle the greater side subtends the greater angle
+enunciation: In any triangle the greater side subtends the greater angle.
+conclusion: Congratulations! You have completed Euclid's Elements Book I, Proposition 18.
+viewbox: 0 0 800 500
+initial_visible:
+  - dc-given
+svg_canvas: |
+  <g id="dc-given" class="de">
+    <line x1="190" y1="380" x2="330" y2="120" stroke="#000" stroke-width="3"/>
+    <line x1="190" y1="380" x2="610" y2="380" stroke="#000" stroke-width="3"/>
+    <line x1="330" y1="120" x2="610" y2="380" stroke="#000" stroke-width="3"/>
+    <circle cx="190" cy="380" r="6" fill="#000"/>
+    <circle cx="330" cy="120" r="6" fill="#000"/>
+    <circle cx="610" cy="380" r="6" fill="#000"/>
+    <text x="176" y="406" font-family="inherit" font-size="18" fill="#000">A</text>
+    <text x="322" y="108" font-family="inherit" font-size="18" fill="#000">B</text>
+    <text x="616" y="388" font-family="inherit" font-size="18" fill="#000">C</text>
+    <text x="92" y="96" font-family="inherit" font-size="12" fill="#666">AC &gt; AB</text>
+  </g>
+
+  <g id="dc-ad" class="de">
+    <circle cx="485" cy="380" r="6" fill="#000"/>
+    <text x="492" y="388" font-family="inherit" font-size="18" fill="#000">D</text>
+    <text x="382" y="362" font-family="inherit" font-size="12" fill="#dc2626">AD = AB</text>
+  </g>
+
+  <g id="dc-bd" class="de">
+    <line x1="330" y1="120" x2="485" y2="380" stroke="#dc2626" stroke-width="2.8"/>
+    <text x="396" y="258" font-family="inherit" font-size="12" fill="#dc2626">BD</text>
+  </g>
+
+  <g id="dc-i16" class="de">
+    <text x="440" y="122" font-family="inherit" font-size="12" fill="#16a34a">∠ADB &gt; ∠DCB</text>
+  </g>
+
+  <g id="dc-acb" class="de">
+    <text x="440" y="144" font-family="inherit" font-size="12" fill="#16a34a">∠DCB = ∠ACB</text>
+  </g>
+
+  <g id="dc-iso" class="de">
+    <text x="438" y="166" font-family="inherit" font-size="12" fill="#16a34a">∠ADB = ∠ABD</text>
+  </g>
+
+  <g id="dc-transfer" class="de">
+    <text x="430" y="188" font-family="inherit" font-size="12" fill="#16a34a">∠ABD &gt; ∠ACB</text>
+  </g>
+
+  <g id="dc-final" class="de">
+    <text x="410" y="210" font-family="inherit" font-size="12" fill="#16a34a">∠ABC &gt; ∠ACB</text>
+  </g>
+steps:
+  - type: yn
+    q: Let ABC be a triangle with side AC greater than side AB. Do you see that setup in the figure?
+    false: AC is the longer side from A to C, and AB is the shorter side from A to B.
+    text: Let ABC be a triangle having the side AC greater than AB.
+    just: null
+    side: 'Given: AC > AB'
+    reveal: []
+    criteria: null
+    hint: null
+    hint_linked_idx: null
+    display_linked_idx: null
+  - type: yn
+    q: And the goal is to prove that angle ABC is greater than angle BCA. Does that make sense as the claim?
+    false: Yes. Euclid wants to show that the greater side faces the greater angle.
+    text: I say that the angle ABC is also greater than the angle BCA.
+    just: null
+    side: 'Goal: ∠ABC > ∠BCA'
+    reveal: []
+    criteria: null
+    hint: null
+    hint_linked_idx: null
+    display_linked_idx: null
+  - type: open
+    q: Since AC is greater than AB, what can we mark off on AC?
+    criteria: We can choose a point D on AC so that AD is equal to AB.
+    hint: Proposition 3 lets us cut off from the greater line a segment equal to the smaller one.
+    hint_linked_idx: null
+    display_linked_idx: null
+    text: For, since AC is greater than AB, let AD be made equal to AB.
+    just: I. 3
+    side: Mark off AD = AB
+    reveal: []
+    ok_regex: ad.*ab|ab.*ad|equal|same|mark.*d|cut.*off
+    ok_targets:
+      - AD
+      - AB
+      - equal
+      - same
+      - D
+  - type: draw
+    q: Shall we place point D on AC so that AD equals AB?
+    false: null
+    criteria: null
+    hint: null
+    hint_linked_idx: null
+    display_linked_idx: null
+    text: Let AD be made equal to AB.
+    just: I. 3
+    side: Place D on AC
+    reveal:
+      - dc-ad
+  - type: draw
+    q: Now let BD be joined. Shall we draw that straight line?
+    false: null
+    criteria: null
+    hint: null
+    hint_linked_idx: null
+    display_linked_idx: null
+    text: And let BD be joined.
+    just: Post. 1
+    side: Join B to D
+    reveal:
+      - dc-bd
+  - type: open
+    q: Since angle ADB is an exterior angle of triangle BCD, what does Proposition 16 tell us?
+    criteria: The exterior angle ADB is greater than the interior and opposite angle DCB.
+    hint: An exterior angle of a triangle is greater than the interior and opposite angle.
+    hint_linked_idx: null
+    display_linked_idx: null
+    text: Then, since the angle ADB is an exterior angle of the triangle BCD, it is greater than the interior and opposite angle DCB.
+    just: I. 16
+    side: ∠ADB > ∠DCB
+    reveal:
+      - dc-i16
+    ok_regex: adb.*dcb|dcb.*adb|greater|exterior
+    ok_targets:
+      - ADB
+      - DCB
+      - greater
+      - exterior
+  - type: open
+    q: Because D lies on AC, how does angle DCB compare with angle ACB?
+    criteria: They are equal, because DC lies on the same straight line as AC.
+    hint: At C, the rays CD and CA go in the same direction along the same straight line.
+    hint_linked_idx: 5
+    display_linked_idx: null
+    text: But the angle DCB is the same as the angle ACB, since D lies on AC.
+    just: null
+    side: ∠DCB = ∠ACB
+    reveal:
+      - dc-acb
+    ok_regex: equal|same|dcb.*acb|acb.*dcb|dc.*ac|same line|straight line
+    ok_targets:
+      - equal
+      - same
+      - DCB
+      - ACB
+      - line
+  - type: open
+    q: Why is the angle ADB equal to the angle ABD?
+    criteria: Because AB equals AD, so triangle ABD is isosceles and its base angles are equal.
+    hint: In triangle ABD, equal sides AB and AD give equal base angles.
+    hint_linked_idx: null
+    display_linked_idx: null
+    text: But the angle ADB is equal to the angle ABD, since the side AB is equal to AD.
+    just: I. 5
+    side: Isosceles triangle ABD
+    reveal:
+      - dc-iso
+    ok_regex: ab.*ad|ad.*ab|equal sides?|isosceles|base angles?|i\. ?5
+    ok_targets:
+      - AB
+      - AD
+      - equal
+      - isosceles
+      - base
+  - type: open
+    q: Putting those together, what follows about angles ABD and ACB?
+    criteria: Angle ABD is greater than angle ACB.
+    hint: Replace angle ADB by its equal angle ABD in the inequality.
+    hint_linked_idx: 7
+    display_linked_idx: null
+    text: Therefore the angle ABD is also greater than the angle ACB.
+    just: null
+    side: ∠ABD > ∠ACB
+    reveal:
+      - dc-transfer
+    ok_regex: abd.*acb|acb.*abd|greater
+    ok_targets:
+      - ABD
+      - ACB
+      - greater
+  - type: open
+    q: And why is angle ABC greater than angle ABD?
+    criteria: Because BD lies inside angle ABC, so angle ABD is only part of the larger angle ABC.
+    hint: The ray BD splits angle ABC, so the whole angle ABC is larger than one part of it.
+    hint_linked_idx: null
+    display_linked_idx: null
+    text: Since BD lies inside angle ABC, the whole angle ABC is greater than the part angle ABD.
+    just: null
+    side: Whole angle bigger than a part
+    reveal: []
+    ok_regex: part|inside|split|whole|larger|greater|bd.*inside|abc.*abd
+    ok_targets:
+      - part
+      - inside
+      - split
+      - whole
+      - BD
+      - ABC
+      - ABD
+  - type: open
+    q: Since angle ABC is greater than angle ABD, and angle ABD is greater than angle ACB, what is the final conclusion?
+    criteria: Angle ABC is greater than angle ACB.
+    hint: Put the two inequalities together.
+    hint_linked_idx: 8
+    display_linked_idx: null
+    text: Therefore the angle ABC is much greater than the angle ACB.
+    just: null
+    side: ∠ABC > ∠ACB
+    reveal:
+      - dc-final
+    ok_regex: abc.*acb|acb.*abc|greater
+    ok_targets:
+      - ABC
+      - ACB
+      - greater
